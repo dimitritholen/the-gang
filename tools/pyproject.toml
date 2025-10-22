@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code-tools"
+version = "1.0.0"
+description = "Portable code tools CLI for prompts"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Your Team" }]
+license = { text = "Proprietary" }
+dependencies = []
+
+[project.optional-dependencies]
+web = ["requests>=2.31.0"]
+
+[project.scripts]
+code-tools = "code_tools.cli:main"
+code-tools-parallel = "parallel_run:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code_tools*"]
+exclude = []
