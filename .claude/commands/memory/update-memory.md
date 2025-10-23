@@ -6,7 +6,7 @@ description: Incrementally update memory artifacts after codebase changes withou
 
 # Memory Update Command
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 
 Act as a memory management specialist with expertise in incremental analysis, change detection, and artifact preservation.
 

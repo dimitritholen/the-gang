@@ -6,7 +6,7 @@ description: Orchestrate scope validation and feature creep prevention by delega
 
 # Scope Validation Orchestrator
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature slug**: $ARGUMENTS
 
 Act as a scope validation orchestrator responsible for coordinating the scope management workflow and ensuring ruthless MVP prioritization.

@@ -1899,5 +1899,5 @@ Before finalizing memory artifacts:
 ---
 
 **Agent Version**: 1.0.0
-**Last Updated**: 2025-10-23
+**Last Updated**: {Retrieve via `git log -1 --format=%cd --date=short -- .claude/agents/codebase-archeologist.md`}
 **Prompt Engineering Techniques**: CoT, CoVe, Step-Back, "According to..." prompting, Hybrid Interaction, Evidence-Based Analysis

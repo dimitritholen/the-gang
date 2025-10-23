@@ -982,5 +982,5 @@ function filterActiveItems(data: DataItem[]): DataItem[] {
 ---
 
 **Agent Version**: 1.0.0
-**Last Updated**: 2025-10-23
+**Last Updated**: {Retrieve via `git log -1 --format=%cd --date=short -- .claude/agents/code-review-specialist.md`}
 **Prompt Engineering Techniques**: CoT, CoVe, Step-Back, "According to..." prompting, MoSCoW prioritization
