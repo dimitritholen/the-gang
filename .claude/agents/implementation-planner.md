@@ -33,11 +33,14 @@ You are a senior technical project manager and software architect with expertise
 Gather all necessary context using code-tools:
 
 ```bash
-# Retrieve requirements
-code-tools read_file --path .claude/memory/requirements-{feature}.md
+# Get feature directory from task parameters
+FEATURE_ID="{NN}"
+FEATURE_SLUG="{feature-slug}"
 
-# Retrieve tech analysis
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
+# Retrieve feature context
+code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md
+code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md
+code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/tech-analysis-${FEATURE_SLUG}.md
 
 # Understand codebase structure
 code-tools list_dir --path . --depth 3
@@ -513,22 +516,172 @@ Define testing strategy:
 
 ## Output Format
 
+**NEW STRUCTURE**: Write individual XML task files and JSON manifests to feature directory.
+
+### Step 1: Read Feature Context
+
 ```bash
-code-tools create_file --file .claude/memory/implementation-plan-{feature-slug}.md --content @impl-plan.txt
+# Get feature ID and slug from task parameters or root manifest
+FEATURE_ID="{NN}"
+FEATURE_SLUG="{feature-slug}"
+
+# Read requirements and tech analysis
+code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md
+code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/tech-analysis-${FEATURE_SLUG}.md
+code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md
 ```
 
-Structure the implementation plan document with:
+### Step 2: Generate Task List with Dependencies
 
-1. **Executive Summary** (timeline, team needs, approach)
-2. **Implementation Strategy** (chain-of-thought reasoning)
-3. **Work Breakdown Structure** (all tasks by phase)
-4. **Dependency Graph** (Mermaid diagram)
-5. **Critical Path Analysis** (bottlenecks, duration)
-6. **Resource Requirements** (team composition, skills)
-7. **Risk Register** (all identified risks)
-8. **Quality Assurance Plan** (testing strategy)
-9. **Definition of Done** (completion checklist)
-10. **Timeline & Milestones** (dates, deliverables)
+After chain-of-thought analysis, create task list:
+
+```
+Task List (with dependencies):
+1. T01: Database Schema Design (no dependencies)
+   - Complexity: MEDIUM, Priority: HIGH
+   - Estimated: 4 hours
+
+2. T02: API Endpoint Implementation (depends on T01)
+   - Complexity: MEDIUM, Priority: HIGH
+   - Estimated: 6 hours
+
+3. T03: Frontend Components (depends on T02)
+   - Complexity: LOW, Priority: MEDIUM
+   - Estimated: 4 hours
+
+4. T04: Integration Tests (depends on T02, T03)
+   - Complexity: LOW, Priority: HIGH
+   - Estimated: 3 hours
+```
+
+### Step 3: Create Task Manifest
+
+```bash
+# Create task-level manifest
+CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json <<'EOF'
+{
+  "featureId": "{FEATURE_ID}",
+  "featureSlug": "{FEATURE_SLUG}",
+  "created": "{CURRENT_DATE}",
+  "updated": "{CURRENT_DATE}",
+  "tasks": [
+    {
+      "id": "T01",
+      "slug": "database-schema-design",
+      "title": "Database Schema Design",
+      "status": "NOT_STARTED",
+      "dependencies": [],
+      "file": "T01-database-schema-design.xml",
+      "outputFile": "T01-output.md",
+      "created": "{CURRENT_DATE}",
+      "estimatedHours": 4
+    },
+    {
+      "id": "T02",
+      "slug": "api-endpoint-implementation",
+      "title": "API Endpoint Implementation",
+      "status": "NOT_STARTED",
+      "dependencies": ["T01"],
+      "file": "T02-api-endpoint-implementation.xml",
+      "outputFile": "T02-output.md",
+      "created": "{CURRENT_DATE}",
+      "estimatedHours": 6
+    }
+  ],
+  "nextTask": "T01",
+  "completedTasks": []
+}
+EOF
+```
+
+### Step 4: Generate Individual Task XML Files
+
+For each task, create XML file using schema:
+
+```bash
+# Example: T01-database-schema-design.xml
+cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/T01-database-schema-design.xml <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<task id="T01" status="NOT_STARTED">
+  <metadata>
+    <slug>database-schema-design</slug>
+    <title>Database Schema Design</title>
+    <created>{CURRENT_DATE}</created>
+    <priority>HIGH</priority>
+    <complexity>MEDIUM</complexity>
+    <component>Database</component>
+  </metadata>
+
+  <dependencies>
+    <!-- No dependencies for first task -->
+  </dependencies>
+
+  <description>
+    Design and implement the database schema for {feature}.
+    [Detailed description from requirements and reasoning]
+  </description>
+
+  <acceptance_criteria>
+    <criterion testable="true">{Specific criterion from requirements}</criterion>
+    <criterion testable="true">{Another testable criterion}</criterion>
+  </acceptance_criteria>
+
+  <completion_checklist>
+    <item checked="false">Schema designed</item>
+    <item checked="false">Migration created</item>
+    <item checked="false">Tests passing</item>
+  </completion_checklist>
+
+  <effort_estimate>
+    <hours>4</hours>
+    <confidence>HIGH</confidence>
+    <reasoning>
+      Based on complexity analysis and similar past tasks.
+    </reasoning>
+  </effort_estimate>
+
+  <technical_notes>
+    {Implementation guidance, patterns to follow, gotchas to avoid}
+  </technical_notes>
+
+  <risks>
+    <risk severity="MEDIUM">
+      <description>{Potential issue}</description>
+      <mitigation>{How to mitigate}</mitigation>
+    </risk>
+  </risks>
+</task>
+EOF
+
+# Repeat for T02, T03, T04, etc.
+```
+
+### Step 5: Update Root Manifest
+
+```bash
+# Update root manifest: set feature status to IN_PROGRESS and taskCount
+TASK_COUNT=$(jq '.tasks | length' .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json)
+
+jq --arg id "$FEATURE_ID" \
+   --arg count "$TASK_COUNT" \
+   --arg updated "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+   '(.features[] | select(.id == $id) | .status) = "IN_PROGRESS" |
+    (.features[] | select(.id == $id) | .taskCount) = ($count | tonumber) |
+    (.features[] | select(.id == $id) | .updated) = $updated |
+    .updated = $updated' .tasks/manifest.json > .tasks/manifest.json.tmp
+
+mv .tasks/manifest.json.tmp .tasks/manifest.json
+```
+
+### Output Summary
+
+The implementation planner now creates:
+
+1. **Task Manifest**: `.tasks/{NN}-{slug}/manifest.json` - Navigation and tracking
+2. **Task XML Files**: `.tasks/{NN}-{slug}/T01-{slug}.xml` - One per task
+3. **Updated Root Manifest**: `.tasks/manifest.json` - Feature status = IN_PROGRESS
 
 ## Task Breakdown Best Practices
 

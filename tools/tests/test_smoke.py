@@ -84,3 +84,133 @@ def test_parallel_helper(tmp_path):
     out = subprocess.check_output(["code-tools-parallel", "--spec", str(spec)], text=True)
     merged = json.loads(out)
     assert merged["ok"] and len(merged["results"]) == 2
+
+
+def test_slugify_feature():
+    res = run(["code-tools", "slugify_feature", "--name", "User Authentication"])
+    assert res["ok"]
+    assert res["data"]["slug"] == "user-authentication"
+    assert res["data"]["original"] == "User Authentication"
+
+
+def test_slugify_feature_with_id():
+    res = run(["code-tools", "slugify_feature", "--name", "User Auth", "--feature-id", "01"])
+    assert res["ok"]
+    assert res["data"]["slug"] == "user-auth"
+    assert res["data"]["feature_id"] == "01"
+    assert res["data"]["dir"] == ".tasks/01-user-auth"
+
+
+def test_read_task_manifest(tmp_path):
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({
+        "feature": {"id": "01", "name": "Test"},
+        "tasks": [
+            {"id": "T01", "status": "COMPLETED"},
+            {"id": "T02", "status": "IN_PROGRESS"},
+            {"id": "T03", "status": "NOT_STARTED"}
+        ]
+    }))
+    res = run(["code-tools", "read_task_manifest", "--path", str(manifest)])
+    assert res["ok"]
+    assert res["data"]["task_count"] == 3
+    assert res["data"]["completed_count"] == 1
+    assert res["data"]["in_progress_count"] == 1
+
+
+def test_find_next_task(tmp_path):
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({
+        "feature": {"id": "01"},
+        "tasks": [
+            {"id": "T01", "status": "COMPLETED", "dependencies": []},
+            {"id": "T02", "status": "NOT_STARTED", "dependencies": ["T01"]},
+            {"id": "T03", "status": "NOT_STARTED", "dependencies": ["T02"]}
+        ]
+    }))
+    res = run(["code-tools", "find_next_task", "--manifest", str(manifest)])
+    assert res["ok"]
+    assert res["data"]["task_id"] == "T02"
+    assert res["data"]["has_next"] is True
+
+
+def test_find_next_task_none_available(tmp_path):
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({
+        "feature": {"id": "01"},
+        "tasks": [
+            {"id": "T01", "status": "COMPLETED", "dependencies": []},
+            {"id": "T02", "status": "IN_PROGRESS", "dependencies": ["T01"]}
+        ]
+    }))
+    res = run(["code-tools", "find_next_task", "--manifest", str(manifest)])
+    assert res["ok"]
+    assert res["data"]["has_next"] is False
+
+
+def test_list_memory_artifacts(tmp_path):
+    memory = tmp_path / ".claude" / "memory"
+    memory.mkdir(parents=True)
+    (memory / "requirements-user-auth.md").write_text("# Requirements")
+    (memory / "tech-analysis-user-auth.md").write_text("# Tech")
+    (memory / "implementation-plan-user-auth.md").write_text("# Plan")
+    (memory / "other-doc.md").write_text("# Other")
+
+    res = run(["code-tools", "list_memory_artifacts", "--dir", str(memory)])
+    assert res["ok"]
+    assert len(res["data"]["artifacts"]["requirements"]) == 1
+    assert len(res["data"]["artifacts"]["tech_analysis"]) == 1
+    assert len(res["data"]["artifacts"]["implementation_plans"]) == 1
+    assert len(res["data"]["artifacts"]["other"]) == 1
+    assert res["data"]["total"] == 4
+
+
+def test_list_memory_artifacts_with_filter(tmp_path):
+    memory = tmp_path / ".claude" / "memory"
+    memory.mkdir(parents=True)
+    (memory / "requirements-user-auth.md").write_text("# Req1")
+    (memory / "requirements-product-catalog.md").write_text("# Req2")
+
+    res = run(["code-tools", "list_memory_artifacts", "--dir", str(memory), "--feature", "user-auth"])
+    assert res["ok"]
+    assert res["data"]["total"] == 1
+    assert "user-auth" in res["data"]["artifacts"]["requirements"][0]
+
+
+def test_validate_manifest(tmp_path):
+    feature_dir = tmp_path / "01-test"
+    feature_dir.mkdir()
+
+    task_manifest = feature_dir / "manifest.json"
+    task_manifest.write_text(json.dumps({
+        "feature": {"id": "01"},
+        "tasks": [
+            {"id": "T01", "status": "COMPLETED"},
+            {"id": "T02", "status": "IN_PROGRESS"}
+        ]
+    }))
+
+    root_manifest = tmp_path / ".tasks" / "manifest.json"
+    root_manifest.parent.mkdir(parents=True, exist_ok=True)
+    root_manifest.write_text(json.dumps({
+        "features": [
+            {
+                "id": "01",
+                "taskCount": 2,
+                "completedCount": 1,
+                "status": "IN_PROGRESS"
+            }
+        ]
+    }))
+
+    # Change to tmp_path so relative paths work
+    import os
+    old_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        res = run(["code-tools", "validate_manifest", "--feature-dir", "01-test"])
+        assert res["ok"]
+        assert res["data"]["valid"] is True
+        assert len(res["data"]["issues"]) == 0
+    finally:
+        os.chdir(old_cwd)

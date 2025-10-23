@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+  <!-- Root element: task -->
+  <xs:element name="task">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="metadata" type="MetadataType"/>
+        <xs:element name="dependencies" type="DependenciesType"/>
+        <xs:element name="description" type="xs:string"/>
+        <xs:element name="acceptance_criteria" type="AcceptanceCriteriaType"/>
+        <xs:element name="completion_checklist" type="CompletionChecklistType"/>
+        <xs:element name="effort_estimate" type="EffortEstimateType" minOccurs="0"/>
+        <xs:element name="technical_notes" type="xs:string" minOccurs="0"/>
+        <xs:element name="risks" type="RisksType" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="TaskIdType" use="required"/>
+      <xs:attribute name="status" type="StatusType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Metadata type -->
+  <xs:complexType name="MetadataType">
+    <xs:sequence>
+      <xs:element name="slug" type="SlugType"/>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="created" type="xs:dateTime"/>
+      <xs:element name="updated" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="priority" type="PriorityType"/>
+      <xs:element name="complexity" type="ComplexityType"/>
+      <xs:element name="component" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Dependencies type -->
+  <xs:complexType name="DependenciesType">
+    <xs:sequence>
+      <xs:element name="dependency" type="DependencyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DependencyType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="task_id" type="TaskIdType" use="required"/>
+        <xs:attribute name="type" type="DependencyTypeEnum" default="blocks"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- Acceptance criteria type -->
+  <xs:complexType name="AcceptanceCriteriaType">
+    <xs:sequence>
+      <xs:element name="criterion" type="CriterionType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CriterionType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="testable" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- Completion checklist type -->
+  <xs:complexType name="CompletionChecklistType">
+    <xs:sequence>
+      <xs:element name="item" type="ChecklistItemType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ChecklistItemType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="checked" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- Effort estimate type -->
+  <xs:complexType name="EffortEstimateType">
+    <xs:sequence>
+      <xs:element name="hours" type="xs:decimal"/>
+      <xs:element name="confidence" type="ConfidenceType"/>
+      <xs:element name="reasoning" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Risks type -->
+  <xs:complexType name="RisksType">
+    <xs:sequence>
+      <xs:element name="risk" type="RiskType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RiskType">
+    <xs:sequence>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="mitigation" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="severity" type="SeverityType" use="required"/>
+  </xs:complexType>
+
+  <!-- Simple types -->
+  <xs:simpleType name="TaskIdType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="T[0-9]{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SlugType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z0-9]+(-[a-z0-9]+)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StatusType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NOT_STARTED"/>
+      <xs:enumeration value="IN_PROGRESS"/>
+      <xs:enumeration value="BLOCKED"/>
+      <xs:enumeration value="COMPLETED"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PriorityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CRITICAL"/>
+      <xs:enumeration value="HIGH"/>
+      <xs:enumeration value="MEDIUM"/>
+      <xs:enumeration value="LOW"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ComplexityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LOW"/>
+      <xs:enumeration value="MEDIUM"/>
+      <xs:enumeration value="HIGH"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ConfidenceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HIGH"/>
+      <xs:enumeration value="MEDIUM"/>
+      <xs:enumeration value="LOW"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SeverityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HIGH"/>
+      <xs:enumeration value="MEDIUM"/>
+      <xs:enumeration value="LOW"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DependencyTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="blocks"/>
+      <xs:enumeration value="related"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

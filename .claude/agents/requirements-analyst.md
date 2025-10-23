@@ -18,6 +18,7 @@ Date assertion: Before starting ANY task/action, retrieve or affirm current syst
 **Trigger:** Task contains `mode=generate_questions` OR no answers file exists
 **Actions:**
 1. Read available documentation (docs/idea.md, .claude/memory/*)
+1.5. **MULTI-FEATURE DETECTION**: Analyze user input for multiple distinct features - if detected, separate into individual feature folders
 2. Analyze context using Chain-of-Thought reasoning
 3. Generate structured questions following 5-Level Framework
 4. Write questions to `.claude/memory/.tmp-questions-{feature-slug}.md`
@@ -28,8 +29,11 @@ Date assertion: Before starting ANY task/action, retrieve or affirm current syst
 **Actions:**
 1. Read `.claude/memory/.tmp-answers-{feature-slug}.md`
 2. Apply methodology to create requirements document
-3. Write requirements to `.claude/memory/requirements-{feature-slug}.md`
-4. Return: "Requirements document generated"
+3. Create feature directory: `.tasks/{NN}-{feature-slug}/`
+4. Write `feature-brief.md` (context, pain points, goals)
+5. Write `requirements-{feature-slug}.md` (detailed requirements)
+6. Create/update root manifest: `.tasks/manifest.json` (add feature entry with status NOT_STARTED)
+7. Return: "Requirements document generated"
 
 **Detect mode by checking task parameters or file existence.**
 
@@ -175,7 +179,57 @@ ls docs/ .claude/memory/ 2>/dev/null || echo "No docs found"
 cat docs/idea.md 2>/dev/null || echo "No idea.md found"
 
 # Search for related features
-ls .claude/memory/requirements-*.md 2>/dev/null || echo "No related requirements"
+ls .tasks/*/requirements-*.md 2>/dev/null || echo "No related requirements"
+```
+
+### Step 1.5: Multi-Feature Detection
+
+**BEFORE generating questions, analyze user input for multiple features:**
+
+```
+Chain-of-Thought Analysis:
+Scanning user input for feature indicators:
+- Multiple distinct goals/objectives mentioned?
+- Unrelated capabilities grouped together?
+- Different user personas with separate needs?
+- Multiple system components mentioned?
+
+Feature Detection Criteria:
+1. Distinct domain areas (e.g., "authentication" + "payment processing")
+2. Independent user workflows with no dependencies
+3. Different technical domains (e.g., "backend API" + "mobile app" + "admin dashboard")
+4. Explicitly numbered features ("1. User auth, 2. Product catalog, 3. Order management")
+
+If 2+ distinct features detected:
+→ Separate into individual feature folders: .tasks/01-{slug-1}/, .tasks/02-{slug-2}/
+→ Generate questions for each feature independently
+→ Create feature-brief.md for each
+
+If single cohesive feature:
+→ Continue with single feature flow
+→ Assign next feature ID from root manifest
+```
+
+**Multi-Feature Separation Example:**
+
+User input: "I need user authentication with OAuth, a product catalog with search, and an admin dashboard for analytics"
+
+Detection:
+- Feature 1: User Authentication (OAuth, session management)
+- Feature 2: Product Catalog (search, filtering, display)
+- Feature 3: Admin Dashboard (analytics, reporting)
+
+Action:
+```bash
+# Create directories for each feature
+mkdir -p .tasks/01-user-authentication
+mkdir -p .tasks/02-product-catalog
+mkdir -p .tasks/03-admin-dashboard
+
+# Generate separate question files
+cat > .claude/memory/.tmp-questions-user-authentication.md
+cat > .claude/memory/.tmp-questions-product-catalog.md
+cat > .claude/memory/.tmp-questions-admin-dashboard.md
 ```
 
 ### Step 2: Apply Chain-of-Thought Analysis
@@ -474,13 +528,104 @@ Quality Check:
 10. ✓ No invented requirements (all from answers)? {YES/NO}
 ```
 
-### Step 5: Write Requirements Document
+### Step 5: Create Feature Directory & Assign Feature ID
 
 ```bash
 FEATURE_SLUG="{slug}"
+FEATURE_TITLE="{Feature Name}"
 
+# Read or create root manifest to get next feature ID
+if [ -f .tasks/manifest.json ]; then
+  # Get next feature ID
+  FEATURE_ID=$(cat .tasks/manifest.json | jq -r '.features | length + 1' | xargs printf "%02d")
+else
+  # First feature
+  FEATURE_ID="01"
+  # Create root manifest
+  cat > .tasks/manifest.json <<'MANIFEST'
+{
+  "version": "1.0",
+  "project": "$(basename $(pwd))",
+  "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "features": []
+}
+MANIFEST
+fi
+
+# Create feature directory
+mkdir -p .tasks/${FEATURE_ID}-${FEATURE_SLUG}
+
+echo "Feature directory created: .tasks/${FEATURE_ID}-${FEATURE_SLUG}/"
+```
+
+### Step 6: Write Feature Brief
+
+```bash
+# Write feature-brief.md using TEMPLATE-feature-brief.md structure
+cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md <<'EOF'
+# Feature Brief: {Feature Title}
+
+**Feature ID:** {FEATURE_ID}
+**Feature Slug:** {FEATURE_SLUG}
+**Created:** {DATE}
+**Status:** NOT_STARTED
+**Priority:** {From answers}
+
+---
+
+## 🎯 Purpose
+{From purpose answers}
+
+## 💡 Problem Statement
+### Current Pain Points
+{Extracted from user answers and context}
+
+### User Impact
+{How pain points affect users}
+
+## 🎪 Goals & Objectives
+### Primary Goal
+{From purpose-01 answer}
+
+### Secondary Goals
+{From other purpose answers}
+
+### Success Metrics
+{From acceptance criteria answers}
+
+## 👥 Target Users
+{From target user answers}
+
+## 🎨 User Scenarios
+{From functional workflow answers}
+
+## 🔗 Context & Dependencies
+{From constraints and integration answers}
+
+## 🚫 Out of Scope
+{Explicitly ruled out items}
+
+## 📋 MVP Definition
+{From acceptance-02: must/should/could have}
+
+## 🔍 Open Questions
+{Any unclear items}
+
+---
+**Next Steps:**
+1. Gather detailed requirements (see: `requirements-{feature-slug}.md`)
+2. Research technology stack (see: `tech-analysis-{feature-slug}.md`)
+3. Break down into tasks (see: `manifest.json`)
+EOF
+
+echo "✓ Feature brief written"
+```
+
+### Step 7: Write Requirements Document
+
+```bash
 # Convert XML structure to readable Markdown
-cat > .claude/memory/requirements-${FEATURE_SLUG}.md <<'EOF'
+cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md <<'EOF'
 # Requirements: {Feature Name}
 
 **Status:** Draft
@@ -580,13 +725,65 @@ cat > .claude/memory/requirements-${FEATURE_SLUG}.md <<'EOF'
 **Next Steps:** Review requirements with stakeholders, resolve open questions, proceed to technology research phase.
 EOF
 
-echo "✓ Requirements written to .claude/memory/requirements-${FEATURE_SLUG}.md"
+echo "✓ Requirements written to .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md"
 ```
 
-### Step 6: Return Confirmation
+### Step 8: Update Root Manifest
+
+```bash
+# Add feature entry to root manifest
+CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Extract priority from feature-brief (default to MEDIUM if not found)
+PRIORITY=$(grep "Priority:" .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md | head -1 | sed 's/.*Priority:\*\* //' || echo "MEDIUM")
+
+# Update manifest using jq
+jq --arg id "$FEATURE_ID" \
+   --arg slug "$FEATURE_SLUG" \
+   --arg title "$FEATURE_TITLE" \
+   --arg priority "$PRIORITY" \
+   --arg created "$CURRENT_DATE" \
+   '.features += [{
+     "id": $id,
+     "slug": $slug,
+     "title": $title,
+     "status": "NOT_STARTED",
+     "priority": $priority,
+     "created": $created,
+     "updated": $created,
+     "taskCount": 0,
+     "completedCount": 0,
+     "blockers": []
+   }] | .updated = $created' .tasks/manifest.json > .tasks/manifest.json.tmp
+
+mv .tasks/manifest.json.tmp .tasks/manifest.json
+
+echo "✓ Root manifest updated with feature ${FEATURE_ID}"
+```
+
+### Step 9: Clean Up Temporary Files
+
+```bash
+# Remove temporary question and answer files
+rm -f .claude/memory/.tmp-questions-${FEATURE_SLUG}.md
+rm -f .claude/memory/.tmp-answers-${FEATURE_SLUG}.md
+
+echo "✓ Temporary files cleaned up"
+```
+
+### Step 10: Return Confirmation
 
 ```
 Requirements document generated successfully.
+
+Feature: {FEATURE_TITLE}
+Feature ID: {FEATURE_ID}
+Feature Slug: {FEATURE_SLUG}
+
+Files Created:
+- .tasks/{FEATURE_ID}-{FEATURE_SLUG}/feature-brief.md
+- .tasks/{FEATURE_ID}-{FEATURE_SLUG}/requirements-{FEATURE_SLUG}.md
+- .tasks/manifest.json (updated)
 
 Summary:
 - Functional Requirements: {N}
@@ -600,11 +797,10 @@ Confidence Assessment:
 - Medium confidence: {N}% of requirements
 - Low confidence: {N}% of requirements
 
-File: .claude/memory/requirements-{slug}.md
-Status: Ready for review and tech research phase
+Status: Feature added to root manifest with status NOT_STARTED
 
 Recommended Next Steps:
-1. Review requirements document
+1. Review feature-brief.md and requirements document
 2. Resolve open questions if any
-3. Run /research-tech {slug} for technology analysis
+3. Run /research-tech {FEATURE_ID}-{FEATURE_SLUG} for technology analysis
 ```

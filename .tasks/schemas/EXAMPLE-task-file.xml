@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task id="T01" status="NOT_STARTED">
+  <metadata>
+    <slug>database-schema-design</slug>
+    <title>Database Schema Design for User Authentication</title>
+    <created>2025-10-23T10:00:00Z</created>
+    <priority>HIGH</priority>
+    <complexity>MEDIUM</complexity>
+    <component>Database</component>
+  </metadata>
+
+  <dependencies>
+    <!-- This is the first task, so no dependencies -->
+  </dependencies>
+
+  <description>
+    Design and implement the database schema for the user authentication system.
+    This includes creating tables for users, sessions, and password reset tokens.
+    The schema must support email-based authentication with secure password hashing.
+
+    Key requirements:
+    - Users table with email, hashed password, verification status
+    - Sessions table for token-based authentication
+    - Password reset tokens table with expiration
+    - Proper indexing for performance
+    - Foreign key constraints for data integrity
+  </description>
+
+  <acceptance_criteria>
+    <criterion testable="true">Users table exists with columns: id, email (unique), password_hash, email_verified, created_at, updated_at</criterion>
+    <criterion testable="true">Sessions table exists with columns: id, user_id (FK), token (unique), expires_at, created_at</criterion>
+    <criterion testable="true">Password reset tokens table exists with columns: id, user_id (FK), token (unique), expires_at, used, created_at</criterion>
+    <criterion testable="true">All tables have proper indexes on foreign keys and frequently queried columns</criterion>
+    <criterion testable="true">Database migration file is created and can be executed successfully</criterion>
+    <criterion testable="true">Rollback migration exists and works correctly</criterion>
+  </acceptance_criteria>
+
+  <completion_checklist>
+    <item checked="false">Schema designed with ER diagram or written specification</item>
+    <item checked="false">Migration file created (up and down migrations)</item>
+    <item checked="false">Migration tested on clean database</item>
+    <item checked="false">Rollback tested successfully</item>
+    <item checked="false">Indexes verified for performance</item>
+    <item checked="false">Documentation added to schema file</item>
+  </completion_checklist>
+
+  <effort_estimate>
+    <hours>4</hours>
+    <confidence>HIGH</confidence>
+    <reasoning>
+      Standard database schema design task. Complexity is medium due to relationships
+      and security requirements, but the scope is well-defined. Similar tasks have
+      taken 3-5 hours in past projects.
+    </reasoning>
+  </effort_estimate>
+
+  <technical_notes>
+    Password hashing should use bcrypt with cost factor 12.
+    Session tokens should be cryptographically random (32 bytes minimum).
+    Email verification tokens should expire after 24 hours.
+    Password reset tokens should expire after 1 hour and be single-use.
+
+    Consider using UUID for primary keys instead of auto-increment integers
+    for better security and distributed system compatibility.
+  </technical_notes>
+
+  <risks>
+    <risk severity="LOW">
+      <description>Migration may conflict with existing tables if database not clean</description>
+      <mitigation>Use conditional table creation (CREATE TABLE IF NOT EXISTS) and check for existing data</mitigation>
+    </risk>
+    <risk severity="MEDIUM">
+      <description>Performance issues if indexes not properly configured</description>
+      <mitigation>Run EXPLAIN queries on common operations and add indexes as needed</mitigation>
+    </risk>
+  </risks>
+</task>

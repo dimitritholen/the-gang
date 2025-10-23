@@ -100,29 +100,44 @@ The workflow will:
 
 ### Individual Commands
 
-Run specific phases independently:
+Run specific phases independently. Commands are organized in subfolders by SDLC phase but called without path prefix:
 
 ```bash
-# Memory Generation Commands (for existing codebases)
-/generate-memory                           # Deep analysis of entire codebase → 5 baseline artifacts
-/update-memory "tech-stack"                # Incremental update after dependency changes
-/validate-consistency "new-feature"        # Validate feature against codebase conventions
-/mine-patterns --type "error-handling"     # Extract dominant patterns (8 types)
+# Workflow Commands (workflow/) - End-to-end orchestrators
+/analyze-feature "Add payment processing"     # Complete planning workflow → 5 agents
+/implement-feature "payment-processing"       # Complete implementation → developer + QA
 
-# Planning Phase Commands (orchestrators → delegate to specialized agents)
-/gather-requirements "Add payment processing"   # → requirements-analyst agent
-/research-tech "payment-processing"             # → tech-researcher agent
-/plan-implementation "payment-processing"       # → implementation-planner agent
-/validate-scope "payment-processing"            # → scope-guardian agent
+# Memory Commands (memory/) - Artifact management for existing codebases
+/generate-memory                              # Deep codebase analysis → 5 baseline artifacts
+/update-memory "tech-stack"                   # Incremental update after changes
+/cleanup-memory "payment-processing"          # Remove feature artifacts
 
-# Design Phase Command
-/design-ui "payment-processing"            # → ux-ui-designer agent
+# Requirements Commands (requirements/) - Requirements gathering
+/gather-requirements "Add payment processing" # → requirements-analyst agent
 
-# Implementation Phase Command
-/implement-feature "payment-processing"    # → senior-developer + qa-engineer agents
+# Research Commands (research/) - Technology & pattern research
+/research-tech "payment-processing"           # → tech-researcher agent
+/mine-patterns --type "error-handling"        # Extract patterns (8 types available)
 
-# Code Review Phase Command
-/review-code "payment-processing"          # → code-review-specialist agent
+# Planning Commands (planning/) - Implementation planning
+/plan-implementation "payment-processing"     # → implementation-planner agent
+
+# Design Commands (design/) - UI/UX design
+/design-ui "payment-processing"               # → ux-ui-designer agent
+
+# Task Commands (tasks/) - Task lifecycle management
+/task-status "payment-processing"             # Check feature progress
+/task-next "payment-processing"               # Get next available task
+/task-start "payment-processing" "T01"        # Start a specific task
+/task-complete "payment-processing" "T01"     # Complete a task
+/task-block "payment-processing" "T01"        # Block a task with reason
+/task-unblock "payment-processing" "T01"      # Unblock a task
+
+# Quality Commands (quality/) - Validation & review
+/validate-scope "payment-processing"          # → scope-guardian agent
+/validate-consistency "payment-processing"    # Check against conventions
+/validate-manifests                           # Check manifest sync
+/review-code "payment-processing"             # → code-review-specialist
 ```
 
 ### Complete Workflow (Planning + Implementation)
@@ -141,21 +156,46 @@ This takes you from idea → production-ready code.
 
 ### Directory Structure
 
+Commands are now organized by SDLC phase for easier navigation:
+
 ```
 .claude/
-├── commands/              # Orchestrator commands (delegate to agents via Task tool)
-│   ├── analyze-feature.md          # Planning workflow orchestrator
-│   ├── gather-requirements.md      # → requirements-analyst agent
-│   ├── research-tech.md            # → tech-researcher agent
-│   ├── plan-implementation.md      # → implementation-planner agent
-│   ├── validate-scope.md           # → scope-guardian agent
-│   ├── design-ui.md                # → ux-ui-designer agent
-│   ├── implement-feature.md        # → senior-developer + qa-engineer
-│   ├── review-code.md              # → code-review-specialist agent
-│   ├── generate-memory.md          # → codebase-archeologist agent
-│   ├── update-memory.md            # Incremental memory updates
-│   ├── validate-consistency.md     # Convention validation
-│   └── mine-patterns.md            # Pattern extraction (8 types)
+├── commands/              # Slash commands organized by phase
+│   ├── workflow/          # End-to-end orchestrators
+│   │   ├── analyze-feature.md      # Complete planning workflow
+│   │   └── implement-feature.md    # Complete implementation workflow
+│   │
+│   ├── requirements/      # Requirements gathering phase
+│   │   └── gather-requirements.md  # → requirements-analyst agent
+│   │
+│   ├── research/          # Technology & pattern research
+│   │   ├── research-tech.md        # → tech-researcher agent
+│   │   └── mine-patterns.md        # Pattern extraction (8 types)
+│   │
+│   ├── planning/          # Implementation planning
+│   │   └── plan-implementation.md  # → implementation-planner agent
+│   │
+│   ├── design/            # UI/UX design
+│   │   └── design-ui.md            # → ux-ui-designer agent
+│   │
+│   ├── tasks/             # Task lifecycle management
+│   │   ├── task-start.md           # Start a task
+│   │   ├── task-complete.md        # Complete a task
+│   │   ├── task-next.md            # Find next task
+│   │   ├── task-status.md          # Check progress
+│   │   ├── task-block.md           # Block a task
+│   │   └── task-unblock.md         # Unblock a task
+│   │
+│   ├── quality/           # Validation & review
+│   │   ├── review-code.md          # → code-review-specialist
+│   │   ├── validate-manifests.md   # Manifest consistency
+│   │   ├── validate-scope.md       # → scope-guardian agent
+│   │   └── validate-consistency.md # Convention validation
+│   │
+│   └── memory/            # Artifact management
+│       ├── generate-memory.md      # → codebase-archeologist
+│       ├── update-memory.md        # Incremental updates
+│       └── cleanup-memory.md       # Artifact cleanup
 │
 ├── agents/                # Specialized agent prompts
 │   ├── requirements-analyst.md     # Requirements elicitation

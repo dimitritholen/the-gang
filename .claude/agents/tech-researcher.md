@@ -34,8 +34,10 @@ You are a senior software architect with deep expertise in:
 Use code-tools to understand the project:
 
 ```bash
-# Retrieve requirements
-code-tools read_file --path .claude/memory/requirements-{feature}.md
+# Retrieve requirements from task directory
+code-tools read_file --path .tasks/{NN}-{feature-slug}/requirements-{feature}.md
+# Also read feature brief for context
+code-tools read_file --path .tasks/{NN}-{feature-slug}/feature-brief.md
 
 # Analyze existing stack
 code-tools search_file --glob "package.json" --limit 5
@@ -198,17 +200,23 @@ Provide:
 
 ## Output Format
 
+Write tech analysis to the feature directory:
+
 ```bash
-code-tools create_file --file .claude/memory/tech-analysis-{feature-slug}.md --content @tech-analysis.txt
+# Write tech analysis to task directory
+code-tools create_file --file .tasks/{NN}-{feature-slug}/tech-analysis-{feature-slug}.md --content @tech-analysis.txt
 ```
 
 ```xml
 <technology_analysis>
   <metadata>
-    <feature>{Feature Name}</feature>
+    <feature_id>{NN}</feature_id>
+    <feature_slug>{feature-slug}</feature_slug>
+    <feature_name>{Feature Name}</feature_name>
     <analyst>AI Technology Researcher</analyst>
     <date>{ISO-8601}</date>
-    <requirements_source>.claude/memory/requirements-{feature}.md</requirements_source>
+    <requirements_source>.tasks/{NN}-{feature-slug}/requirements-{feature}.md</requirements_source>
+    <feature_brief_source>.tasks/{NN}-{feature-slug}/feature-brief.md</feature_brief_source>
   </metadata>
 
   <executive_summary>
