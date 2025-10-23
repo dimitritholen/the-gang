@@ -44,7 +44,7 @@ This directory contains XML/JSON schemas and Markdown templates for Claude Code'
 
 ```bash
 # Using xmllint (requires libxml2)
-xmllint --schema .tasks/schemas/task-schema.xsd .tasks/01-feature/T01-task.xml
+xmllint --schema .claude/schemas/task-schema.xsd .tasks/01-feature/T01-task.xml
 ```
 
 ### Validating JSON Manifests
@@ -52,8 +52,8 @@ xmllint --schema .tasks/schemas/task-schema.xsd .tasks/01-feature/T01-task.xml
 ```bash
 # Using ajv-cli (requires Node.js)
 npm install -g ajv-cli
-ajv validate -s .tasks/schemas/root-manifest-schema.json -d .tasks/manifest.json
-ajv validate -s .tasks/schemas/task-manifest-schema.json -d .tasks/01-feature/manifest.json
+ajv validate -s .claude/schemas/root-manifest-schema.json -d .tasks/manifest.json
+ajv validate -s .claude/schemas/task-manifest-schema.json -d .tasks/01-feature/manifest.json
 ```
 
 ## 📐 Naming Conventions

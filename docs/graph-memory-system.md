@@ -54,6 +54,7 @@ code_tools/
 ## Token Efficiency
 
 **Before (Full Markdown)**:
+
 ```
 Read requirements-user-auth.md (5.7KB)
 → 1,200-3,000 tokens per file
@@ -61,6 +62,7 @@ Read requirements-user-auth.md (5.7KB)
 ```
 
 **After (Graph Query)**:
+
 ```
 Query: "security requirements for auth"
 → Returns 5 entities + 6 relationships
@@ -102,6 +104,7 @@ code-tools query_memory \
 ```
 
 **Query Modes**:
+
 - `direct` (default): Fast keyword-based search across all entity fields
 - `nlp` (TODO): LLM-powered natural language → graph query translation
 - `auto`: Try direct first, fallback to NLP if no results
@@ -143,7 +146,7 @@ store.invalidate_cache()  # All features
 ## Example Query Results
 
 ```bash
-$ code-tools query_memory --feature user-authentication --query "security requirements" --limit 3
+code-tools query_memory --feature user-authentication --query "security requirements" --limit 3
 ```
 
 ```json
@@ -197,6 +200,7 @@ python -m pytest tests/test_graph.py -v
 ```
 
 **Test Coverage**:
+
 - ✅ Entity serialization/deserialization
 - ✅ Relationship ID generation (deterministic)
 - ✅ JSONL save/load with atomic writes
@@ -209,6 +213,7 @@ python -m pytest tests/test_graph.py -v
 ## Roadmap
 
 ### Phase 1 (Completed)
+
 - [x] Core graph models (Entity, Relationship)
 - [x] JSONL persistence with caching
 - [x] Requirements parser (FR/NFR)
@@ -217,6 +222,7 @@ python -m pytest tests/test_graph.py -v
 - [x] Integration tests
 
 ### Phase 2 (Next)
+
 - [ ] Conventions parser (patterns, deviations)
 - [ ] Tech analysis parser (decisions, alternatives)
 - [ ] Task manifest parser (dependencies, blockers)
@@ -224,6 +230,7 @@ python -m pytest tests/test_graph.py -v
 - [ ] Multi-hop query DSL (find all components implementing security requirements)
 
 ### Phase 3 (Future)
+
 - [ ] Graph visualization (Mermaid/GraphViz export)
 - [ ] Incremental sync (parse only changed files)
 - [ ] Cross-feature queries (find all features depending on auth)
@@ -233,18 +240,21 @@ python -m pytest tests/test_graph.py -v
 ## Design Decisions
 
 ### Why JSONL instead of SQLite/Neo4j?
+
 - **Simplicity**: No DB setup, just files
 - **Streaming**: Process large graphs incrementally
 - **Git-friendly**: Line-based format for diffs
 - **Portability**: Pure Python, no dependencies
 
 ### Why Markdown as Source of Truth?
+
 - **Human-readable**: Easy to write/review
 - **Git workflow**: PRs, diffs, history
 - **Editor support**: VS Code, vim, etc.
 - **Graph is derived**: Auto-generated, disposable
 
 ### Why Per-Feature Files?
+
 - **Modularity**: Independent graphs
 - **Performance**: Query only relevant features
 - **Isolation**: Changes don't affect other features
@@ -260,12 +270,14 @@ python -m pytest tests/test_graph.py -v
 ## Performance
 
 **Tested with EXAMPLE-requirements-user-authentication.md**:
+
 - Parse + build: ~50ms
 - Query (5 entities): ~5ms
 - JSONL size: 12KB (17 entities, 16 relationships)
 - Memory: ~50KB loaded graph
 
 **Estimated for 50 features**:
+
 - Total JSONL: ~600KB
 - Query time: <10ms per feature
 - Memory: ~2.5MB (all features loaded)
