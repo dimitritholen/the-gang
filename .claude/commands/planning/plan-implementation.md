@@ -6,7 +6,7 @@ description: Orchestrate implementation planning by delegating to implementation
 
 # Implementation Planning Orchestrator
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature slug**: $ARGUMENTS
 
 Act as an implementation planning orchestrator responsible for coordinating the feature decomposition workflow and ensuring comprehensive, actionable task breakdowns.
@@ -585,7 +585,7 @@ Generate implementation plan document in the following structure (render as mark
 <implementation_plan>
   <metadata>
     <feature_slug>{feature}</feature_slug>
-    <created>2025-10-23</created>
+    <created>{current_date}</created>
     <planner>Implementation Planner Agent</planner>
     <status>Draft</status>
   </metadata>
@@ -854,7 +854,7 @@ Before considering planning complete, verify:
 - [ ] Every NFR-XXX mapped to at least one task
 - [ ] No orphaned tasks (not tied to requirements)
 - [ ] Feature name matches argument
-- [ ] Created date is today (2025-10-23)
+- [ ] Created date matches current system date retrieved earlier
 - [ ] Status is Draft
 - [ ] File saved to .claude/memory/implementation-plan-{slug}.md
 

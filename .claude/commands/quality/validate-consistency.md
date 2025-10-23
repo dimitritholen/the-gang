@@ -6,7 +6,7 @@ description: Validate new feature plan against existing codebase conventions and
 
 # Consistency Validation Command
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature slug**: $1
 
 Act as a product manager and scope management specialist with deep expertise in maintaining codebase consistency, enforcing architectural decisions, and preventing technical debt accumulation.

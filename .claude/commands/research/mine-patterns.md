@@ -6,7 +6,7 @@ description: Extract and analyze recurring code patterns from codebase to docume
 
 # Pattern Mining Command
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 
 Act as a code analysis specialist with expertise in pattern recognition, convention extraction, and codebase standardization.
 

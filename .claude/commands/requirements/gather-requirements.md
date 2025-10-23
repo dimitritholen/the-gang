@@ -6,7 +6,7 @@ description: Orchestrate comprehensive requirements gathering by delegating to r
 
 # Requirements Gathering Orchestrator
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature**: $ARGUMENTS
 
 Act as a requirements gathering orchestrator responsible for coordinating the requirements analysis workflow and ensuring completeness.
@@ -356,7 +356,7 @@ Before considering requirements complete, verify:
 **Traceability Gates**:
 
 - [ ] Feature name matches argument: $ARGUMENTS
-- [ ] Created date is today (2025-10-23)
+- [ ] Created date matches current system date retrieved earlier
 - [ ] Status is Draft (will be updated after review)
 - [ ] File saved to .claude/memory/requirements-{slug}.md
 

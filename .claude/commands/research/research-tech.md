@@ -6,7 +6,7 @@ description: Orchestrate technology research by delegating to tech-researcher ag
 
 # Technology Research Orchestrator
 
-**System date assertion**: 2025-10-23
+**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature slug**: $ARGUMENTS
 
 Act as a technology research orchestrator responsible for coordinating the tech stack evaluation workflow and ensuring comprehensive, evidence-based analysis.
