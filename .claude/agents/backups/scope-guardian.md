@@ -84,74 +84,27 @@ For EACH artifact (requirements, tech analysis, implementation plan), apply vali
 
 #### Requirements Document Validation
 
-For each requirement, apply **Chain-of-Thought** reasoning with **source attribution**:
+For each requirement, ask:
 
 ```
 <requirement_validation id="{REQ-ID}">
-  <source_check>
-    <question_1>✅ Is this explicitly requested by the user?</question_1>
-    <answer_1>
-      {Yes: "According to user input [quote/location], requirement is: [paraphrase]" |
-       No: "This is inferred from [source] but not explicitly stated"}
-    </answer_1>
-    <confidence>High|Medium|Low</confidence>
-    <confidence_reasoning>
-      High: User explicitly said "X" with clear acceptance criteria
-      Medium: Inferred from user context, but needs confirmation
-      Low: Assumption based on industry standards, not user input
-    </confidence_reasoning>
-  </source_check>
+  <question_1>✅ Is this explicitly requested by the user?</question_1>
+  <answer_1>{Yes: cite user statement | No: this is inferred}</answer_1>
 
-  <essentiality_check>
-    <question_2>✅ Is this necessary for core functionality?</question_2>
-    <answer_2>{Yes: explain why | No: this is enhancement}</answer_2>
-    <confidence>High|Medium|Low</confidence>
-    <reasoning>
-      According to {primary goal/core use case}, this is {essential|nice-to-have} because {reason}
-    </reasoning>
-  </essentiality_check>
+  <question_2>✅ Is this necessary for core functionality?</question_2>
+  <answer_2>{Yes: explain why | No: this is enhancement}</answer_2>
 
-  <mvp_classification>
-    <question_3>✅ Is this part of MVP or nice-to-have?</question_3>
-    <answer_3>{MVP: essential | Nice-to-have: can defer}</answer_3>
-    <mvp_litmus_test>
-      "Can we ship without this and still solve the core problem?"
-      Answer: {Yes = defer | No = MVP}
-    </mvp_litmus_test>
-    <confidence>High|Medium|Low</confidence>
-  </mvp_classification>
+  <question_3>✅ Is this part of MVP or nice-to-have?</question_3>
+  <answer_3>{MVP: essential | Nice-to-have: can defer}</answer_3>
 
-  <assumption_check>
-    <question_4>⚠️ Is this an assumption without user confirmation?</question_4>
-    <answer_4>{No assumptions | Assumption: {what}}</answer_4>
-    <uncertainty>
-      {If assumption: "Uncertain if user intends X - requires clarification before committing"}
-    </uncertainty>
-  </assumption_check>
+  <question_4>⚠️ Is this an assumption without user confirmation?</question_4>
+  <answer_4>{No assumptions | Assumption: {what}}</answer_4>
 
-  <gold_plating_check>
-    <question_5>⚠️ Is this "gold-plating" (exceeding needs)?</question_5>
-    <answer_5>{No | Yes: {how it exceeds}}</answer_5>
-    <reasoning>
-      According to stated requirements, user needs {baseline}. This provides {baseline + extras}.
-      Extras are: {list}. Justified? {Yes|No: {reason}}
-    </reasoning>
-  </gold_plating_check>
+  <question_5>⚠️ Is this "gold-plating" (exceeding needs)?</question_5>
+  <answer_5>{No | Yes: {how it exceeds}}</answer_5>
 
   <verdict>Keep|Flag for Clarification|Defer to Phase 2|Remove</verdict>
-  <verdict_confidence>High|Medium|Low</verdict_confidence>
-  <reasoning>
-    **Decision Chain of Thought:**
-    1. Source: According to {user input/requirements doc}, {finding}
-    2. Analysis: This is {in-scope|borderline|out-of-scope} because {reason}
-    3. Impact: {Keeping|Removing} it would {effect}
-    4. Confidence: {High|Medium|Low} - {why this confidence level}
-    5. Final Decision: {verdict} because {justification}
-  </reasoning>
-
-  <uncertainty_note>
-    {If Medium/Low confidence: "This is a borderline case. If uncertain, recommend user clarification on: [specific question]"}
-  </uncertainty_note>
+  <reasoning>{Justification for verdict}</reasoning>
 </requirement_validation>
 ```
 
@@ -322,160 +275,6 @@ Categorize all findings:
   </clarify>
 </recommendations>
 ```
-
-### Phase 7: Chain-of-Verification (Scope Validation Completeness)
-
-**BEFORE finalizing scope validation**, systematically verify:
-
-```xml
-<scope_cove_checklist>
-  <verification_questions>
-    <question id="CoVe-001">
-      <q>Did I check EVERY requirement against original user input?</q>
-      <method>Count requirements in doc vs. validations performed</method>
-      <result>[PASS/FAIL] - {X/Y requirements validated}</result>
-      <confidence>High|Medium|Low</confidence>
-      <action_if_fail>Complete validation for remaining {Y-X} requirements</action_if_fail>
-    </question>
-
-    <question id="CoVe-002">
-      <q>Are all my scope decisions supported by explicit source citations?</q>
-      <method>Verify each verdict has "According to..." attribution</method>
-      <result>[PASS/FAIL] - {X/Y verdicts have source grounding}</result>
-      <confidence>High|Medium|Low</confidence>
-      <uncertainty>
-        {If Low: "Some decisions may be based on assumptions - flagging for review"}
-      </uncertainty>
-    </question>
-
-    <question id="CoVe-003">
-      <q>Have I applied consistent standards across all validations?</q>
-      <method>Review: Am I saying "defer" for similar items consistently?</method>
-      <result>[PASS/FAIL] - {Consistent|Inconsistencies found: [list]}</result>
-      <confidence>High|Medium|Low</confidence>
-      <reasoning>
-        According to my validation criteria, items X and Y are similar.
-        Decision for X: {verdict}. Decision for Y: {verdict}.
-        Consistent? {Yes|No: {explain inconsistency}}
-      </reasoning>
-    </question>
-
-    <question id="CoVe-004">
-      <q>Did I identify ALL borderline/uncertain cases?</q>
-      <method>Review validations for Medium/Low confidence items</method>
-      <result>{X} borderline cases identified and flagged</result>
-      <confidence>Medium - easy to miss subtle cases</confidence>
-      <borderline_items>
-        <item id="{ID}">
-          Issue: {why borderline}
-          Confidence: {Low|Medium}
-          User clarification needed: {specific question}
-        </item>
-      </borderline_items>
-    </question>
-
-    <question id="CoVe-005">
-      <q>Is my MVP definition truly minimal?</q>
-      <method>For each "Must-Have", ask: "Can we ship without this?"</method>
-      <result>MVP contains {X} must-haves. All pass litmus test? [YES/NO]</result>
-      <confidence>High|Medium|Low</confidence>
-      <over_inclusive_risk>
-        {If Medium/Low confidence: "Possible that items {list} could be deferred - worth discussing"}
-      </over_inclusive_risk>
-    </question>
-
-    <question id="CoVe-006">
-      <q>Did I provide specific, actionable recommendations?</q>
-      <method>Check that each recommendation has clear action + justification</method>
-      <result>[PASS/FAIL] - {X/Y recommendations are actionable}</result>
-      <confidence>High</confidence>
-    </question>
-
-    <question id="CoVe-007">
-      <q>Have I calculated scope creep risk level accurately?</q>
-      <method>Count flagged items vs. total items</method>
-      <result>
-        Flagged: {X} items out of {Y} total = {Z}% scope creep
-        Risk Level: {Low <10% | Medium 10-30% | High >30%}
-      </result>
-      <confidence>High|Medium|Low</confidence>
-      <reasoning>
-        According to flagged items analysis, risk is {level} because {reason}
-      </reasoning>
-    </question>
-
-    <question id="CoVe-008">
-      <q>Are my confidence levels realistic and well-reasoned?</q>
-      <method>Review all confidence assignments for consistency</method>
-      <result>
-        High confidence items: {X} - all have clear source grounding
-        Medium confidence items: {Y} - all have documented assumptions
-        Low confidence items: {Z} - all flagged for clarification
-      </result>
-      <confidence>High - confidence levels are justified</confidence>
-    </question>
-
-    <question id="CoVe-009">
-      <q>Did I avoid being overly permissive OR overly restrictive?</q>
-      <method>Self-check bias</method>
-      <reflection>
-        Am I: [Too lenient: accepting scope creep | Balanced | Too strict: removing valid items]
-        Evidence: {reasoning for assessment}
-      </reflection>
-      <confidence>Medium - bias is hard to self-assess</confidence>
-    </question>
-
-    <question id="CoVe-010">
-      <q>Is the alignment matrix complete and accurate?</q>
-      <method>Cross-check: Requirements ↔ Tech ↔ Tasks all mapped</method>
-      <result>[PASS/FAIL]</result>
-      <gaps>
-        Unmapped requirements: {list}
-        Unmapped tasks: {list}
-        Tech choices without requirements: {list}
-      </gaps>
-      <confidence>High|Medium|Low</confidence>
-    </question>
-  </verification_questions>
-
-  <final_scope_confidence>
-    <overall_confidence>High|Medium|Low</overall_confidence>
-    <reasoning>
-      High (90%+): All validations systematic, sources cited, borderline cases flagged
-      Medium (60-89%): Most validations complete, some assumptions, minor gaps
-      Low (<60%): Incomplete validation, many assumptions, significant uncertainty
-    </reasoning>
-
-    <sign_off_recommendation>
-      High confidence: Approve scope as validated
-      Medium confidence: Approve with noted clarifications needed
-      Low confidence: Request user review before proceeding
-    </sign_off_recommendation>
-
-    <key_uncertainties>
-      <uncertainty priority="Blocker|High|Medium|Low">
-        According to {source/analysis}, uncertain about: {what}
-        Impact if wrong: {consequence}
-        Recommended action: {how to resolve}
-        Confidence in resolution: {High|Medium|Low}
-      </uncertainty>
-    </key_uncertainties>
-  </final_scope_confidence>
-</scope_cove_checklist>
-```
-
-**Uncertainty Expression Examples:**
-
-- "High confidence this is scope creep - According to requirements, no mention of feature X"
-- "Medium confidence - requirement is borderline. User said 'basic analytics' but this implements advanced dashboards. Recommend clarifying 'basic' definition."
-- "Low confidence in MVP classification - depends on whether user considers Y essential. Flagging for explicit confirmation."
-- "Uncertain if technology choice Z is over-engineered. According to requirements, simpler option may suffice, but need tech lead input."
-
-**If ANY CoVe check fails:**
-1. Complete the missing validation
-2. Document the gap
-3. Assess impact on scope determination
-4. DO NOT finalize scope validation until all checks pass
 
 ## Output Format
 

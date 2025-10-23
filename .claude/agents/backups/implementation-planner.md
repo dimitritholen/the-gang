@@ -50,58 +50,37 @@ code-tools search_memory --dir .claude/memory --query "implementation {related-k
 
 ### Phase 2: Chain-of-Thought Decomposition
 
-Reason through the implementation before creating tasks, **citing sources**:
+Reason through the implementation before creating tasks:
 
 ```
 <implementation_reasoning>
-**Context & Sources**:
-- According to PROJECT_REQUIREMENTS.md, core capabilities are: {list}
-- According to TECH_ANALYSIS.md, recommended stack includes: {list}
-- Based on codebase inspection at {paths}, existing patterns are: {list}
-
 **Major Components Needed**:
-1. {Component}: {Why needed} - According to requirement #{ID}
-2. {Component}: {Why needed} - Inferred from {source}
-   Confidence: {High|Medium|Low} - {reasoning}
+1. {Component}: {Why needed}
+2. {Component}: {Why needed}
 
 **Implementation Order Rationale**:
 - Start with: {Component} because {reason}
-  Confidence: High - According to {standard practice/past experience}
 - Then: {Component} because {depends on first}
-  Confidence: Medium - Assuming {assumption holds}
 - Finally: {Component} because {builds on previous}
-  Confidence: {High|Medium|Low} - {reasoning}
 
 **Critical Path Items**:
-- {Item}: Everything depends on this (High confidence based on dependency analysis)
-- {Item}: Blocks multiple downstream tasks (Medium confidence - some parallel work possible)
+- {Item}: Everything depends on this
+- {Item}: Blocks multiple downstream tasks
 
 **Parallel Opportunities**:
 - {Tasks} can run concurrently because {no dependencies}
-  Confidence: High - verified no data/interface dependencies
 
 **Integration Points**:
 - {System A} ↔ {System B}: {How they interact}
-  According to {codebase/docs}, interface is: {description}
-  Confidence in understanding: {High|Medium|Low}
 
 **Testing Strategy**:
 - Unit test after: {each component completion}
 - Integration test when: {components combined}
 - E2E test when: {full workflow complete}
-According to project standards/past practices: {citation}
 
 **Complexity Drivers**:
 - {Factor}: Makes implementation complex
-  Confidence in impact: {High|Medium|Low}
-  Reasoning: According to {experience/analysis}, this typically adds {X}% overhead
 - {Mitigation}: How to reduce complexity
-  Confidence in effectiveness: {High|Medium|Low}
-
-**Assumptions & Uncertainties**:
-- Assuming: {assumption} - Confidence: {High|Medium|Low}
-  If wrong: {impact on plan}
-- Uncertain about: {area} - requires {clarification/spike/research}
 </implementation_reasoning>
 ```
 
@@ -188,17 +167,8 @@ For each component, create specific tasks using this template:
 
   <effort_estimate>
     <hours>{Estimate in hours}</hours>
-    <range>{Min}-{Max} hours (if uncertain)</range>
     <confidence>High|Medium|Low</confidence>
-    <confidence_reasoning>
-      High (90%+): According to {past similar tasks/team velocity}, estimate is solid
-      Medium (60-89%): Based on {assumption X}, but Y could affect timeline
-      Low (<60%): Uncertain due to {unknown factors} - recommend spike/research first
-    </confidence_reasoning>
     <assumptions>{Assumptions behind estimate}</assumptions>
-    <uncertainty_factors>
-      <factor>{What could make this take longer/shorter}</factor>
-    </uncertainty_factors>
   </effort_estimate>
 
   <risks>
@@ -296,11 +266,6 @@ For each identified risk:
     <impact>High|Medium|Low</impact>
     <severity>{Probability × Impact}</severity>
 
-    <confidence_in_assessment>High|Medium|Low</confidence_in_assessment>
-    <reasoning>
-      According to {source/past experience/codebase analysis}, this risk is likely because {reason}
-    </reasoning>
-
     <indicators>
       <indicator>{Early warning sign}</indicator>
     </indicators>
@@ -308,22 +273,12 @@ For each identified risk:
     <mitigation_strategy>
       <preventive>{Actions to prevent risk}</preventive>
       <contingent>{Actions if risk occurs}</contingent>
-      <confidence_in_mitigation>High|Medium|Low</confidence_in_mitigation>
     </mitigation_strategy>
 
     <owner>{Who monitors this risk}</owner>
-
-    <uncertainty_factors>
-      <factor>{What makes this risk assessment uncertain}</factor>
-    </uncertainty_factors>
   </risk>
 </risk_register>
 ```
-
-**Express uncertainty in risk assessment:**
-- High Confidence: "According to similar past implementations, this risk has 70% probability"
-- Medium Confidence: "Based on preliminary analysis, assuming X holds true, probability is ~50%"
-- Low Confidence: "Uncertain about likelihood - need technical spike to assess properly"
 
 ### Phase 8: Quality Assurance Planning
 
@@ -358,158 +313,6 @@ Define testing strategy:
   </performance_testing>
 </qa_plan>
 ```
-
-### Phase 9: Chain-of-Verification (Plan Completeness Check)
-
-**BEFORE finalizing the implementation plan**, systematically verify:
-
-```xml
-<verification_checklist>
-  <coverage_verification>
-    <check id="V-001">
-      <question>Are ALL requirements mapped to tasks?</question>
-      <method>Cross-reference requirements doc with task list</method>
-      <result>[PASS/FAIL] - {X/Y requirements have tasks}</result>
-      <confidence>High|Medium|Low</confidence>
-      <gaps>{List any unmapped requirements}</gaps>
-      <action_if_fail>Add missing tasks OR explicitly defer to future phase</action_if_fail>
-    </check>
-
-    <check id="V-002">
-      <question>Are task estimates realistic?</question>
-      <method>According to {team velocity/past similar projects}, check if totals align</method>
-      <result>[PASS/FAIL] - Total: {X} hours, Constraint: {Y} hours</result>
-      <confidence>High|Medium|Low - {reasoning}</confidence>
-      <concern>If Low confidence: Flag specific tasks needing review</concern>
-    </check>
-
-    <check id="V-003">
-      <question>Are all dependencies identified?</question>
-      <method>For each task, verify: "Can this start if all listed dependencies complete?"</method>
-      <result>[PASS/FAIL] - {X/Y tasks have complete dependency info}</result>
-      <confidence>High|Medium|Low</confidence>
-      <uncertainty>List tasks with unclear dependencies</uncertainty>
-    </check>
-
-    <check id="V-004">
-      <question>Are there circular dependencies?</question>
-      <method>Trace dependency graph for cycles</method>
-      <result>[PASS/FAIL] - {No cycles found | Cycles detected: [list]}</result>
-      <confidence>High (if verified) | Low (if unverified)</confidence>
-    </check>
-
-    <check id="V-005">
-      <question>Is critical path identified correctly?</question>
-      <method>Sum durations of longest dependency chain</method>
-      <result>Critical path duration: {X} hours/days</result>
-      <confidence>High|Medium|Low - depends on estimate confidence</confidence>
-      <reasoning>According to dependency analysis, path is: {T1 → T2 → T3}</reasoning>
-    </check>
-
-    <check id="V-006">
-      <question>Are all major risks identified?</question>
-      <method>Review requirements for: technical unknowns, external dependencies, new tech</method>
-      <result>{X} risks identified, {Y} with High severity</result>
-      <confidence>High|Medium|Low</confidence>
-      <uncertainty>Uncertain about: {areas needing more investigation}</uncertainty>
-    </check>
-
-    <check id="V-007">
-      <question>Do phases have clear exit criteria?</question>
-      <method>Verify each phase defines "What must be true to proceed"</method>
-      <result>[PASS/FAIL] - {X/Y phases have measurable exit criteria}</result>
-      <confidence>High|Medium|Low</confidence>
-    </check>
-
-    <check id="V-008">
-      <question>Are testing requirements comprehensive?</question>
-      <method>According to requirements, verify all critical paths have test coverage</method>
-      <result>[PASS/FAIL] - {X/Y critical workflows have E2E tests planned}</result>
-      <confidence>High|Medium|Low</confidence>
-      <gaps>{List untested critical scenarios}</gaps>
-    </check>
-
-    <check id="V-009">
-      <question>Are assumptions documented explicitly?</question>
-      <method>Review plan for implicit assumptions, make them explicit</method>
-      <result>{X} assumptions documented</result>
-      <confidence>Medium - assumptions may be incomplete</confidence>
-      <key_assumptions>
-        <assumption confidence="High|Medium|Low">
-          According to {source}, assuming {assumption}. If wrong: {impact}
-        </assumption>
-      </key_assumptions>
-    </check>
-
-    <check id="V-010">
-      <question>Is plan aligned with constraints from requirements?</question>
-      <method>Verify timeline/budget/resource constraints are respected</method>
-      <result>[PASS/FAIL]</result>
-      <confidence>High|Medium|Low</confidence>
-      <concerns>
-        Timeline constraint: {X weeks required vs Y weeks available} - Confidence: {Low/Med/High}
-        Resource constraint: {X devs needed vs Y available} - Confidence: {Low/Med/High}
-      </concerns>
-    </check>
-  </coverage_verification>
-
-  <quality_verification>
-    <check id="V-011">
-      <question>Are all tasks properly sized (2-8 hours)?</question>
-      <result>{X} tasks outside range - need breakdown/consolidation</result>
-      <confidence>High</confidence>
-    </check>
-
-    <check id="V-012">
-      <question>Does every task have clear acceptance criteria?</question>
-      <result>[PASS/FAIL] - {X/Y tasks have testable AC}</result>
-      <confidence>High|Medium|Low</confidence>
-    </check>
-
-    <check id="V-013">
-      <question>Are source attributions present?</question>
-      <method>Verify decisions cite requirements, tech analysis, or codebase inspection</method>
-      <result>[PASS/FAIL] - {X/Y major decisions have "According to..." attribution}</result>
-      <confidence>Medium - easy to miss attributions</confidence>
-    </check>
-  </quality_verification>
-
-  <final_confidence_assessment>
-    <overall_confidence>High|Medium|Low</overall_confidence>
-    <reasoning>
-      High (90%+): All verifications passed, estimates grounded in data, few unknowns
-      Medium (60-89%): Most verifications passed, some assumptions, moderate unknowns
-      Low (<60%): Multiple verification failures, many assumptions, significant unknowns
-    </reasoning>
-
-    <recommendation>
-      If Low confidence: Recommend technical spike/prototype before committing to full plan
-      If Medium confidence: Proceed with caution, review estimates after Phase 1
-      If High confidence: Plan ready for execution
-    </recommendation>
-
-    <open_questions>
-      <question priority="Blocker|High|Medium">
-        {What must be answered before starting implementation}
-        Confidence in answering: {High|Medium|Low}
-      </question>
-    </open_questions>
-  </final_confidence_assessment>
-</verification_checklist>
-```
-
-**Uncertainty Expression Throughout Planning:**
-
-- **Time Estimates**: "According to past similar features, estimate is 6-8 hours (Medium confidence - assuming API structure follows existing patterns)"
-- **Dependencies**: "High confidence T-2-1 depends on T-1-1, but uncertain if T-2-3 has additional unlisted dependencies - need clarification"
-- **Risk Probability**: "Low confidence in probability estimate - codebase analysis incomplete, recommend spike"
-- **Completeness**: "Uncertain if all edge cases identified - Medium confidence in task coverage"
-
-**If ANY verification fails:**
-1. Document the gap explicitly
-2. Assess impact (Blocker/High/Medium/Low)
-3. Create action items to resolve
-4. DO NOT proceed if Blocker-level gaps exist
 
 ## Output Format
 
