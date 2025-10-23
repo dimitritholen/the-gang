@@ -1,22 +1,24 @@
-# Feature Analysis Workflow
+# Complete SDLC Workflow with Advanced Prompt Engineering
 
-**Version**: 1.0.0
+**Version**: 2.0.0
 **Status**: Production Ready
 **Project Agnostic**: Works with any codebase
 
-A complete, project-agnostic workflow for analyzing features using modern prompt engineering techniques. This workflow orchestrates specialized AI agents through the entire SDLC—from requirements gathering to implementation planning—while preventing hallucinations, scope creep, and over-engineering.
+A complete, end-to-end SDLC workflow that takes features from idea to production-ready code using advanced prompt engineering techniques. This workflow orchestrates specialized AI agents through the entire software development lifecycle—from requirements gathering through actual implementation—while preventing hallucinations, scope creep, and over-engineering.
 
 ## 🎯 Overview
 
 ### What This Workflow Does
 
-Transforms a feature idea into a comprehensive, implementation-ready plan by:
+Transforms a feature idea into **working, tested, production-ready code** by:
 
-1. **Gathering Requirements** through structured, iterative questioning
-2. **Researching Technologies** with grounded, comparative analysis
-3. **Planning Implementation** with detailed task breakdowns and dependencies
-4. **Validating Scope** to prevent feature creep and maintain MVP focus
-5. **Synthesizing Knowledge** into actionable documentation
+1. **Gathering Requirements** through structured, iterative questioning (5-level framework + CoVe)
+2. **Researching Technologies** with grounded, comparative analysis (Step-Back + "According to...")
+3. **Planning Implementation** with detailed task breakdowns and dependencies (CoT + dependency graphs)
+4. **Validating Scope** to prevent feature creep and maintain MVP focus (MoSCoW prioritization)
+5. **Implementing Features** with quality gates and anti-hallucination measures (NEW)
+6. **Testing & Validation** with comprehensive test coverage (NEW)
+7. **Synthesizing Knowledge** into actionable documentation
 
 ### Why Use This Workflow
 
@@ -70,18 +72,27 @@ The workflow will:
 Run specific phases independently:
 
 ```bash
-# Only gather requirements
+# Planning Phase Commands
 /gather-requirements "Add payment processing"
-
-# Only research technologies (requires existing requirements)
 /research-tech "payment-processing"
-
-# Only plan implementation (requires requirements + tech analysis)
 /plan-implementation "payment-processing"
-
-# Only validate scope (requires all artifacts)
 /validate-scope "payment-processing"
+
+# Implementation Phase Commands (NEW)
+/implement-feature "payment-processing"  # Execute the implementation plan
 ```
+
+### Complete Workflow (Planning + Implementation)
+
+```bash
+# Step 1: Plan the feature (analysis workflow)
+/analyze-feature "Add payment processing with Stripe"
+
+# Step 2: Implement the planned feature (NEW)
+/implement-feature "payment-processing"
+```
+
+This takes you from idea → production-ready code.
 
 ## 🏗️ Architecture
 
@@ -90,48 +101,75 @@ Run specific phases independently:
 ```
 .claude/
 ├── commands/              # Slash commands (user interface)
-│   ├── analyze-feature.md
+│   ├── analyze-feature.md          # Planning phase orchestrator
 │   ├── gather-requirements.md
 │   ├── research-tech.md
 │   ├── plan-implementation.md
-│   └── validate-scope.md
+│   ├── validate-scope.md
+│   └── implement-feature.md        # 🆕 Implementation orchestrator
 │
 ├── agents/                # Specialized agent prompts
-│   ├── requirements-analyst.md
-│   ├── tech-researcher.md
-│   ├── implementation-planner.md
-│   ├── scope-guardian.md
-│   └── memory-manager.md
+│   ├── requirements-analyst.md     # Requirements elicitation
+│   ├── tech-researcher.md          # Technology research
+│   ├── implementation-planner.md   # Work breakdown
+│   ├── scope-guardian.md           # Scope protection
+│   ├── memory-manager.md           # Knowledge synthesis
+│   ├── senior-developer.md         # 🆕 Code implementation
+│   └── qa-engineer.md              # 🆕 Testing & validation
 │
 └── memory/                # Persistent knowledge storage
     ├── requirements-*.md
     ├── tech-analysis-*.md
     ├── implementation-plan-*.md
     ├── scope-validation-*.md
-    └── feature-brief-*.md
+    ├── feature-brief-*.md
+    ├── implementation-*.md         # 🆕 Implementation logs
+    ├── test-results-*.md           # 🆕 Test reports
+    └── implementation-summary-*.md # 🆕 Final summary
 ```
 
 ### Workflow Execution Flow
 
 ```mermaid
 graph TD
-    A[User: /analyze-feature] --> B[Requirements Analyst Agent]
-    B --> C[Memory: requirements-*.md]
-    C --> D[Tech Researcher Agent]
-    D --> E[Memory: tech-analysis-*.md]
-    E --> F[Implementation Planner Agent]
-    F --> G[Memory: implementation-plan-*.md]
-    G --> H[Scope Guardian Agent]
-    H --> I[Memory: scope-validation-*.md]
-    I --> J[Memory Manager Agent]
-    J --> K[Memory: feature-brief-*.md]
-    K --> L[Complete: Ready for Implementation]
+    %% Planning Phase
+    A[User: /analyze-feature] --> B[Requirements Analyst]
+    B --> C[requirements-*.md]
+    C --> D[Tech Researcher]
+    D --> E[tech-analysis-*.md]
+    E --> F[Implementation Planner]
+    F --> G[implementation-plan-*.md]
+    G --> H[Scope Guardian]
+    H --> I[scope-validation-*.md]
+    I --> J[Memory Manager]
+    J --> K[feature-brief-*.md]
+
+    %% Implementation Phase (NEW)
+    K --> L[User: /implement-feature]
+    L --> M[Implementation Orchestrator]
+    M --> N[For Each Task]
+    N --> O[Senior Developer]
+    O --> P[Chain-of-Thought]
+    P --> Q[Write Code]
+    Q --> R[Chain-of-Verification]
+    R --> S[QA Engineer]
+    S --> T[Generate Tests]
+    T --> U[Run Tests]
+    U --> V{Tests Pass?}
+    V -->|Yes| W[Quality Gate Check]
+    V -->|No| O
+    W --> X{More Tasks?}
+    X -->|Yes| N
+    X -->|No| Y[implementation-summary-*.md]
+    Y --> Z[Complete: Production Ready]
 
     style B fill:#4ecdc4
     style D fill:#4ecdc4
     style F fill:#4ecdc4
     style H fill:#4ecdc4
     style J fill:#4ecdc4
+    style O fill:#ff6b6b
+    style S fill:#95e1d3
 ```
 
 ## 🤖 Agents
@@ -209,6 +247,50 @@ graph TD
 
 **Output**: `feature-brief-{feature}.md`, `checklist-{feature}.md`
 
+---
+
+### 🆕 Senior Developer
+
+**Specialization**: Code implementation with advanced prompt engineering
+**Methodology**: CoT reasoning → Grounded implementation → CoVe verification → Testing
+
+**Key Techniques**:
+- Chain-of-Thought for implementation planning
+- "According to..." API verification (prevents hallucinations)
+- Step-Back prompting for complex algorithms
+- Security-first coding checklist
+- Multi-pass refinement (basic → edge cases → optimization → polish)
+
+**Anti-Hallucination Measures**:
+- Verifies all APIs in tech analysis or official docs
+- Flags assumptions explicitly
+- Cross-checks against requirements
+- No invented library methods
+
+**Output**: Production code files, implementation logs
+
+---
+
+### 🆕 QA Engineer
+
+**Specialization**: Comprehensive testing and quality assurance
+**Methodology**: Test strategy → Test generation → Automation → Execution → Reporting
+
+**Key Techniques**:
+- Test pyramid (unit, integration, E2E)
+- Edge case identification
+- Test data generation
+- Performance and security testing
+- Coverage analysis with gap identification
+
+**Quality Gates**:
+- 80%+ code coverage
+- All tests passing
+- Edge cases covered
+- Security checklist complete
+
+**Output**: Test suites, test results, coverage reports
+
 ## 🧠 Prompt Engineering Techniques
 
 This workflow implements state-of-the-art prompt engineering methods:
@@ -277,47 +359,120 @@ Agents adopt expert personas to focus their outputs.
 
 ## 📚 Usage Examples
 
-### Example 1: Complete Feature Analysis
+### Example 1: Complete End-to-End Workflow 🆕
+
+```bash
+# Step 1: Plan the feature
+/analyze-feature "Add user authentication with JWT tokens"
+
+# Step 2: Implement the feature
+/implement-feature "user-authentication"
+```
+
+**Planning Phase** (`/analyze-feature`):
+
+1. **Requirements Analyst** asks structured questions:
+   - Auth methods? (email/password, social login later)
+   - Token expiry? (1 hour access, 7 day refresh)
+   - Password requirements? (min 8 chars, complexity rules)
+   - Rate limiting? (5 failed attempts → 15 min lockout)
+   - **Output**: `requirements-user-authentication.md` (7 FRs, 5 NFRs)
+
+2. **Tech Researcher** evaluates options:
+   - According to jwt.io docs: JWT for stateless auth
+   - bcrypt for password hashing (OWASP recommended)
+   - Redis for token blacklist
+   - **Output**: `tech-analysis-user-authentication.md`
+
+3. **Implementation Planner** breaks down work:
+   - 12 tasks across 3 phases
+   - T-1-1: Database schema for users
+   - T-1-2: Password hashing utility
+   - T-2-1: Login endpoint with JWT generation
+   - T-2-2: Auth middleware for protected routes
+   - T-3-1: Token refresh endpoint
+   - **Output**: `implementation-plan-user-authentication.md`
+
+4. **Scope Guardian** validates:
+   - Confirms no scope creep
+   - Defers "OAuth social login" to Phase 2 (not in MVP)
+   - **Output**: `scope-validation-user-authentication.md`
+
+**Implementation Phase** 🆕 (`/implement-feature`):
+
+1. **Implementation Orchestrator** loads all planning artifacts and executes tasks in dependency order
+
+2. **For Task T-1-1** (Database schema):
+   - **Senior Developer** uses CoT:
+     ```
+     <reasoning>
+     Need users table with: id, email, password_hash, created_at
+     Password stored as hash (bcrypt), never plaintext
+     Email unique constraint for login
+     </reasoning>
+     ```
+   - Generates migration file
+   - Runs CoVe verification (checks against requirements)
+   - **QA Engineer** creates tests:
+     - Test: Schema has required columns
+     - Test: Email uniqueness enforced
+     - Test: No plaintext passwords possible
+   - **All tests pass** ✅
+
+3. **For Task T-2-1** (Login endpoint):
+   - **Senior Developer**:
+     - Reads requirements (rate limiting: 5 attempts)
+     - According to express-rate-limit docs: uses middleware
+     - Implements POST /auth/login endpoint
+     - Validates email/password
+     - Generates JWT with 1hr expiry
+     - Returns token + refresh token
+   - **QA Engineer** creates tests:
+     - Happy path: Valid credentials → returns tokens
+     - Edge case: Invalid password → 401 error
+     - Edge case: Non-existent email → 401 error
+     - Edge case: 6th failed attempt → 429 (rate limited)
+     - Security: SQL injection attempt → blocked
+   - **All tests pass** ✅
+   - **Quality Gate**: Coverage 87%, security checklist complete ✅
+
+4. **Process continues** for all 12 tasks...
+
+5. **Final Verification**:
+   - All 12 tasks complete
+   - 47 tests passing (unit + integration + E2E)
+   - Code coverage: 89%
+   - Security audit: No vulnerabilities
+   - Performance: Login latency <150ms (requirement: <500ms)
+   - **Output**: `implementation-summary-user-authentication.md`
+
+**Complete Output Files**:
+```
+.claude/memory/
+├── requirements-user-authentication.md        # 7 FRs, 5 NFRs
+├── tech-analysis-user-authentication.md       # JWT + bcrypt + Redis
+├── implementation-plan-user-authentication.md # 12 tasks, 3 phases
+├── scope-validation-user-authentication.md    # OAuth deferred
+├── feature-brief-user-authentication.md       # Stakeholder summary
+├── implementation-T-*.md                      # 12 task logs
+├── test-results-user-authentication.md        # 47 tests passing
+└── implementation-summary-user-authentication.md  # READY FOR PRODUCTION
+```
+
+**Timeline**: Planning (2-3 hours) + Implementation (3-4 days with testing)
+**Result**: Production-ready authentication system with comprehensive tests
+
+---
+
+### Example 2: Planning Only (Original Workflow)
 
 ```bash
 /analyze-feature "Add real-time collaborative editing to documents"
 ```
 
-**What Happens**:
-1. Requirements Analyst asks 15-20 structured questions about:
-   - Who will collaborate? (users, roles)
-   - What operations? (simultaneous edits, conflict resolution)
-   - Performance expectations? (latency < 200ms)
-   - Security? (access control, audit logs)
+**What Happens**: [Same as before - planning phase only]
 
-2. Tech Researcher evaluates options:
-   - Operational Transformation vs CRDT algorithms
-   - WebSocket vs Server-Sent Events vs HTTP polling
-   - Compares ShareDB vs Yjs vs Automerge
-   - Provides grounded recommendations with citations
-
-3. Implementation Planner creates:
-   - 30-40 granular tasks across 4 phases
-   - Dependency graph showing critical path
-   - Risk assessment (network latency, concurrent edits)
-   - Timeline estimate: 6-8 weeks
-
-4. Scope Guardian validates:
-   - Flags "collaborative video chat" as scope creep → defer to Phase 2
-   - Confirms MVP: text editing only (not spreadsheets/diagrams)
-   - Validates all tasks map to requirements
-
-5. Memory Manager synthesizes:
-   - Executive summary for stakeholders
-   - Technical brief for developers
-   - Implementation checklist with acceptance criteria
-
-**Output Files**:
-- `requirements-collaborative-editing.md` (8 functional, 6 non-functional requirements)
-- `tech-analysis-collaborative-editing.md` (Recommends: CRDT with Yjs + WebSocket)
-- `implementation-plan-collaborative-editing.md` (38 tasks, 4 phases, 6-8 weeks)
-- `scope-validation-collaborative-editing.md` (3 items deferred, MVP validated)
-- `feature-brief-collaborative-editing.md` (Ready for development)
+**Use Case**: When you want to plan first, implement later
 
 ---
 

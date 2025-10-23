@@ -53,6 +53,7 @@ Wait for completion, then proceed to Phase 5.
 Synthesize all artifacts into final deliverables.
 
 Use code-tools to:
+
 1. Read all artifacts from `.claude/memory/`
 2. Create comprehensive feature brief
 3. Generate implementation checklist

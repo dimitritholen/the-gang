@@ -31,12 +31,14 @@ code-tools list_dir --path . --depth 2
 ### Phase 2: Structured Questioning (5-Level Framework)
 
 #### Level 1: Purpose & Goals (3-5 questions)
+
 - What is the primary objective of this feature?
 - What problem does it solve for users?
 - Who are the target users/personas?
 - How will success be measured?
 
 #### Level 2: Functional Requirements (5-8 questions)
+
 - What specific actions must users be able to perform?
 - What are the key user workflows?
 - What data inputs are required?
@@ -45,6 +47,7 @@ code-tools list_dir --path . --depth 2
 - What are edge cases and error scenarios?
 
 #### Level 3: Non-Functional Requirements (4-6 questions)
+
 - Performance expectations? (response time, throughput)
 - Scalability requirements? (concurrent users, data volume)
 - Security/privacy requirements?
@@ -53,6 +56,7 @@ code-tools list_dir --path . --depth 2
 - Usability/UX expectations?
 
 #### Level 4: Constraints & Dependencies (3-5 questions)
+
 - Timeline or deadline constraints?
 - Budget limitations?
 - Technology stack preferences/constraints?
@@ -61,6 +65,7 @@ code-tools list_dir --path . --depth 2
 - Resource constraints (team size, skills)?
 
 #### Level 5: Acceptance Criteria (2-3 questions)
+
 - How will we know this feature is complete?
 - What are the must-have vs. nice-to-have capabilities?
 - What would constitute a minimum viable implementation?
@@ -188,6 +193,7 @@ code-tools create_file --file .claude/memory/requirements-{feature-slug}.md --co
 ## Success Criteria
 
 Your output is successful if:
+
 - ✅ All requirements are clear, testable, and unambiguous
 - ✅ User confirms completeness and accuracy
 - ✅ No assumptions are undocumented

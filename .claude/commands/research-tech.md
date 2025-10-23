@@ -70,6 +70,7 @@ For relevant categories (frontend, backend, database, infrastructure):
 #### Research 2-3 Viable Options
 
 For each option:
+
 ```bash
 # Fetch official documentation
 code-tools fetch_content --url {official-docs-url}
@@ -145,12 +146,14 @@ Create comparison matrix:
 For EVERY factual claim, use grounded language:
 
 **Good Examples**:
+
 - "According to the React documentation (react.dev), concurrent features enable..."
 - "Based on TechEmpower benchmarks (techempower.com/benchmarks), FastAPI achieves..."
 - "MongoDB's official scaling guide states that..."
 - "A 2024 Stack Overflow survey shows that..."
 
 **Avoid Ungrounded Claims**:
+
 - ❌ "React is the best framework"
 - ❌ "MongoDB is very scalable"
 - ❌ "Everyone uses PostgreSQL"
@@ -181,6 +184,7 @@ code-tools create_file --file .claude/memory/tech-analysis-$1.md --content @tech
 #### Document Structure
 
 Include all of:
+
 - Executive summary (2-3 sentences)
 - Current context (existing stack, team context)
 - Step-back analysis from Phase 2
@@ -204,6 +208,7 @@ Include all of:
 ## Success Criteria
 
 Your analysis is successful if:
+
 - ✅ Every recommendation is grounded in sources
 - ✅ Requirements alignment is explicitly shown
 - ✅ At least 2 viable alternatives are presented
