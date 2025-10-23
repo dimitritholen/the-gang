@@ -1,78 +1,233 @@
 ---
-allowed-tools: Bash, Read, Write, Grep, Glob
+allowed-tools: Task, Bash(code-tools:*), Read
 argument-hint: [feature-slug]
-description: Create detailed implementation plan with task breakdown and dependencies using Chain-of-Thought decomposition
+description: Orchestrate implementation planning by delegating to implementation-planner agent
 ---
 
-# Implementation Planning Command
+# Implementation Planning Orchestrator
 
-**Feature slug**: $1
+**System date assertion**: 2025-10-23
+**Feature slug**: $ARGUMENTS
 
-Act as a senior technical project manager and software architect specializing in breaking down complex features into manageable, actionable tasks with clear dependencies and risk mitigation.
+Act as an implementation planning orchestrator responsible for coordinating the feature decomposition workflow and ensuring comprehensive, actionable task breakdowns.
 
 ## Objective
 
-Create a comprehensive implementation plan that decomposes the feature into granular tasks (2-8 hours each), maps dependencies, identifies critical paths, and provides realistic effort estimates grounded in complexity analysis.
+Delegate implementation planning to the specialized implementation-planner agent while providing necessary context, validation checkpoints, and artifact structure enforcement.
 
 ## Methodology
 
-### Phase 1: Context Retrieval
+### Phase 0: Step-Back Prompting (Implementation Context)
 
-Gather all necessary context using code-tools:
+Before detailed planning, understand the implementation context:
 
-```bash
-# Retrieve requirements
-code-tools read_file --path .claude/memory/requirements-$1.md
+**Step-Back Questions**:
 
-# Retrieve tech analysis
-code-tools read_file --path .claude/memory/tech-analysis-$1.md
+```xml
+<implementation_context>
+<question>What is the core challenge of implementing this feature?</question>
+<challenge_types>
+- Greenfield: Building from scratch with design freedom
+- Brownfield: Integrating into existing complex system
+- Replacement: Swapping out legacy implementation
+- Extension: Adding to existing well-defined pattern
+- Migration: Moving from old approach to new paradigm
+</challenge_types>
+<purpose>Challenge type dictates decomposition strategy and risk profile</purpose>
 
-# Understand codebase structure
-code-tools list_dir --path . --depth 3
-code-tools search_file --glob "src/**/*" --limit 30
-code-tools grep_code --pattern "class |interface |function |def |func " --limit 50
+<question>What are the key integration boundaries?</question>
+<boundaries>
+- Database: Schema changes, data migrations, query optimization
+- API: Endpoint design, versioning, backward compatibility
+- Frontend: Component architecture, state management, user flows
+- External Services: Third-party APIs, webhooks, authentication
+- Background Jobs: Async processing, queue management, scheduling
+</boundaries>
 
-# Check for similar features
-code-tools search_memory --dir .claude/memory --query "implementation $1" --topk 5
+<question>What similar features exist in the codebase?</question>
+<purpose>Identify reusable patterns and reference implementations for estimation accuracy</purpose>
+
+<question>What is the team's experience level with required technologies?</question>
+<experience_levels>
+- Expert: Can implement complex features independently
+- Intermediate: Needs guidance on edge cases and optimization
+- Beginner: Requires detailed step-by-step instructions
+</experience_levels>
+<purpose>Experience level affects task granularity and buffer estimates</purpose>
+</implementation_context>
 ```
 
-### Phase 2: Chain-of-Thought Decomposition
+**Reason about implementation strategy**:
+
+```
+Given this is a {challenge_type} implementation with {key boundaries}, I should ensure planning includes:
+- {Strategy consideration 1}
+- {Strategy consideration 2}
+- {Risk mitigation approach}
+```
+
+### Phase 1: Prerequisites Validation
+
+Check for existing context before delegating:
+
+```bash
+# Load feature requirements
+code-tools read_file --path .claude/memory/requirements-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Requirements not found. Run /gather-requirements first."
+
+# Load technology analysis
+code-tools read_file --path .claude/memory/tech-analysis-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Tech analysis not found. Run /research-tech first."
+
+# Load codebase conventions
+code-tools read_file --path .claude/memory/coding-conventions.md 2>/dev/null || echo "No coding conventions found"
+
+# Load architecture decisions
+code-tools read_file --path .claude/memory/architecture-decisions.md 2>/dev/null || echo "No ADRs found"
+
+# Understand codebase structure
+code-tools list_dir --path . --depth 2
+
+# Search for similar features
+code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar features implementation patterns" --topk 5
+```
+
+**Context Summary for Agent**:
+
+```xml
+<existing_context>
+<requirements>
+{Summary of functional and non-functional requirements}
+{Acceptance criteria, constraints, MVP definition}
+{Critical requirements that must be addressed in plan}
+</requirements>
+
+<technology_stack>
+{Recommended technologies from tech-analysis-{feature}.md}
+{Integration requirements with existing stack}
+{New dependencies or frameworks to use}
+</technology_stack>
+
+<codebase_structure>
+{Directory organization from list_dir}
+{Key patterns observed (if conventions available)}
+{File naming and module organization}
+</codebase_structure>
+
+<architectural_constraints>
+{From architecture-decisions.md if available}
+{Patterns that must be followed}
+{Integration points that must be respected}
+</architectural_constraints>
+
+<similar_implementations>
+{Related features from memory search}
+{Patterns to reuse}
+{Complexity comparisons for estimation}
+</similar_implementations>
+
+<team_context>
+{Experience level if known from project-context.md}
+{Team size if relevant}
+{Available skills}
+</team_context>
+</existing_context>
+```
+
+### Phase 2: Agent Invocation with Comprehensive Context
+
+Delegate to implementation-planner agent via Task tool:
+
+```
+Create comprehensive implementation plan for feature: $ARGUMENTS
+
+**Role**: Act as a Senior Technical Project Manager and Software Architect specializing in breaking down complex features into manageable, actionable tasks with clear dependencies, risk mitigation, and realistic effort estimates.
+
+**Implementation Context**:
+{Paste implementation understanding from Step-Back phase}
+
+**Existing Project Context**:
+{Paste context summary from Phase 1}
+
+**Methodology**:
+
+Use the systematic planning and decomposition framework:
+
+**Phase 1: Chain-of-Thought Decomposition**
 
 Before creating tasks, reason through the implementation:
 
-```
+```xml
 <implementation_reasoning>
-**Major Components Needed**:
-1. {Component}: {Why needed}
-2. {Component}: {Why needed}
+<major_components>
+  <component>
+    <name>{Component}</name>
+    <why_needed>{Justification tied to requirements}</why_needed>
+    <complexity>Low|Medium|High</complexity>
+  </component>
+  <!-- List ALL major components (typically 5-12) -->
+</major_components>
 
-**Implementation Order Rationale**:
-- Start with: {Component} because {reason}
-- Then: {Component} because {depends on first}
-- Finally: {Component} because {builds on previous}
+<implementation_order>
+  <rationale>
+    <first>Start with: {Component}</first>
+    <reason>{Why this foundation is critical}</reason>
 
-**Critical Path Items**:
-- {Item}: Everything depends on this
-- {Item}: Blocks multiple downstream tasks
+    <then>Then: {Component}</then>
+    <reason>{Why this builds on first}</reason>
 
-**Parallel Opportunities**:
-- {Tasks} can run concurrently because {no dependencies}
+    <finally>Finally: {Component}</finally>
+    <reason>{Why this comes last}</reason>
+  </rationale>
+</implementation_order>
 
-**Integration Points**:
-- {System A} ↔ {System B}: {How they interact}
+<critical_path_items>
+  <item>
+    <what>{Task or component}</what>
+    <why_critical>Everything depends on this / Blocks multiple downstream tasks</why_critical>
+  </item>
+</critical_path_items>
 
-**Testing Strategy**:
-- Unit test after: {each component completion}
-- Integration test when: {components combined}
-- E2E test when: {full workflow complete}
+<parallel_opportunities>
+  <opportunity>
+    <tasks>{List of tasks}</tasks>
+    <why_parallel>No dependencies between them</why_parallel>
+  </opportunity>
+</parallel_opportunities>
 
-**Complexity Drivers**:
-- {Factor}: Makes implementation complex
-- {Mitigation}: How to reduce complexity
+<integration_points>
+  <integration>
+    <systems>{System A} ↔ {System B}</systems>
+    <interaction>{How they interact}</interaction>
+    <risk>{Integration risk}</risk>
+  </integration>
+</integration_points>
+
+<testing_strategy>
+  <unit_testing>
+    <when>After each component completion</when>
+    <focus>{What to unit test}</focus>
+  </unit_testing>
+
+  <integration_testing>
+    <when>When components combined</when>
+    <focus>{What to integration test}</focus>
+  </integration_testing>
+
+  <e2e_testing>
+    <when>Full workflow complete</when>
+    <focus>{Critical user journeys}</focus>
+  </e2e_testing>
+</testing_strategy>
+
+<complexity_drivers>
+  <driver>
+    <factor>{What makes this complex}</factor>
+    <mitigation>{How to reduce complexity}</mitigation>
+  </driver>
+</complexity_drivers>
 </implementation_reasoning>
 ```
 
-### Phase 3: Component Identification
+**Phase 2: Component Identification**
 
 Identify all components that need to be built/modified:
 
@@ -111,7 +266,7 @@ Identify all components that need to be built/modified:
 </components>
 ```
 
-### Phase 4: Granular Task Breakdown
+**Phase 3: Granular Task Breakdown**
 
 For each component, create specific tasks using this template:
 
@@ -134,14 +289,17 @@ For each component, create specific tasks using this template:
 
   <description>
     {Detailed description of what needs to be built/changed}
+    {Reference requirement IDs: FR-XXX, NFR-XXX}
   </description>
 
   <acceptance_criteria>
     <criterion testable="true">{Specific, measurable criterion}</criterion>
+    <!-- List 2-5 criteria per task -->
   </acceptance_criteria>
 
   <technical_approach>
     <step>{High-level implementation step}</step>
+    <!-- 3-7 steps describing how to implement -->
   </technical_approach>
 
   <files_affected>
@@ -154,7 +312,7 @@ For each component, create specific tasks using this template:
   </testing_requirements>
 
   <effort_estimate>
-    <hours>{Estimate in hours}</hours>
+    <hours>{Estimate in hours: 2-8}</hours>
     <confidence>High|Medium|Low</confidence>
     <assumptions>{Assumptions behind estimate}</assumptions>
   </effort_estimate>
@@ -171,20 +329,20 @@ For each component, create specific tasks using this template:
 **Task Granularity Guidelines**:
 
 - ✅ **Right-sized**: "Create User model with validation" (4-6 hours)
-- ❌ **Too large**: "Build entire authentication system" (40+ hours)
-- ❌ **Too small**: "Import bcrypt library" (15 minutes)
+- ❌ **Too large**: "Build entire authentication system" (40+ hours → break into 6-10 tasks)
+- ❌ **Too small**: "Import bcrypt library" (15 minutes → bundle with larger task)
 
 **SMART Task Characteristics**:
 
-- **Specific**: "Implement user login API endpoint" not "Work on auth"
-- **Measurable**: Clear acceptance criteria
-- **Achievable**: 2-8 hours of work (break larger tasks)
-- **Relevant**: Tied to requirements
-- **Time-bound**: Has effort estimate
+- **Specific**: "Implement POST /api/users/login endpoint with JWT auth" not "Work on auth"
+- **Measurable**: Clear acceptance criteria that can be tested
+- **Achievable**: 2-8 hours of work (break larger tasks into subtasks)
+- **Relevant**: Tied to specific requirement IDs (FR-XXX, NFR-XXX)
+- **Time-bound**: Has effort estimate with confidence level
 
-### Phase 5: Dependency Mapping
+**Phase 4: Dependency Mapping**
 
-Create visual dependency graph:
+Create visual dependency graph using Mermaid:
 
 ```mermaid
 graph TD
@@ -200,41 +358,48 @@ graph TD
     style T3_1 fill:#4ecdc4
 ```
 
-Identify:
+**Legend**:
+- **Red nodes**: Critical path (longest dependent sequence)
+- **Blue nodes**: Parallel tracks (independent concurrent work)
 
-- **Critical Path** (in red): Longest dependent sequence
-- **Parallel Tracks** (in blue): Independent concurrent work
-- **Bottlenecks**: Tasks blocking many others
+Identify:
+- **Critical Path**: Longest sequence of dependent tasks (determines minimum timeline)
+- **Bottlenecks**: Tasks blocking multiple downstream tasks
+- **Parallelization Opportunities**: Tasks that can run concurrently
 
 **Dependency Clarity**:
-
-- ✅ **Explicit**: "Depends on T-1-1 (Database schema) because models need tables"
+- ✅ **Explicit**: "Depends on T-1-1 (Database schema) because models need tables defined"
 - ❌ **Vague**: "Depends on database stuff"
 
-### Phase 6: Phase Organization
+**Phase 5: Phase Organization**
 
-Organize tasks into delivery phases:
+Organize tasks into iterative delivery phases:
 
 ```xml
 <implementation_phases>
   <phase number="1" name="Foundation">
-    <duration>{Estimate}</duration>
+    <duration>{Total hours across phase tasks}</duration>
     <goal>Establish core infrastructure and data models</goal>
 
     <tasks>
       <task_ref>T-1-1</task_ref>
       <task_ref>T-1-2</task_ref>
+      <!-- List all Phase 1 task IDs -->
     </tasks>
 
-    <deliverable>{What can be demoed/tested}</deliverable>
+    <deliverable>
+      {What can be demoed/tested at phase completion}
+      {e.g., "Database schema migrated, core models defined with tests"}
+    </deliverable>
 
     <exit_criteria>
       <criterion>{What must be true to proceed to Phase 2}</criterion>
+      <!-- e.g., "All migrations run successfully", "Unit tests pass" -->
     </exit_criteria>
   </phase>
 
   <phase number="2" name="Core Functionality">
-    <duration>{Estimate}</duration>
+    <duration>{Total hours}</duration>
     <depends_on>Phase 1</depends_on>
     <goal>Implement main business logic and APIs</goal>
 
@@ -243,155 +408,526 @@ Organize tasks into delivery phases:
       <task_ref>T-2-2</task_ref>
     </tasks>
 
-    <deliverable>{What can be demoed/tested}</deliverable>
+    <deliverable>{Functional API endpoints with integration tests}</deliverable>
+
+    <exit_criteria>
+      <criterion>{e.g., "All API endpoints return 200 for happy path"}</criterion>
+    </exit_criteria>
   </phase>
 
   <phase number="3" name="Integration & UI">
-    <duration>{Estimate}</duration>
+    <duration>{Total hours}</duration>
     <depends_on>Phase 2</depends_on>
     <goal>Connect frontend and complete user workflows</goal>
+
+    <deliverable>{End-to-end user flow working in development}</deliverable>
   </phase>
 
   <phase number="4" name="Polish & Testing">
-    <duration>{Estimate}</duration>
+    <duration>{Total hours}</duration>
     <depends_on>Phase 3</depends_on>
     <goal>E2E testing, performance optimization, documentation</goal>
+
+    <deliverable>{Production-ready feature meeting all NFRs}</deliverable>
   </phase>
 </implementation_phases>
 ```
 
-### Phase 7: Risk Assessment
+**Phase 6: Risk Assessment**
 
-For each identified risk:
+For each identified risk (technical, schedule, resource, external):
 
 ```xml
 <risk_register>
   <risk id="R-001">
     <category>Technical|Schedule|Resource|External</category>
+
     <description>{What could go wrong}</description>
+
     <probability>High|Medium|Low</probability>
     <impact>High|Medium|Low</impact>
-    <severity>{Probability × Impact}</severity>
+    <severity>{Calculated: High/High = Critical, Medium/Medium = Moderate, etc.}</severity>
 
     <indicators>
-      <indicator>{Early warning sign}</indicator>
+      <indicator>{Early warning sign this risk is materializing}</indicator>
     </indicators>
 
     <mitigation_strategy>
-      <preventive>{Actions to prevent risk}</preventive>
-      <contingent>{Actions if risk occurs}</contingent>
+      <preventive>
+        {Actions to prevent risk from occurring}
+        {e.g., "Prototype integration with external API in spike first"}
+      </preventive>
+
+      <contingent>
+        {Actions if risk occurs}
+        {e.g., "Implement fallback to polling if webhooks fail"}
+      </contingent>
     </mitigation_strategy>
 
-    <owner>{Who monitors this risk}</owner>
+    <owner>{Who monitors this risk - e.g., "Backend team lead"}</owner>
   </risk>
 </risk_register>
 ```
 
-### Phase 8: Quality Assurance Planning
+**Phase 7: Quality Assurance Planning**
 
-Define testing strategy:
+Define comprehensive testing strategy:
 
 ```xml
 <qa_plan>
   <unit_testing>
     <coverage_target>80%</coverage_target>
     <focus_areas>
-      <area>{Business logic}</area>
-      <area>{Data transformations}</area>
+      <area>Business logic (services, validators)</area>
+      <area>Data transformations</area>
+      <area>Edge cases and error paths</area>
     </focus_areas>
   </unit_testing>
 
   <integration_testing>
     <scenarios>
-      <scenario>{API + Database integration}</scenario>
-      <scenario>{External service integration}</scenario>
+      <scenario>API + Database integration</scenario>
+      <scenario>External service integration</scenario>
+      <scenario>Authentication flow</scenario>
     </scenarios>
   </integration_testing>
 
   <e2e_testing>
     <critical_user_journeys>
       <journey>{End-to-end workflow to test}</journey>
+      <journey>{e.g., "User registers → verifies email → logs in → completes action"}</journey>
     </critical_user_journeys>
   </e2e_testing>
 
   <performance_testing>
-    <benchmark>{Target metric from NFRs}</benchmark>
-    <test_approach>{How to validate}</test_approach>
+    <benchmark>{Target metric from NFR-PERF-XXX}</benchmark>
+    <test_approach>{How to validate - e.g., "Load test with 1000 concurrent users"}</test_approach>
   </performance_testing>
 </qa_plan>
 ```
 
-### Phase 9: Effort Estimation
+**Phase 8: Effort Estimation**
 
-Use complexity-driven estimation:
+Use complexity-driven estimation with buffer:
+
+**Base Estimates by Complexity**:
 
 | Complexity | Hours | Characteristics |
 |------------|-------|-----------------|
-| Low | 2-4 | CRUD operations, simple UI, known patterns |
-| Medium | 4-8 | Business logic, integrations, state management |
-| High | 8-16 | Complex algorithms, new tech, unclear requirements |
-| Unknown | TBD | Spike/research needed first |
+| Low | 2-4 | CRUD operations, simple UI components, known patterns |
+| Medium | 4-8 | Business logic, third-party integrations, state management |
+| High | 8-16 | Complex algorithms, new tech stack, unclear requirements |
+| Unknown | TBD | Requires spike/research task first (allocate 4-8 hours for spike) |
 
-**Add buffer**:
+**Add Buffer Based on Context**:
 
 - Junior team: +50%
 - New technology: +30%
 - Unclear requirements: +40%
+- Complex integrations: +25%
 
-### Phase 10: Create Implementation Plan Document
+**Example**: Medium task (6 hours) + New tech (30%) = 7.8 hours → Round to 8 hours
+
+**Phase 9: Chain-of-Verification (CoVe)**
+
+Before finalizing plan, verify:
+
+```xml
+<verification_checklist>
+<question>Are all tasks granular (2-8 hours each)?</question>
+<check>Scan all effort_estimate/hours values - none exceed 8</check>
+
+<question>Does every task have clear, testable acceptance criteria?</question>
+<check>Every task has 2-5 acceptance_criteria with testable="true"</check>
+
+<question>Are dependencies explicitly mapped with reasoning?</question>
+<check>Every dependency has "why this blocks" explanation</check>
+
+<question>Is the critical path identified and highlighted?</question>
+<check>Mermaid graph shows critical path in red</check>
+
+<question>Does every requirement from requirements doc have corresponding tasks?</question>
+<check>Cross-reference all FR-XXX and NFR-XXX IDs appear in task descriptions</check>
+
+<question>Are risks identified with preventive and contingent mitigations?</question>
+<check>Each risk has both preventive and contingent strategies</check>
+
+<question>Is the plan phased for iterative delivery with clear exit criteria?</question>
+<check>Each phase has deliverable and 2-4 exit criteria</check>
+
+<question>Are resource needs realistic given team composition?</question>
+<check>Total hours ÷ team size = reasonable timeline given constraints</check>
+
+<question>Does timeline align with constraints from requirements?</question>
+<check>Sum of phase durations ≤ deadline from requirements (or flag risk)</check>
+
+<question>Can a developer start implementing immediately from this plan?</question>
+<check>Each task has: description, technical_approach, files_affected, acceptance_criteria</check>
+
+<question>Are parallel opportunities identified to optimize timeline?</question>
+<check>parallel_with tags used where tasks have no dependencies</check>
+
+<question>Is effort estimation justified with assumptions?</question>
+<check>Each estimate has confidence level and assumptions documented</check>
+</verification_checklist>
+```
+
+Present summary to user and ask:
+> "Based on the above plan, have I broken down all requirements into actionable tasks? Are there any components or integration points I've missed?"
+
+**Iterate** until user confirms completeness.
+
+**Output Requirements**:
+
+Generate implementation plan document in the following structure (render as markdown):
+
+```xml
+<implementation_plan>
+  <metadata>
+    <feature_slug>{feature}</feature_slug>
+    <created>2025-10-23</created>
+    <planner>Implementation Planner Agent</planner>
+    <status>Draft</status>
+  </metadata>
+
+  <executive_summary>
+    <timeline>
+      {Total effort in hours and estimated calendar duration}
+      {e.g., "120 hours total, 6 weeks with 2 developers"}
+    </timeline>
+
+    <team_needs>
+      {Required team composition and skills}
+      {e.g., "1 backend (Python), 1 frontend (React), QA support 20%"}
+    </team_needs>
+
+    <approach>
+      {High-level implementation strategy in 2-3 sentences}
+      {Key architectural decisions}
+    </approach>
+
+    <risks_summary>
+      {Top 3 risks and mitigation approach}
+    </risks_summary>
+  </executive_summary>
+
+  <implementation_strategy>
+    <!-- Include full <implementation_reasoning> XML from Phase 1 -->
+  </implementation_strategy>
+
+  <component_analysis>
+    <!-- Include full <components> XML from Phase 2 -->
+  </component_analysis>
+
+  <work_breakdown_structure>
+    <phase number="1" name="{Phase Name}">
+      <!-- Include full phase XML from Phase 5 -->
+
+      <tasks>
+        <!-- Include ALL <task> XML blocks from Phase 3 for this phase -->
+      </tasks>
+    </phase>
+
+    <!-- Repeat for all phases (typically 3-5 phases) -->
+  </work_breakdown_structure>
+
+  <dependency_graph>
+    <!-- Include Mermaid diagram from Phase 4 -->
+  </dependency_graph>
+
+  <critical_path_analysis>
+    <critical_tasks>
+      <task_id>T-X-Y</task_id>
+      <reason>{Why this is on critical path}</reason>
+    </critical_tasks>
+
+    <duration>{Sum of critical path task hours}</duration>
+
+    <bottlenecks>
+      <bottleneck>
+        <task_id>T-X-Y</task_id>
+        <blocked_tasks>{List of task IDs blocked by this}</blocked_tasks>
+        <mitigation>{How to unblock or parallelize}</mitigation>
+      </bottleneck>
+    </bottlenecks>
+  </critical_path_analysis>
+
+  <resource_requirements>
+    <team_composition>
+      <role>
+        <title>{e.g., "Backend Developer"}</title>
+        <skills_required>{Python, FastAPI, PostgreSQL}</skills_required>
+        <allocation>{Full-time|Part-time %}</allocation>
+        <duration>{How long needed}</duration>
+      </role>
+    </team_composition>
+
+    <tools_and_infrastructure>
+      {Development environment needs}
+      {Third-party service accounts}
+      {Testing infrastructure}
+    </tools_and_infrastructure>
+  </resource_requirements>
+
+  <risk_register>
+    <!-- Include ALL <risk> XML blocks from Phase 6 -->
+  </risk_register>
+
+  <qa_plan>
+    <!-- Include full <qa_plan> XML from Phase 7 -->
+  </qa_plan>
+
+  <definition_of_done>
+    <completion_checklist>
+      <item>All tasks completed with acceptance criteria met</item>
+      <item>Unit test coverage ≥ 80%</item>
+      <item>Integration tests pass for all critical paths</item>
+      <item>E2E tests pass for all user journeys</item>
+      <item>Performance benchmarks meet NFR targets</item>
+      <item>Code reviewed and merged</item>
+      <item>Documentation updated</item>
+      <item>Production deployment successful</item>
+    </completion_checklist>
+  </definition_of_done>
+
+  <timeline_and_milestones>
+    <phase_timeline>
+      <phase number="1">
+        <start_date>{Calculated or TBD}</start_date>
+        <end_date>{Calculated or TBD}</end_date>
+        <milestone>{Phase deliverable}</milestone>
+      </phase>
+    </phase_timeline>
+
+    <constraints>
+      {Deadline from requirements if any}
+      {Dependencies on external teams/services}
+    </constraints>
+  </timeline_and_milestones>
+
+  <requirements_traceability>
+    <requirement id="FR-001">
+      <covered_by_tasks>
+        <task_id>T-2-3</task_id>
+        <task_id>T-3-1</task_id>
+      </covered_by_tasks>
+    </requirement>
+    <!-- Map ALL requirements to tasks -->
+  </requirements_traceability>
+
+  <verification_confirmation>
+    {Confirmation that all CoVe checks passed}
+    {Any assumptions or uncertainties flagged}
+  </verification_confirmation>
+
+  <open_questions>
+    <question priority="High|Medium|Low">
+      {Question requiring clarification before implementation}
+      {Impact if not resolved}
+    </question>
+  </open_questions>
+</implementation_plan>
+```
+
+**Anti-Hallucination Safeguards**:
+
+1. **Requirement Grounding**: Every task references specific FR-XXX or NFR-XXX IDs
+2. **Realistic Estimates**: Estimates based on complexity table + buffer, not gut feel
+3. **Explicit Dependencies**: Every dependency has "why this blocks" reasoning
+4. **Testable Criteria**: Every acceptance criterion can be verified objectively
+5. **No Invented Components**: Only decompose components needed for actual requirements
+6. **Conservative Buffers**: When uncertain, add buffer and document assumption
+
+**Best Practices**:
+
+- **Granular Tasks**: 2-8 hours each for predictability
+- **Clear Dependencies**: Explicit reasoning for all blocking relationships
+- **Phased Delivery**: Iterative phases with working deliverables
+- **Risk-Aware**: Identify and mitigate risks proactively
+- **Testable**: Every task has measurable acceptance criteria
+- **Traceable**: All requirements mapped to tasks
+
+**Iterative Refinement**:
+
+After presenting initial plan:
+1. Ask user to confirm all components are covered
+2. Validate timeline aligns with constraints
+3. Refine based on feedback
+4. Re-verify with CoVe checklist
+5. Iterate until user approves
+
+Return final implementation plan document content ready to write to file.
+```
+
+### Phase 3: Validation and Artifact Creation
+
+After agent completes implementation planning:
+
+**Validation Checklist**:
+
+```xml
+<orchestrator_validation>
+<question>Did agent perform Chain-of-Thought decomposition?</question>
+<check>Verify implementation_reasoning section present with all subsections</check>
+
+<question>Are all tasks granular (2-8 hours)?</question>
+<check>Scan all effort_estimate/hours - none should exceed 8 hours</check>
+<check>Tasks >8 hours should be flagged for breakdown</check>
+
+<question>Do all tasks have testable acceptance criteria?</question>
+<check>Each task has 2-5 acceptance_criteria with testable="true"</check>
+
+<question>Are dependencies explicitly mapped?</question>
+<check>Every dependency has reasoning ("why this blocks")</check>
+
+<question>Is the dependency graph present and correct?</question>
+<check>Mermaid diagram shows all task relationships</check>
+<check>Critical path highlighted in red</check>
+
+<question>Are all requirements traced to tasks?</question>
+<check>requirements_traceability section maps every FR-XXX and NFR-XXX to task IDs</check>
+<check>No requirements orphaned (unmapped)</check>
+
+<question>Did agent organize into phased delivery?</question>
+<check>3-5 phases with deliverables and exit criteria</check>
+
+<question>Are risks identified with mitigations?</question>
+<check>Each risk has both preventive and contingent strategies</check>
+
+<question>Is QA plan comprehensive?</question>
+<check>Covers unit, integration, E2E, and performance testing</check>
+
+<question>Did agent perform CoVe validation?</question>
+<check>verification_confirmation section present</check>
+<check>All 12 CoVe questions addressed</check>
+
+<question>Is output in correct XML structure?</question>
+<check>Verify all required sections present</check>
+</orchestrator_validation>
+```
+
+**Write to Memory**:
 
 ```bash
-code-tools create_file --file .claude/memory/implementation-plan-$1.md --content @impl-plan.txt
+# Write implementation plan to memory
+code-tools create_file \
+  --file .claude/memory/implementation-plan-$ARGUMENTS.md \
+  --content @- \
+  --add-last-line-newline <<EOF
+{Agent's implementation plan document content}
+EOF
 ```
 
-#### Document Structure
+### Phase 4: Quality Gates
 
-Include all of:
+Before considering planning complete, verify:
 
-1. **Executive Summary** (timeline, team needs, approach)
-2. **Implementation Strategy** (chain-of-thought reasoning from Phase 2)
-3. **Component Analysis** (all components identified in Phase 3)
-4. **Work Breakdown Structure** (all tasks by phase with full XML detail)
-5. **Dependency Graph** (Mermaid diagram from Phase 5)
-6. **Critical Path Analysis** (bottlenecks, duration, blockers)
-7. **Resource Requirements** (team composition, skills needed)
-8. **Risk Register** (all identified risks with mitigations)
-9. **Quality Assurance Plan** (testing strategy from Phase 8)
-10. **Definition of Done** (completion checklist)
-11. **Timeline & Milestones** (dates, deliverables, phase gates)
+**Completeness Gates**:
 
-## Verification Checklist
+- [ ] Chain-of-Thought reasoning addresses components, order, critical path, parallel opportunities
+- [ ] All major components identified (typically 5-12)
+- [ ] All tasks are 2-8 hours each
+- [ ] Every task has 2-5 testable acceptance criteria
+- [ ] Dependencies mapped with explicit reasoning
+- [ ] Dependency graph visualized with critical path
+- [ ] Plan organized into 3-5 phased deliveries
+- [ ] Each phase has deliverable and exit criteria
+- [ ] All requirements traced to tasks
+- [ ] Risks identified with mitigations
+- [ ] QA plan covers all testing levels
+- [ ] User confirmed completeness
 
-Before finalizing the implementation plan, verify:
+**Quality Gates**:
+
+- [ ] No tasks exceed 8 hours (break into subtasks)
+- [ ] No vague dependencies ("depends on database stuff")
+- [ ] All acceptance criteria are measurable
+- [ ] Effort estimates have confidence levels and assumptions
+- [ ] Critical path identified and duration calculated
+- [ ] Bottlenecks identified with mitigation strategies
+- [ ] Resource needs realistic for team composition
+- [ ] Timeline aligns with requirements constraints
+
+**Traceability Gates**:
+
+- [ ] Every FR-XXX mapped to at least one task
+- [ ] Every NFR-XXX mapped to at least one task
+- [ ] No orphaned tasks (not tied to requirements)
+- [ ] Feature name matches argument
+- [ ] Created date is today (2025-10-23)
+- [ ] Status is Draft
+- [ ] File saved to .claude/memory/implementation-plan-{slug}.md
+
+## Error Handling
+
+**Agent Returns Incomplete Plan**:
 
 ```
-<verification_questions>
-1. ✅ Are all tasks granular (2-8 hours each)?
-2. ✅ Does every task have clear, testable acceptance criteria?
-3. ✅ Are dependencies explicitly mapped with reasoning?
-4. ✅ Is the critical path identified and highlighted?
-5. ✅ Does every requirement from requirements doc have corresponding tasks?
-6. ✅ Are risks identified with preventive and contingent mitigations?
-7. ✅ Is the plan phased for iterative delivery with clear exit criteria?
-8. ✅ Are resource needs realistic given team composition?
-9. ✅ Does timeline align with constraints from requirements?
-10. ✅ Can a developer start implementing immediately from this plan?
-</verification_questions>
+If missing required sections or phases:
+  - Report: "Implementation plan incomplete - missing {sections}"
+  - Re-invoke agent with specific instruction to complete missing parts
+  - Do NOT accept incomplete output
+```
+
+**Agent Creates Overly Large Tasks**:
+
+```
+If tasks exceed 8 hours:
+  - Identify specific tasks > 8 hours
+  - Re-invoke agent: "Please break down the following tasks into 2-8 hour subtasks: {task IDs}"
+  - Do NOT accept plan with large tasks
+```
+
+**Missing Prerequisites**:
+
+```
+If requirements-{feature}.md not found:
+  - Cannot plan without requirements
+  - Recommend: /gather-requirements {feature} first
+  - Exit with error message
+
+If tech-analysis-{feature}.md not found:
+  - Cannot plan without tech decisions
+  - Recommend: /research-tech {feature} first
+  - Exit with error message
+```
+
+**Requirements Not Fully Traced**:
+
+```
+If some requirements have no corresponding tasks:
+  - Report: "Requirements {FR-XXX, FR-YYY} not mapped to tasks"
+  - Re-invoke agent to add missing tasks
+  - Do NOT accept plan with unmapped requirements
+```
+
+**Validation Fails**:
+
+```
+If orchestrator validation checklist fails:
+  - Identify specific failures
+  - Re-invoke agent with corrective instructions
+  - Do NOT write to memory until validation passes
 ```
 
 ## Success Criteria
 
-Your implementation plan is successful if:
+Implementation planning is successful when:
 
-- ✅ All tasks are granular (2-8 hours each)
-- ✅ Dependencies are clearly mapped with explicit reasoning
-- ✅ Critical path is identified and visualized
+- ✅ All tasks granular (2-8 hours each)
+- ✅ Dependencies clearly mapped with explicit reasoning
+- ✅ Critical path identified and visualized
 - ✅ Each task has testable acceptance criteria
-- ✅ Risks are identified with mitigations (preventive and contingent)
-- ✅ Plan is phased for iterative delivery
-- ✅ Resource needs are realistic
-- ✅ Timeline aligns with constraints from requirements
-- ✅ Every requirement has corresponding tasks
+- ✅ Risks identified with mitigations (preventive and contingent)
+- ✅ Plan phased for iterative delivery
+- ✅ Resource needs realistic
+- ✅ Timeline aligns with constraints
+- ✅ Every requirement traced to tasks
 - ✅ Plan is actionable (developer can start immediately)
+- ✅ Document written to .claude/memory/implementation-plan-{slug}.md
 
-Begin implementation planning now using Chain-of-Thought decomposition and structured task breakdown.
+## Output
+
+Comprehensive implementation plan artifact in `.claude/memory/implementation-plan-{slug}.md` ready for scope validation phase.
+
+**Next Steps**: Run `/validate-scope {feature-slug}` to check for feature creep and MVP alignment.
