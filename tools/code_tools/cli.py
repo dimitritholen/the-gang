@@ -532,7 +532,7 @@ def cmd_list_memory_artifacts(args: argparse.Namespace) -> None:
 
 
 def cmd_query_memory(args: argparse.Namespace) -> None:
-    """Query knowledge graph with natural language"""
+    """Query knowledge graph with natural language OR semantic code search"""
     from code_tools.graph import GraphStore, EntityType, RelationshipType
     from code_tools.builders.feature_graph_builder import FeatureGraphBuilder
 
@@ -544,6 +544,14 @@ def cmd_query_memory(args: argparse.Namespace) -> None:
     if not memory_dir.exists():
         _err("query_memory", f"Memory dir not found: {memory_dir}")
 
+    # Check if semantic mode is requested
+    if mode == "semantic":
+        # Semantic code search
+        results = _query_semantic(memory_dir, query, args)
+        _ok("query_memory", results)
+        return
+
+    # Original graph query modes
     store = GraphStore(memory_dir)
 
     # Mode: direct (graph query) or nlp (LLM-powered)
@@ -554,7 +562,15 @@ def cmd_query_memory(args: argparse.Namespace) -> None:
         # LLM-powered query translation (placeholder)
         results = _query_nlp(store, feature, query, args)
     else:  # auto
-        # Try direct first, fall back to NLP if no results
+        # Try semantic first if codebase.db exists
+        codebase_db = memory_dir / "codebase.db"
+        if codebase_db.exists():
+            semantic_results = _query_semantic(memory_dir, query, args)
+            if semantic_results.get('results'):
+                _ok("query_memory", semantic_results)
+                return
+
+        # Fall back to direct graph query
         results = _query_direct(store, feature, query, args)
         if not results.get('entities') and not results.get('relationships'):
             results = _query_nlp(store, feature, query, args)
@@ -637,29 +653,277 @@ def _query_nlp(store: Any, feature: Optional[str], query: str, args: argparse.Na
     }
 
 
+def _query_semantic(memory_dir: Path, query: str, args: argparse.Namespace) -> Dict[str, Any]:
+    """Semantic code search using vector similarity"""
+    from code_tools.vector_store import VectorStore
+    from code_tools.embeddings import create_embedding_provider
+
+    db_path = memory_dir / "codebase.db"
+
+    if not db_path.exists():
+        return {
+            'mode': 'semantic',
+            'query': query,
+            'error': 'Code index not found. Run: code-tools sync_memory_graph --mode code',
+            'results': []
+        }
+
+    # Initialize components
+    store = VectorStore(db_path)
+
+    try:
+        provider = create_embedding_provider(
+            provider_type='openai',
+            cache_dir=memory_dir,
+            cache_enabled=True
+        )
+    except Exception as e:
+        return {
+            'mode': 'semantic',
+            'query': query,
+            'error': f'Failed to initialize embedding provider: {e}',
+            'results': []
+        }
+
+    # Generate query embedding
+    try:
+        query_embedding = provider.embed(query)
+    except Exception as e:
+        return {
+            'mode': 'semantic',
+            'query': query,
+            'error': f'Failed to generate query embedding: {e}',
+            'results': []
+        }
+
+    # Search
+    limit = getattr(args, 'limit', 10)
+    file_filter = getattr(args, 'file_filter', None)
+    chunk_type = getattr(args, 'chunk_type', None)
+
+    try:
+        search_results = store.search(
+            query_embedding,
+            limit=limit,
+            file_filter=file_filter,
+            chunk_type_filter=chunk_type
+        )
+    except Exception as e:
+        return {
+            'mode': 'semantic',
+            'query': query,
+            'error': f'Search failed: {e}',
+            'results': []
+        }
+
+    # Format results
+    results = []
+    for chunk, similarity in search_results:
+        results.append({
+            'file': chunk.file_path,
+            'lines': f"{chunk.start_line}-{chunk.end_line}",
+            'type': chunk.chunk_type,
+            'name': chunk.name,
+            'similarity': round(similarity, 4),
+            'preview': chunk.content[:200] + ('...' if len(chunk.content) > 200 else '')
+        })
+
+    return {
+        'mode': 'semantic',
+        'query': query,
+        'results': results,
+        'count': len(results)
+    }
+
+
 def cmd_sync_memory_graph(args: argparse.Namespace) -> None:
-    """Sync markdown files to JSONL graph"""
+    """Sync markdown files to JSONL graph OR index code for semantic search"""
     from code_tools.builders.feature_graph_builder import FeatureGraphBuilder
 
     memory_dir = Path(args.dir or ".claude/memory")
     feature = args.feature
+    mode = getattr(args, 'mode', 'memory')
 
     if not memory_dir.exists():
         _err("sync_memory_graph", f"Memory dir not found: {memory_dir}")
 
-    builder = FeatureGraphBuilder(memory_dir)
-
-    if feature:
-        # Sync single feature
-        result = builder.rebuild_feature(feature, memory_dir)
-        _ok("sync_memory_graph", result)
+    if mode == 'code':
+        # Index code for semantic search
+        _sync_code_index(memory_dir, args)
     else:
-        # Sync all features
-        results = builder.sync_all(memory_dir)
+        # Sync memory artifacts (original behavior)
+        builder = FeatureGraphBuilder(memory_dir)
+
+        if feature:
+            # Sync single feature
+            result = builder.rebuild_feature(feature, memory_dir)
+            _ok("sync_memory_graph", result)
+        else:
+            # Sync all features
+            results = builder.sync_all(memory_dir)
+            _ok("sync_memory_graph", {
+                'synced_features': len(results),
+                'features': results
+            })
+
+
+def _sync_code_index(memory_dir: Path, args: argparse.Namespace) -> None:
+    """Index codebase for semantic search"""
+    from code_tools.vector_store import VectorStore
+    from code_tools.embeddings import create_embedding_provider
+    from code_tools.chunker import chunk_directory
+
+    # Pre-flight check: Validate API key before expensive operations
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if not openai_api_key:
+        _err("sync_memory_graph",
+             "OPENAI_API_KEY not found in environment. "
+             "Set it with: export OPENAI_API_KEY='your-key-here'")
+        return
+
+    # Get configuration
+    root_dir = Path(getattr(args, 'root', Path.cwd()))
+    extensions = getattr(args, 'extensions', None)
+    if extensions:
+        extensions = extensions.split(',')
+
+    # Initialize components
+    db_path = memory_dir / "codebase.db"
+    store = VectorStore(db_path)
+
+    try:
+        provider = create_embedding_provider(
+            provider_type='openai',
+            cache_dir=memory_dir,
+            cache_enabled=True
+        )
+    except Exception as e:
+        _err("sync_memory_graph", f"Failed to initialize embedding provider: {e}")
+        return
+
+    # Chunk codebase
+    print(f"Scanning {root_dir} for code files...", file=sys.stderr)
+    all_chunks = chunk_directory(root_dir, extensions=extensions)
+    print(f"Found {len(all_chunks)} code chunks across files", file=sys.stderr)
+
+    if not all_chunks:
         _ok("sync_memory_graph", {
-            'synced_features': len(results),
-            'features': results
+            'mode': 'code',
+            'chunks_indexed': 0,
+            'message': 'No code files found'
         })
+        return
+
+    # Group chunks by file for incremental updates
+    chunks_by_file: Dict[str, List[Any]] = {}
+    for chunk in all_chunks:
+        if chunk.file_path not in chunks_by_file:
+            chunks_by_file[chunk.file_path] = []
+        chunks_by_file[chunk.file_path].append(chunk)
+
+    # Check for --rebuild flag
+    force_rebuild = getattr(args, 'rebuild', False)
+
+    # Filter to only files that need updating
+    files_to_index = []
+    skipped_files = 0
+
+    for file_path, file_chunks in chunks_by_file.items():
+        # Compute current file hash
+        try:
+            file_content = Path(file_path).read_text(encoding='utf-8')
+            current_hash = hashlib.sha256(file_content.encode()).hexdigest()
+        except Exception:
+            continue
+
+        # Check if file needs reindexing
+        stored_hash = store.get_file_hash(file_path)
+        if not force_rebuild and stored_hash == current_hash:
+            skipped_files += 1
+            continue
+
+        files_to_index.append((file_path, file_chunks, current_hash))
+
+    print(f"Files to index: {len(files_to_index)}, skipped (unchanged): {skipped_files}",
+          file=sys.stderr)
+
+    if not files_to_index:
+        _ok("sync_memory_graph", {
+            'mode': 'code',
+            'chunks_indexed': 0,
+            'files_indexed': 0,
+            'files_skipped': skipped_files,
+            'message': 'All files up to date'
+        })
+        return
+
+    # Flatten chunks for batch processing
+    chunks = []
+    for _, file_chunks, _ in files_to_index:
+        chunks.extend(file_chunks)
+
+    # Generate embeddings in batches
+    batch_size = 50
+    total_indexed = 0
+
+    # Try to use tqdm for progress bar, fallback to basic print
+    try:
+        from tqdm import tqdm
+        progress_bar = tqdm(total=len(chunks), desc="Indexing", unit="chunks", file=sys.stderr)
+        use_tqdm = True
+    except ImportError:
+        progress_bar = None
+        use_tqdm = False
+
+    for i in range(0, len(chunks), batch_size):
+        batch = chunks[i:i + batch_size]
+        if not use_tqdm:
+            print(f"Processing batch {i // batch_size + 1} ({len(batch)} chunks)...",
+                  file=sys.stderr)
+
+        # Generate embeddings
+        texts = [chunk.content for chunk in batch]
+        try:
+            embeddings = provider.embed_batch(texts)
+        except Exception as e:
+            if use_tqdm:
+                progress_bar.close()
+            _err("sync_memory_graph", f"Failed to generate embeddings: {e}")
+            return
+
+        # Attach embeddings to chunks
+        for chunk, embedding in zip(batch, embeddings):
+            chunk.embedding = embedding
+
+        # Store in database
+        store.batch_upsert(batch)
+        total_indexed += len(batch)
+
+        # Update progress
+        if use_tqdm:
+            progress_bar.update(len(batch))
+        else:
+            print(f"Indexed {total_indexed}/{len(chunks)} chunks", file=sys.stderr)
+
+    if use_tqdm:
+        progress_bar.close()
+
+    # Update file hashes
+    for file_path, file_chunks, current_hash in files_to_index:
+        store.update_file_hash(file_path, current_hash, len(file_chunks))
+
+    # Get statistics
+    stats = store.get_stats()
+    cache_stats = provider.get_cache_stats()
+
+    _ok("sync_memory_graph", {
+        'mode': 'code',
+        'chunks_indexed': total_indexed,
+        'files_indexed': len(files_to_index),
+        'files_skipped': skipped_files,
+        'db_stats': stats,
+        'cache_stats': cache_stats
+    })
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -749,23 +1013,41 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--feature", default=None, help="Optional feature filter")
     sp.set_defaults(func=cmd_list_memory_artifacts)
 
-    sp = sub.add_parser("query_memory", help="Query knowledge graph with natural language")
+    sp = sub.add_parser("query_memory", help="Query knowledge graph OR semantic code search")
     sp.add_argument("--dir", default=".claude/memory", help="Memory directory")
     sp.add_argument("--query", required=True, help="Natural language query")
     sp.add_argument("--feature", default=None, help="Feature slug to query")
-    sp.add_argument("--mode", choices=["auto", "direct", "nlp"], default="auto", help="Query mode")
+    sp.add_argument("--mode", choices=["auto", "direct", "nlp", "semantic"], default="auto",
+                    help="Query mode: 'auto', 'direct', 'nlp', or 'semantic' for code search")
     sp.add_argument("--limit", type=int, default=10, help="Max results to return")
+    sp.add_argument("--file-filter", default=None, help="Filter results by file path (semantic mode)")
+    sp.add_argument("--chunk-type", default=None, help="Filter by chunk type (semantic mode)")
     sp.set_defaults(func=cmd_query_memory)
 
-    sp = sub.add_parser("sync_memory_graph", help="Sync markdown files to JSONL knowledge graph")
+    sp = sub.add_parser("sync_memory_graph", help="Sync markdown files to JSONL knowledge graph OR index code")
     sp.add_argument("--dir", default=".claude/memory", help="Memory directory")
     sp.add_argument("--feature", default=None, help="Feature slug (sync single feature)")
+    sp.add_argument("--mode", choices=["memory", "code"], default="memory",
+                    help="Sync mode: 'memory' for artifacts, 'code' for codebase indexing")
+    sp.add_argument("--root", default=None, help="Root directory for code indexing (default: cwd)")
+    sp.add_argument("--extensions", default=None,
+                    help="Comma-separated extensions for code indexing (e.g., '.py,.js,.ts')")
+    sp.add_argument("--rebuild", action="store_true",
+                    help="Force full rebuild, ignore file hashes (code mode only)")
     sp.set_defaults(func=cmd_sync_memory_graph)
 
     return p
 
 
 def main(argv: List[str] | None = None) -> None:
+    # Load .env file if present (fallback to system env vars)
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        # python-dotenv not installed, continue with system env vars only
+        pass
+
     parser = build_parser()
     args = parser.parse_args(argv)
     args.func(args)

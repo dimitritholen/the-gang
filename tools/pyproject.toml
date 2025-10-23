@@ -10,10 +10,15 @@ readme = "README.md"
 requires-python = ">=3.9"
 authors = [{ name = "Your Team" }]
 license = { text = "Proprietary" }
-dependencies = []
+dependencies = [
+    "sqlite-vss>=0.1.2",
+    "numpy>=1.24.0",
+    "python-dotenv>=1.0.0"
+]
 
 [project.optional-dependencies]
 web = ["requests>=2.31.0"]
+embeddings = ["anthropic>=0.18.0"]
 
 [project.scripts]
 code-tools = "code_tools.cli:main"
