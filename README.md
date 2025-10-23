@@ -1,7 +1,7 @@
 # Complete SDLC Workflow with Advanced Prompt Engineering
 
-**Version**: 2.0.0
-**Status**: Production Ready
+**Version**: 2.1.0
+**Status**: Production Ready (Phase 2 Orchestration Complete)
 **Project Agnostic**: Works with any codebase
 
 A complete, end-to-end SDLC workflow that takes features from idea to production-ready code using advanced prompt engineering techniques. This workflow orchestrates specialized AI agents through the entire software development lifecycle—from requirements gathering through actual implementation—while preventing hallucinations, scope creep, and over-engineering.
@@ -57,7 +57,7 @@ Transforms a feature idea into **working, tested, production-ready code** by:
 
 ### For Existing Codebases (Brownfield)
 
-**Step 1: Generate memory baseline** (one-time setup):
+**Step 1: Generate memory baseline** (one-time setup per codebase):
 
 ```bash
 /generate-memory
@@ -103,28 +103,26 @@ The workflow will:
 Run specific phases independently:
 
 ```bash
-# Memory Generation (for existing codebases)
-/generate-memory                           # Deep analysis of entire codebase
-/generate-memory --scope "src/frontend"    # Analyze specific directory
-/generate-memory --focus "architecture"    # Focus on specific aspect
-/update-memory "tech-stack"                # Refresh after dependency changes
-/validate-consistency "new-feature"        # Check feature against conventions
-/mine-patterns --type "error-handling"     # Extract dominant patterns
+# Memory Generation Commands (for existing codebases)
+/generate-memory                           # Deep analysis of entire codebase → 5 baseline artifacts
+/update-memory "tech-stack"                # Incremental update after dependency changes
+/validate-consistency "new-feature"        # Validate feature against codebase conventions
+/mine-patterns --type "error-handling"     # Extract dominant patterns (8 types)
 
-# Planning Phase Commands
-/gather-requirements "Add payment processing"
-/research-tech "payment-processing"
-/plan-implementation "payment-processing"
-/validate-scope "payment-processing"
+# Planning Phase Commands (orchestrators → delegate to specialized agents)
+/gather-requirements "Add payment processing"   # → requirements-analyst agent
+/research-tech "payment-processing"             # → tech-researcher agent
+/plan-implementation "payment-processing"       # → implementation-planner agent
+/validate-scope "payment-processing"            # → scope-guardian agent
 
 # Design Phase Command
-/design-ui "payment-processing"  # Create UX/UI specifications
+/design-ui "payment-processing"            # → ux-ui-designer agent
 
-# Implementation Phase Commands
-/implement-feature "payment-processing"  # Execute the implementation plan
+# Implementation Phase Command
+/implement-feature "payment-processing"    # → senior-developer + qa-engineer agents
 
 # Code Review Phase Command
-/review-code "payment-processing"  # Peer review before merge
+/review-code "payment-processing"          # → code-review-specialist agent
 ```
 
 ### Complete Workflow (Planning + Implementation)
@@ -145,15 +143,19 @@ This takes you from idea → production-ready code.
 
 ```
 .claude/
-├── commands/              # Slash commands (user interface)
-│   ├── analyze-feature.md          # Planning phase orchestrator
-│   ├── gather-requirements.md
-│   ├── research-tech.md
-│   ├── plan-implementation.md
-│   ├── validate-scope.md
-│   ├── design-ui.md                # 🆕 UX/UI design orchestrator
-│   ├── implement-feature.md        # Implementation orchestrator
-│   └── review-code.md              # 🆕 Code review orchestrator
+├── commands/              # Orchestrator commands (delegate to agents via Task tool)
+│   ├── analyze-feature.md          # Planning workflow orchestrator
+│   ├── gather-requirements.md      # → requirements-analyst agent
+│   ├── research-tech.md            # → tech-researcher agent
+│   ├── plan-implementation.md      # → implementation-planner agent
+│   ├── validate-scope.md           # → scope-guardian agent
+│   ├── design-ui.md                # → ux-ui-designer agent
+│   ├── implement-feature.md        # → senior-developer + qa-engineer
+│   ├── review-code.md              # → code-review-specialist agent
+│   ├── generate-memory.md          # → codebase-archeologist agent
+│   ├── update-memory.md            # Incremental memory updates
+│   ├── validate-consistency.md     # Convention validation
+│   └── mine-patterns.md            # Pattern extraction (8 types)
 │
 ├── agents/                # Specialized agent prompts
 │   ├── requirements-analyst.md     # Requirements elicitation
@@ -958,5 +960,36 @@ This workflow is designed to be project-agnostic and freely customizable for any
 
 ---
 
+## 🔄 Recent Improvements (v2.1.0)
+
+### Phase 2: Orchestrator Pattern Complete
+
+All planning commands converted to orchestrator pattern:
+
+**Before**: Commands contained implementation logic mixed with orchestration
+**After**: Commands delegate to specialized agents via Task tool
+
+**Improvements**:
+
+
+- ✅ **4 orchestrator conversions**: gather-requirements, research-tech, plan-implementation, validate-scope
+- ✅ **3 critical commands implemented**: validate-consistency (540 lines), mine-patterns (748 lines), update-memory (701 lines)
+- ✅ **Step-Back prompting** added to all orchestrators (domain/architectural/implementation/product context)
+- ✅ **Chain-of-Verification (CoVe)** added to validate-scope (10-question checklist)
+- ✅ **Comprehensive XML templates** for all memory artifacts
+- ✅ **Tool restrictions standardized**: `Task, Bash(code-tools:*)` pattern
+
+**Command Quality Improvements**:
+
+
+- gather-requirements: 207→439 lines (+Step-Back, domain-specific considerations)
+- research-tech: 223→777 lines (+architectural context, 10-point CoVe)
+- plan-implementation: 398→934 lines (+implementation context, 12-point CoVe)
+- validate-scope: 326→826 lines (+product context, MVP litmus testing)
+
+**Next Phase**: XML template definitions, memory loading enhancements, PE sophistication additions
+
+---
+
 **Built with modern prompt engineering techniques for Claude Code**
-**Version**: 1.0.0 | **Last Updated**: 2025-01-23
+**Version**: 2.1.0 | **Last Updated**: 2025-10-23
