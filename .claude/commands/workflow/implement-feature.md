@@ -145,26 +145,65 @@ For EACH task in execution order:
 
 #### Step 3.2: Invoke Senior Developer with Full Context
 
-For each task, execute the senior-developer agent workflow:
+For each task, delegate to the senior-developer agent with **strict code-tools enforcement**:
 
 ```bash
-# This is conceptual - the actual implementation would use the agent
-# The agent follows its full methodology (CoT → Implementation → CoVe → Testing)
+# Use the Task tool to invoke senior-developer agent
+# The invocation MUST include explicit code-tools CLI requirements
+```
+
+**CRITICAL REQUIREMENT**: The senior-developer agent invocation **MUST** include the following code-tools enforcement:
+
+```
+You are implementing task {TASK-ID}: {TASK-NAME}
+
+**MANDATORY CODE-TOOLS USAGE**:
+You MUST use code-tools CLI for ALL file operations:
+
+File Reading:
+  code-tools read_file --path {file-path}
+
+File Creation:
+  code-tools create_file --file {file-path} --content @content.txt
+
+File Editing:
+  code-tools edit_file --path {file-path} --search "old-content" --replace "new-content"
+
+Code Search:
+  code-tools grep_code --pattern "{search-pattern}" --limit 10
+  code-tools search_file --glob "*.{ext}" --limit 5
+
+Directory Listing:
+  code-tools list_dir --path {dir-path} --depth 2
+
+Context Retrieval:
+  code-tools search_memory --dir .claude/memory --query "{search-terms}" --topk 5
+
+**FORBIDDEN**: Direct bash file operations (cat, echo >, sed, awk for file editing)
+**EXCEPTION**: Test runners (npm test, pytest, go test) may use native commands
+
+Context artifacts:
+- Requirements: {path-to-requirements}
+- Tech Stack: {path-to-tech-analysis}
+- Task Spec: {task-specification}
+- Coding Standards: {standards-reference}
+- Dependencies: {completed-task-outputs}
 ```
 
 The senior-developer agent will:
-1. **Chain-of-Thought Reasoning**: Plan the implementation approach
-2. **Grounded Implementation**: Write code using only verified APIs/patterns
+1. **Chain-of-Thought Reasoning**: Plan the implementation approach using code-tools
+2. **Grounded Implementation**: Write code using only verified APIs/patterns via code-tools
 3. **Chain-of-Verification**: Self-check the implementation
 4. **Automated Testing**: Generate and run tests
-5. **Documentation**: Create implementation log
+5. **Documentation**: Create implementation log using code-tools
 
 **Pass to agent**:
 - Task ID and specification
-- All context artifacts
+- All context artifacts (paths)
 - Dependencies outputs (if any)
 - Acceptance criteria
 - Coding standards
+- **Code-tools CLI enforcement requirements (above)**
 
 **Receive from agent**:
 - Implementation files (code)

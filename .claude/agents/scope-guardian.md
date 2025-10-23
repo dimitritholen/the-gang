@@ -82,6 +82,21 @@ From requirements, identify the **essential core**:
 
 For EACH artifact (requirements, tech analysis, implementation plan), apply validation checks:
 
+**MANDATORY CODE-TOOLS USAGE**:
+
+```bash
+# Load all planning artifacts for comparison
+code-tools read_file --path .claude/memory/requirements-{feature}.md
+code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
+code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
+
+# Search for similar features to check for consistency
+code-tools search_memory --dir .claude/memory --query "{feature} scope requirements" --topk 5
+
+# Check existing codebase for scope implications
+code-tools grep_code --pattern "{related-functionality}" --limit 10
+```
+
 #### Requirements Document Validation
 
 For each requirement, apply **Chain-of-Thought** reasoning with **source attribution**:
@@ -164,6 +179,21 @@ For each requirement, apply **Chain-of-Thought** reasoning with **source attribu
 
 #### Technology Analysis Validation
 
+**CODE-TOOLS CLI FOR TECH VALIDATION**:
+
+```bash
+# Verify technologies in tech analysis document
+code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
+
+# Check existing tech stack for consistency
+code-tools search_file --glob "package.json" --limit 1
+code-tools search_file --glob "requirements.txt" --limit 1
+code-tools search_file --glob "go.mod" --limit 1
+
+# Search for similar tech decisions in memory
+code-tools search_memory --dir .claude/memory --query "technology stack decisions" --topk 5
+```
+
 For each technology choice:
 
 ```
@@ -197,6 +227,20 @@ For each technology choice:
 - Adds learning curve without sufficient benefit
 
 #### Implementation Plan Validation
+
+**CODE-TOOLS CLI FOR PLAN VALIDATION**:
+
+```bash
+# Load implementation plan
+code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
+
+# Cross-reference with requirements
+code-tools read_file --path .claude/memory/requirements-{feature}.md
+
+# Check existing codebase structure for impact
+code-tools list_dir --path . --depth 2
+code-tools grep_code --pattern "{related-module}" --limit 10
+```
 
 For each task in the plan:
 
@@ -270,6 +314,18 @@ Ask: "Can we ship without this feature and still solve the core problem?"
 
 ### Phase 5: Alignment Matrix
 
+**CODE-TOOLS CLI FOR ALIGNMENT VERIFICATION**:
+
+```bash
+# Cross-reference all planning artifacts
+code-tools read_file --path .claude/memory/requirements-{feature}.md
+code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
+code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
+
+# Check for consistency patterns
+code-tools search_memory --dir .claude/memory --query "{feature} alignment traceability" --topk 5
+```
+
 Cross-reference everything:
 
 | Requirement ID | Priority | Tech Choice | Implementation Tasks | Aligned? | Issue |
@@ -279,6 +335,16 @@ Cross-reference everything:
 | N/A | N/A | ⚠️ Over-engineered | T-2-5 | ❌ | No requirement for this |
 
 ### Phase 6: Recommendations
+
+**CODE-TOOLS CLI FOR REPORT GENERATION**:
+
+```bash
+# Create scope validation report
+code-tools create_file --file .claude/memory/scope-validation-{feature}.md --content @scope-report.txt
+
+# Update memory with findings
+code-tools edit_file --path .claude/memory/scope-validation-{feature}.md --append @recommendations.txt
+```
 
 Categorize all findings:
 

@@ -254,6 +254,16 @@ code-tools run_tests --suite {test-file}
 
 ### Phase 7: Documentation and Commit
 
+**CODE-TOOLS CLI FOR DOCUMENTATION**:
+
+```bash
+# Create implementation log for this task
+code-tools create_file --file .claude/memory/implementation-{feature}-{task-id}.md --content @impl-log.txt
+
+# Update task tracking
+code-tools edit_file --path .claude/memory/implementation-plan-{feature}.md --search "Task {task-id}: [Pending]" --replace "Task {task-id}: [Complete]"
+```
+
 Document the implementation:
 
 ```xml

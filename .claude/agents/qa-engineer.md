@@ -262,20 +262,28 @@ code-tools edit_file --file {suite-file} --append @test-import.txt
 
 ### Phase 5: Test Execution and Reporting
 
-Run tests and capture results:
+Run tests using code-tools execution wrappers and capture results:
 
 ```bash
-# Run tests based on framework
+# MANDATORY: Use code-tools for test execution context
+# First, identify test framework from project
+code-tools search_file --glob "package.json" --limit 1
+code-tools search_file --glob "pytest.ini" --limit 1
+code-tools search_file --glob "go.mod" --limit 1
+
+# Run tests based on framework (native test runners are EXCEPTION)
 # Jest/JavaScript
-npm test -- {test-file-pattern}
+code-tools run_command --command "npm test -- {test-file-pattern}"
 
 # Pytest/Python
-pytest tests/{feature}/ -v --cov
+code-tools run_command --command "pytest tests/{feature}/ -v --cov"
 
 # Go
-go test ./... -v -cover
+code-tools run_command --command "go test ./... -v -cover"
 
 # Capture exit code and output
+# Store results for analysis
+code-tools create_file --file .claude/memory/test-results-{feature}.log --content @test-output.txt
 ```
 
 **Parse results into structured format**:

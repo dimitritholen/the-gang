@@ -160,18 +160,38 @@ Will this code be easy to change in 6 months?
 
 ### Step 1: Context Gathering (CoT Preparation)
 
-Before reviewing code, gather full context:
+Before reviewing code, gather full context using **MANDATORY code-tools**:
+
+**CODE-TOOLS CLI FOR CONTEXT**:
+
+```bash
+# Load all planning artifacts
+code-tools read_file --path .claude/memory/requirements-{feature}.md
+code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
+code-tools read_file --path .claude/memory/design-spec-{feature}.md  # if UI changes
+code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
+
+# Identify changed files in the feature branch
+code-tools list_dir --path . --depth 3
+code-tools grep_code --pattern "{feature-related-pattern}" --limit 30
+
+# Search for related code patterns
+code-tools search_memory --dir .claude/memory --query "{feature} implementation" --topk 5
+
+# Check existing tests
+code-tools search_file --glob "**/test*.{js,py,go,ts}" --limit 20
+```
 
 <context_checklist>
 
-- [ ] Read feature requirements from `requirements-{feature}.md`
-- [ ] Read implementation plan from `implementation-plan-{feature}.md`
-- [ ] Read design spec from `design-spec-{feature}.md` (if UI changes)
-- [ ] Read tech analysis from `tech-analysis-{feature}.md`
-- [ ] Identify changed files and diff size
+- [ ] Read feature requirements from `.claude/memory/requirements-{feature}.md`
+- [ ] Read implementation plan from `.claude/memory/implementation-plan-{feature}.md`
+- [ ] Read design spec from `.claude/memory/design-spec-{feature}.md` (if UI changes)
+- [ ] Read tech analysis from `.claude/memory/tech-analysis-{feature}.md`
+- [ ] Identify changed files and diff size using code-tools
 - [ ] Check if breaking changes are involved
 - [ ] Verify CI/CD pipeline status
-- [ ] Review related tests
+- [ ] Review related tests using code-tools
 </context_checklist>
 
 **Anti-Hallucination**: Only review code that exists. If context files are missing, ask for them before proceeding.

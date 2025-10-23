@@ -556,11 +556,16 @@ Task List (with dependencies):
 
 ### Step 3: Create Task Manifest
 
+**MANDATORY CODE-TOOLS USAGE**:
+
 ```bash
-# Create task-level manifest
+# Create task-level manifest using code-tools
 CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json <<'EOF'
+# Use code-tools to create manifest file
+code-tools create_file --file .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json --content @manifest.json
+
+# Content for manifest.json:
 {
   "featureId": "{FEATURE_ID}",
   "featureSlug": "{FEATURE_SLUG}",
@@ -600,9 +605,14 @@ EOF
 
 For each task, create XML file using schema:
 
+**MANDATORY CODE-TOOLS USAGE**:
+
 ```bash
 # Example: T01-database-schema-design.xml
-cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/T01-database-schema-design.xml <<'EOF'
+# Use code-tools to create task XML files
+code-tools create_file --file .tasks/${FEATURE_ID}-${FEATURE_SLUG}/T01-database-schema-design.xml --content @T01-task.xml
+
+# Content for T01-task.xml:
 <?xml version="1.0" encoding="UTF-8"?>
 <task id="T01" status="NOT_STARTED">
   <metadata>
