@@ -100,126 +100,489 @@ Proceeding with analysis...
 
 ---
 
-## Step 2: Invoke Codebase Archeologist
+## Step 2: Multi-Phase Analysis with Validation Checkpoints
 
-Use Task tool to invoke codebase-archeologist subagent:
+This step uses a four-pass workflow with 3 validation checkpoints to enable interactive validation and correction.
 
-<agent_prompt_template>
-You are analyzing an existing codebase to generate memory artifacts for future development.
+### Phase 2a: Initial Analysis (Agent Pass 1)
 
-**Scope**: $SCOPE
-**Focus**: $FOCUS
-**Depth**: $DEPTH
+**Invoke codebase-archeologist agent in initial analysis mode:**
 
-**Context**:
+```bash
+# Use Task tool to invoke agent
+Task(
+  subagent_type="codebase-archeologist",
+  description="Perform initial codebase analysis",
+  prompt="""
+**Mode:** analyze_phase1
+
+**Scope:** $SCOPE
+**Focus:** $FOCUS
+**Depth:** $DEPTH
+
+**Task:** Execute Phase 1 (Discovery) and Phase 2 (Technology Analysis)
+
+**Context from Step 1:**
 {Paste scope detection results}
 
-**Your Task**:
+**Instructions:**
+1. Scan directory structure and detect project type
+2. Parse configuration files (package.json, requirements.txt, etc.)
+3. Identify tech stack, architecture, deployment model
+4. Analyze why each technology was chosen
+5. Document how each technology is used
+6. Write findings to: .claude/memory/.tmp-findings-initial.md
+7. Return confirmation with summary statistics
 
-Execute the 5-phase analysis framework:
+Follow MODE 1 workflow in your agent instructions.
 
-### Phase 1: Discovery (Step-Back)
-- Detect project type, tech stack, architecture
-- **Checkpoint 1**: Present findings, ask user to validate
+**Quality Requirements:**
+- All claims cite source files (file:line format)
+- All inferences have confidence levels (High/Medium/Low)
+- No invented features or patterns
+- Flag contradictions explicitly
+- Use "Unknown" instead of guessing
+"""
+)
+```
 
-### Phase 2: Technology Analysis (CoT)
-- Analyze why each technology was chosen
-- Document how each is used
-- Identify configuration and patterns
+**Expected Output:**
+- Agent creates `.claude/memory/.tmp-findings-initial.md`
+- Agent returns: "Initial analysis complete - ready for validation"
 
-### Phase 3: Pattern Extraction (Systematic)
-- Mine naming conventions (files, variables, functions)
-- Extract code organization patterns
-- Identify error handling conventions
-- Analyze API design patterns
-- Determine testing strategy
-- **Checkpoint 2**: Present patterns, ask user to validate
+### Phase 2b: Checkpoint 1 Validation (Orchestrator Interaction)
 
-### Phase 4: Feature Inventory
-- Map backend endpoints to features
-- Map frontend routes to features
-- Cross-reference with database schema
-- Assess feature completeness
-- Infer non-functional requirements
+**Read and validate initial findings:**
 
-### Phase 5: ADR Inference
-- Generate Architecture Decision Records
-- Assign confidence levels (High/Medium/Low)
-- Cite evidence for each decision
-- **Checkpoint 3**: Present ADRs, ask user final validation
+```bash
+# Read findings file
+FINDINGS_FILE=".claude/memory/.tmp-findings-initial.md"
 
-**Output**:
+if [ ! -f "$FINDINGS_FILE" ]; then
+  echo "ERROR: Initial findings file not found at $FINDINGS_FILE"
+  exit 1
+fi
 
-Generate 5 memory artifacts in `.claude/memory/`:
-1. `project-context.md` - High-level overview
-2. `tech-stack-baseline.md` - Technologies with rationale
-3. `coding-conventions.md` - Patterns for future code
-4. `architecture-decisions.md` - ADRs with confidence levels
-5. `feature-inventory.md` - Complete feature list
+# Display findings to orchestrator
+cat "$FINDINGS_FILE"
+```
 
-**Quality Gates**:
+**Present findings to user for validation:**
+
+Use structured questions to validate key aspects:
+
+**Validation Questions:**
+1. "Tech Stack Detection: Does the identified technology stack match your project?"
+2. "Architecture Assessment: Is the detected architecture (e.g., monolith/microservices, client-server) accurate?"
+3. "Deployment Model: Does the identified deployment model (e.g., serverless, containerized) match reality?"
+4. "Technology Rationale: Are there any technologies where the inferred rationale is incorrect?"
+5. "Corrections Needed: Any other inaccuracies or missing information in the initial analysis?"
+
+**Write corrections file:**
+
+```bash
+cat > .claude/memory/.tmp-corrections-initial.md <<EOF
+# Corrections for Initial Analysis
+# AUTO-DELETE after artifacts generated
+# Created: $(date +%Y-%m-%d)
+
+## User Corrections
+
+### Tech Stack
+{User's corrections to technology stack if any}
+
+### Architecture
+{User's corrections to architecture assessment if any}
+
+### Deployment Model
+{User's corrections to deployment model if any}
+
+### Technology Rationale
+{User's corrections to technology rationale if any}
+
+### Additional Notes
+{Any other corrections or clarifications from user}
+
+## Validation Status
+- Initial analysis validated: {YES/NO}
+- Corrections provided: {YES/NO}
+- Ready for next phase: {YES}
+EOF
+
+echo "✓ Corrections written to .claude/memory/.tmp-corrections-initial.md"
+```
+
+**Cleanup Phase 2a artifacts:**
+
+```bash
+# Delete initial findings file (no longer needed)
+rm .claude/memory/.tmp-findings-initial.md
+echo "✓ Cleaned up temporary findings file"
+```
+
+### Phase 2c: Convention Analysis (Agent Pass 2)
+
+**Invoke codebase-archeologist agent in convention analysis mode:**
+
+```bash
+# Use Task tool to invoke agent
+Task(
+  subagent_type="codebase-archeologist",
+  description="Analyze coding conventions and patterns",
+  prompt="""
+**Mode:** analyze_phase2
+
+**Task:** Execute Phase 3 (Pattern Extraction)
+
+**Instructions:**
+1. Read corrections from: .claude/memory/.tmp-corrections-initial.md
+2. Mine naming conventions (files, variables, functions)
+3. Extract code organization patterns
+4. Identify error handling conventions
+5. Analyze API design patterns
+6. Determine testing strategy
+7. Write findings to: .claude/memory/.tmp-findings-conventions.md
+8. Return confirmation with summary statistics
+
+Follow MODE 2 workflow in your agent instructions.
+
+**Incorporate User Corrections:**
+- Apply all corrections from initial analysis
+- Adjust analysis based on validated tech stack
+- Focus pattern mining on validated architecture
+"""
+)
+```
+
+**Expected Output:**
+- Agent creates `.claude/memory/.tmp-findings-conventions.md`
+- Agent returns: "Convention analysis complete - ready for validation"
+
+### Phase 2d: Checkpoint 2 Validation (Orchestrator Interaction)
+
+**Read and validate convention findings:**
+
+```bash
+# Read findings file
+FINDINGS_FILE=".claude/memory/.tmp-findings-conventions.md"
+
+if [ ! -f "$FINDINGS_FILE" ]; then
+  echo "ERROR: Convention findings file not found at $FINDINGS_FILE"
+  exit 1
+fi
+
+# Display findings to orchestrator
+cat "$FINDINGS_FILE"
+```
+
+**Present findings to user for validation:**
+
+**Validation Questions:**
+1. "Naming Conventions: Do the identified file/variable naming patterns match your standards?"
+2. "Code Organization: Is the detected code organization pattern accurate?"
+3. "Error Handling: Does the identified error handling approach match your practices?"
+4. "API Design: Are the identified API design patterns correct?"
+5. "Testing Strategy: Does the detected testing strategy match reality?"
+6. "Pattern Conformance: Do the conformance percentages seem accurate?"
+7. "Corrections Needed: Any other inaccuracies in the pattern analysis?"
+
+**Write corrections file:**
+
+```bash
+cat > .claude/memory/.tmp-corrections-conventions.md <<EOF
+# Corrections for Convention Analysis
+# AUTO-DELETE after artifacts generated
+# Created: $(date +%Y-%m-%d)
+
+## User Corrections
+
+### Naming Conventions
+{User's corrections to naming patterns if any}
+
+### Code Organization
+{User's corrections to organization patterns if any}
+
+### Error Handling
+{User's corrections to error handling if any}
+
+### API Design
+{User's corrections to API patterns if any}
+
+### Testing Strategy
+{User's corrections to testing approach if any}
+
+### Pattern Conformance
+{User's corrections to conformance percentages if any}
+
+### Additional Notes
+{Any other corrections or clarifications from user}
+
+## Validation Status
+- Convention analysis validated: {YES/NO}
+- Corrections provided: {YES/NO}
+- Ready for next phase: {YES}
+EOF
+
+echo "✓ Corrections written to .claude/memory/.tmp-corrections-conventions.md"
+```
+
+**Cleanup Phase 2c artifacts:**
+
+```bash
+# Delete convention findings file (no longer needed)
+rm .claude/memory/.tmp-findings-conventions.md
+echo "✓ Cleaned up temporary findings file"
+```
+
+### Phase 2e: Final Analysis (Agent Pass 3)
+
+**Invoke codebase-archeologist agent in final analysis mode:**
+
+```bash
+# Use Task tool to invoke agent
+Task(
+  subagent_type="codebase-archeologist",
+  description="Complete feature inventory and ADR generation",
+  prompt="""
+**Mode:** analyze_phase3
+
+**Task:** Execute Phase 4 (Feature Inventory) and Phase 5 (ADR Inference)
+
+**Instructions:**
+1. Read corrections from: .claude/memory/.tmp-corrections-conventions.md
+2. Map backend endpoints to features
+3. Map frontend routes to features
+4. Cross-reference with database schema
+5. Assess feature completeness
+6. Generate Architecture Decision Records with evidence
+7. Assign confidence levels to all ADRs
+8. Write findings to: .claude/memory/.tmp-findings-final.md
+9. Return confirmation with summary statistics
+
+Follow MODE 3 workflow in your agent instructions.
+
+**Incorporate All Previous Corrections:**
+- Apply corrections from initial analysis
+- Apply corrections from convention analysis
+- Ensure consistency across all analysis phases
+"""
+)
+```
+
+**Expected Output:**
+- Agent creates `.claude/memory/.tmp-findings-final.md`
+- Agent returns: "Final analysis complete - ready for validation"
+
+### Phase 2f: Checkpoint 3 Validation (Orchestrator Interaction)
+
+**Read and validate final findings:**
+
+```bash
+# Read findings file
+FINDINGS_FILE=".claude/memory/.tmp-findings-final.md"
+
+if [ ! -f "$FINDINGS_FILE" ]; then
+  echo "ERROR: Final findings file not found at $FINDINGS_FILE"
+  exit 1
+fi
+
+# Display findings to orchestrator
+cat "$FINDINGS_FILE"
+```
+
+**Present findings to user for validation:**
+
+**Validation Questions:**
+1. "Feature Inventory: Are all identified features accurate and complete?"
+2. "Feature Completeness: Do the completeness percentages (frontend+backend+tests) match reality?"
+3. "Architecture Decisions: Do the inferred ADRs accurately reflect actual decisions made?"
+4. "ADR Confidence Levels: Are the confidence levels (High/Medium/Low) appropriate?"
+5. "Missing Features: Are there any features not identified that should be included?"
+6. "Corrections Needed: Any other inaccuracies in the final analysis?"
+
+**Write corrections file:**
+
+```bash
+cat > .claude/memory/.tmp-corrections-final.md <<EOF
+# Corrections for Final Analysis
+# AUTO-DELETE after artifacts generated
+# Created: $(date +%Y-%m-%d)
+
+## User Corrections
+
+### Feature Inventory
+{User's corrections to feature list if any}
+
+### Feature Completeness
+{User's corrections to completeness assessments if any}
+
+### Architecture Decisions
+{User's corrections to ADRs if any}
+
+### Confidence Levels
+{User's corrections to confidence assessments if any}
+
+### Missing Features
+{Any features user wants to add}
+
+### Additional Notes
+{Any other corrections or clarifications from user}
+
+## Validation Status
+- Final analysis validated: {YES/NO}
+- Corrections provided: {YES/NO}
+- Ready for artifact generation: {YES}
+EOF
+
+echo "✓ Corrections written to .claude/memory/.tmp-corrections-final.md"
+```
+
+**Cleanup Phase 2e artifacts:**
+
+```bash
+# Delete final findings file (no longer needed)
+rm .claude/memory/.tmp-findings-final.md
+echo "✓ Cleaned up temporary findings file"
+```
+
+### Phase 2g: Artifact Generation (Agent Pass 4)
+
+**Invoke codebase-archeologist agent in artifact generation mode:**
+
+```bash
+# Use Task tool to invoke agent
+Task(
+  subagent_type="codebase-archeologist",
+  description="Generate final memory artifacts",
+  prompt="""
+**Mode:** generate_artifacts
+
+**Task:** Generate 5 memory artifacts incorporating all user corrections
+
+**Instructions:**
+1. Read ALL correction files:
+   - .claude/memory/.tmp-corrections-initial.md
+   - .claude/memory/.tmp-corrections-conventions.md
+   - .claude/memory/.tmp-corrections-final.md
+2. Generate 5 memory artifacts in .claude/memory/:
+   - project-context.md
+   - tech-stack-baseline.md
+   - coding-conventions.md
+   - architecture-decisions.md
+   - feature-inventory.md
+3. Incorporate ALL user corrections from all 3 checkpoints
+4. Return confirmation with artifact summary
+
+Follow MODE 4 workflow in your agent instructions.
+
+**Quality Requirements:**
+- All user corrections applied
 - All claims cite source files (file:line)
 - All inferences have confidence levels
-- No invented features or patterns
-- Contradictions flagged, not hidden
-- "Unknown" used instead of guessing
+- No placeholders or TODOs
+- Cross-references between artifacts are valid
+"""
+)
+```
 
-**Anti-Hallucination**:
-- Use "According to {file}..." for all factual claims
-- Use "Inferred from {pattern analysis}..." for inferences
-- Run CoVe validation before finalizing
-- Flag uncertainties explicitly
+**Expected Output:**
+- Agent creates 5 final artifacts in `.claude/memory/`
+- Agent returns: "Memory artifacts generated"
 
-**Hybrid Interaction**:
-- Present 3 checkpoints for user validation
-- Incorporate user corrections at each checkpoint
-- Ask clarifying questions when evidence is ambiguous
+**Cleanup all temporary correction files:**
 
-Proceed with systematic codebase archaeology.
-</agent_prompt_template>
+```bash
+# Delete all correction files (no longer needed)
+rm .claude/memory/.tmp-corrections-initial.md
+rm .claude/memory/.tmp-corrections-conventions.md
+rm .claude/memory/.tmp-corrections-final.md
+
+echo "✓ Cleaned up all temporary correction files"
+```
+
+**Verify final artifacts:**
+
+```bash
+# Verify all 5 artifacts were created
+REQUIRED_FILES=(
+  ".claude/memory/project-context.md"
+  ".claude/memory/tech-stack-baseline.md"
+  ".claude/memory/coding-conventions.md"
+  ".claude/memory/architecture-decisions.md"
+  ".claude/memory/feature-inventory.md"
+)
+
+MISSING_COUNT=0
+for file in "${REQUIRED_FILES[@]}"; do
+  if [ ! -f "$file" ]; then
+    echo "ERROR: Required artifact missing: $file"
+    MISSING_COUNT=$((MISSING_COUNT + 1))
+  fi
+done
+
+if [ $MISSING_COUNT -eq 0 ]; then
+  echo "✅ All 5 memory artifacts verified"
+else
+  echo "❌ $MISSING_COUNT artifact(s) missing"
+  exit 1
+fi
+```
 
 ---
 
-## Step 3: Monitor Analysis Progress
+## Step 3: Analysis Progress Summary
 
-The codebase-archeologist agent will:
+The multi-phase workflow executes as follows:
 
-### Phase 1: Discovery (~5-10 minutes)
-- Scan directory structure
-- Parse configuration files
-- Detect tech stack
-- **Checkpoint 1: User validates tech stack**
+**Phase 2a-2b: Initial Analysis + Checkpoint 1** (~10-15 minutes)
+- Agent analyzes directory structure, config files, tech stack
+- Agent writes findings to `.tmp-findings-initial.md`
+- Orchestrator validates with user
+- Orchestrator writes corrections to `.tmp-corrections-initial.md`
+- Cleanup: Delete `.tmp-findings-initial.md`
 
-### Phase 2: Technology Analysis (~10-15 minutes)
-- Analyze dependencies
-- Infer technology choices
-- Document usage patterns
+**Phase 2c-2d: Convention Analysis + Checkpoint 2** (~15-20 minutes)
+- Agent reads corrections from Checkpoint 1
+- Agent mines naming conventions, patterns, error handling, API design, testing
+- Agent writes findings to `.tmp-findings-conventions.md`
+- Orchestrator validates with user
+- Orchestrator writes corrections to `.tmp-corrections-conventions.md`
+- Cleanup: Delete `.tmp-findings-conventions.md`
 
-### Phase 3: Pattern Extraction (~15-20 minutes)
-- Mine 500+ code samples
-- Extract conventions
-- Identify dominant patterns
-- **Checkpoint 2: User validates patterns**
+**Phase 2e-2f: Final Analysis + Checkpoint 3** (~15-20 minutes)
+- Agent reads corrections from Checkpoints 1-2
+- Agent maps features (endpoints, routes, database)
+- Agent generates ADRs with confidence levels
+- Agent writes findings to `.tmp-findings-final.md`
+- Orchestrator validates with user
+- Orchestrator writes corrections to `.tmp-corrections-final.md`
+- Cleanup: Delete `.tmp-findings-final.md`
 
-### Phase 4: Feature Inventory (~10-15 minutes)
-- Map endpoints and routes
-- Cross-reference features
-- Assess completeness
+**Phase 2g: Artifact Generation** (~10-15 minutes)
+- Agent reads ALL corrections from 3 checkpoints
+- Agent generates 5 final memory artifacts
+- Agent incorporates all user corrections
+- Orchestrator verifies artifacts created
+- Cleanup: Delete all 3 correction files
 
-### Phase 5: ADR Inference (~10-15 minutes)
-- Generate ADRs with evidence
-- Assign confidence levels
-- **Checkpoint 3: User final validation**
+**Total Time**: 50-70 minutes for deep analysis with 3 validation checkpoints
 
-**Total Time**: 50-75 minutes for deep analysis
+**Temporary Files Lifecycle:**
+- `.tmp-findings-initial.md` - Created Phase 2a, Deleted Phase 2b
+- `.tmp-corrections-initial.md` - Created Phase 2b, Deleted Phase 2g
+- `.tmp-findings-conventions.md` - Created Phase 2c, Deleted Phase 2d
+- `.tmp-corrections-conventions.md` - Created Phase 2d, Deleted Phase 2g
+- `.tmp-findings-final.md` - Created Phase 2e, Deleted Phase 2f
+- `.tmp-corrections-final.md` - Created Phase 2f, Deleted Phase 2g
 
 ---
 
 ## Step 4: Validate Generated Artifacts
 
-After agent completes, verify all artifacts exist and are complete:
+After Phase 2g completes, verify all artifacts exist and temporary files are cleaned up:
 
 <validation_checklist>
+**Artifact Verification**:
 ✅ File created: `.claude/memory/project-context.md`
 ✅ File created: `.claude/memory/tech-stack-baseline.md`
 ✅ File created: `.claude/memory/coding-conventions.md`
@@ -232,6 +595,11 @@ After agent completes, verify all artifacts exist and are complete:
 ✅ No "TODO" or placeholder sections
 ✅ Cross-references between artifacts are valid
 ✅ No hallucinated features or technologies
+
+**Cleanup Verification**:
+✅ Temporary findings files deleted (`.tmp-findings-*.md`)
+✅ Temporary corrections files deleted (`.tmp-corrections-*.md`)
+✅ Only permanent artifacts remain in `.claude/memory/`
 </validation_checklist>
 
 Use Read tool to spot-check artifacts:

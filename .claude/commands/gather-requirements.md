@@ -99,214 +99,192 @@ code-tools list_dir --path .claude/memory --depth 1 | grep -E "requirements-.*\.
 </existing_context>
 ```
 
-### Phase 2: Agent Invocation with Comprehensive Context
+### Phase 2: Two-Pass Requirements Gathering
 
-Delegate to requirements-analyst agent via Task tool:
+This phase uses a two-pass workflow to enable interactive requirements gathering through handoff files.
 
-```
-Perform comprehensive requirements gathering for feature: $ARGUMENTS
+#### Phase 2a: Question Generation (Agent Pass 1)
 
-**Role**: Act as a Requirements Gathering Specialist with expertise in structured elicitation, ambiguity resolution, and testable specification creation.
+**Invoke requirements-analyst agent in question generation mode:**
 
-**Domain Context**:
-{Paste domain understanding from Step-Back phase}
+```bash
+# Use Task tool to invoke agent
+Task(
+  subagent_type="requirements-analyst",
+  description="Generate requirements questions",
+  prompt="""
+**Mode:** generate_questions
 
-**Existing Project Context**:
-{Paste context summary from Phase 1}
+**Feature to analyze:** $ARGUMENTS
 
-**Methodology**:
+**Task:** Generate structured requirements questions
 
-Use the 5-level structured questioning framework:
+**Context from Phase 1:**
+{Paste domain context and existing project context from Phase 1}
 
-**Level 1: Purpose & Goals** (3-5 questions)
-- What is the primary objective of this feature?
-- What problem does it solve for users?
-- Who are the target users/personas?
-- How will success be measured?
+**Instructions:**
+1. Read available documentation (docs/idea.md, .claude/memory/*)
+2. Apply Chain-of-Thought reasoning to understand domain
+3. Generate 20-30 questions following the 5-Level Framework
+4. Write questions to: .claude/memory/.tmp-questions-{feature-slug}.md
+5. Use YAML format for easy parsing
+6. Return confirmation message with question count
 
-**Level 2: Functional Requirements** (5-8 questions)
-- What specific actions must users be able to perform?
-- What are the key user workflows?
-- What data inputs are required?
-- What outputs/results are expected?
-- What are the happy path scenarios?
-- What are edge cases and error scenarios?
-
-**Level 3: Non-Functional Requirements** (4-6 questions)
-- Performance expectations? (response time, throughput)
-- Scalability requirements? (concurrent users, data volume)
-- Security/privacy requirements?
-- Availability/reliability expectations?
-- Accessibility requirements?
-- Usability/UX expectations?
-
-**Level 4: Constraints & Dependencies** (3-5 questions)
-- Timeline or deadline constraints?
-- Budget limitations?
-- Technology stack preferences/constraints?
-- Integration with existing systems?
-- Regulatory/compliance requirements?
-- Resource constraints (team size, skills)?
-
-**Level 5: Acceptance Criteria** (2-3 questions)
-- How will we know this feature is complete?
-- What are the must-have vs. nice-to-have capabilities?
-- What would constitute a minimum viable implementation?
-
-**Chain-of-Verification (CoVe)**:
-
-After gathering all requirements, verify by asking yourself:
-
-1. ✅ Have I identified all stakeholders?
-2. ✅ Are all workflows fully described?
-3. ✅ Are there any ambiguous terms that need definition?
-4. ✅ Have I captured measurable acceptance criteria?
-5. ✅ Are there any unstated assumptions I should clarify?
-6. ✅ Have I identified dependencies on other systems/features?
-
-Present summary to user and ask:
-> "Based on the above, have I captured all requirements completely? Are there any aspects I've missed or misunderstood?"
-
-**Iterate** until user confirms completeness.
-
-**Output Requirements**:
-
-Generate requirements document in the following XML structure (render as markdown):
-
-```xml
-<requirements>
-  <metadata>
-    <feature_name>{Name}</feature_name>
-    <created>2025-10-23</created>
-    <analyst>Requirements Analyst Agent</analyst>
-    <status>Draft</status>
-  </metadata>
-
-  <executive_summary>
-    {2-3 sentence overview of the feature and its purpose}
-  </executive_summary>
-
-  <stakeholders>
-    <stakeholder role="{role}">{description}</stakeholder>
-  </stakeholders>
-
-  <goals>
-    <primary_goal>{goal}</primary_goal>
-    <secondary_goals>
-      <goal>{goal}</goal>
-    </secondary_goals>
-  </goals>
-
-  <functional_requirements>
-    <requirement id="FR-001" priority="High|Medium|Low">
-      <description>{What the system must do}</description>
-      <acceptance_criteria>
-        <criterion>{Testable criterion}</criterion>
-      </acceptance_criteria>
-      <user_story>As a {user}, I want {capability} so that {benefit}</user_story>
-    </requirement>
-  </functional_requirements>
-
-  <non_functional_requirements>
-    <performance>
-      <requirement id="NFR-PERF-001">
-        <description>{requirement}</description>
-        <target_metric>{measurable target}</target_metric>
-      </requirement>
-    </performance>
-
-    <security>
-      <requirement id="NFR-SEC-001">{requirement}</requirement>
-    </security>
-
-    <scalability>
-      <requirement id="NFR-SCALE-001">{requirement}</requirement>
-    </scalability>
-
-    <accessibility>
-      <requirement id="NFR-ACC-001">{requirement}</requirement>
-    </accessibility>
-
-    <usability>
-      <requirement id="NFR-UX-001">{requirement}</requirement>
-    </usability>
-  </non_functional_requirements>
-
-  <constraints>
-    <constraint type="timeline">{description}</constraint>
-    <constraint type="budget">{description}</constraint>
-    <constraint type="technical">{description}</constraint>
-    <constraint type="regulatory">{description}</constraint>
-  </constraints>
-
-  <dependencies>
-    <dependency type="system">{existing system/service}</dependency>
-    <dependency type="feature">{other feature}</dependency>
-    <dependency type="external">{third-party service}</dependency>
-  </dependencies>
-
-  <out_of_scope>
-    <item>{Explicitly what will NOT be included}</item>
-  </out_of_scope>
-
-  <assumptions>
-    <assumption confidence="High|Medium|Low">{Stated assumption}</assumption>
-  </assumptions>
-
-  <open_questions>
-    <question priority="High|Medium|Low">{Question requiring clarification}</question>
-  </open_questions>
-
-  <success_criteria>
-    <criterion measurable="true">{How success will be measured}</criterion>
-  </success_criteria>
-
-  <mvp_definition>
-    <must_have>
-      <feature>{Minimum viable feature}</feature>
-    </must_have>
-    <should_have>
-      <feature>{Important but not blocking}</feature>
-    </should_have>
-    <could_have>
-      <feature>{Nice to have for future}</feature>
-    </could_have>
-  </mvp_definition>
-</requirements>
+Follow MODE 1 workflow in your agent instructions.
+"""
+)
 ```
 
-**Anti-Hallucination Safeguards**:
+**Expected Output:**
+- Agent creates `.claude/memory/.tmp-questions-{slug}.md`
+- Agent returns: "Questions generated - ready for user input"
 
-1. **Ground in User Input**: Only document what the user explicitly states or confirms
-2. **Flag Assumptions**: Mark anything inferred with "ASSUMPTION:" tag and confidence level
-3. **Avoid Industry Jargon**: Use clear language unless user introduced specific terms
-4. **Request Clarification**: If uncertain, ask rather than guess
-5. **Cross-Reference**: Use existing project context to inform questions
-6. **Quantify Vagueness**: Replace "fast" with "responds within 200ms" (after confirming with user)
+#### Phase 2b: Question Asking (Orchestrator Interaction)
 
-**Best Practices**:
+**Read and parse questions file:**
 
-- **Be Specific**: Every requirement should be unambiguous
-- **Be Testable**: Every requirement should have measurable acceptance criteria
-- **Be Traceable**: Use unique IDs (FR-001, NFR-PERF-001, etc.)
-- **Be Concise**: Avoid redundancy and unnecessary detail
-- **Be Complete**: Cover all aspects (functional, non-functional, constraints)
-- **Be Domain-Aware**: Include domain-specific NFRs and constraints
+```bash
+# Extract feature slug
+FEATURE_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')
 
-**Iterative Refinement**:
+# Read questions file
+QUESTIONS_FILE=".claude/memory/.tmp-questions-${FEATURE_SLUG}.md"
 
-After presenting initial requirements:
-1. Ask user to confirm completeness
-2. Refine based on feedback
-3. Re-verify with CoVe checklist
-4. Iterate until user approves
+if [ ! -f "$QUESTIONS_FILE" ]; then
+  echo "ERROR: Questions file not found at $QUESTIONS_FILE"
+  exit 1
+fi
 
-Return final requirements document content ready to write to file.
+# Display questions to orchestrator for parsing
+cat "$QUESTIONS_FILE"
 ```
 
-### Phase 3: Validation and Artifact Creation
+**Parse YAML questions and present to user:**
 
-After agent completes requirements gathering:
+Extract questions from YAML structure and present using `AskUserQuestion` tool in batches:
+
+**Batch 1: Purpose & Goals**
+```
+Use AskUserQuestion tool with questions from level1_purpose section
+```
+
+**Batch 2: Functional Requirements**
+```
+Use AskUserQuestion tool with questions from level2_functional section
+```
+
+**Batch 3: Non-Functional Requirements**
+```
+Use AskUserQuestion tool with questions from level3_nfr section
+```
+
+**Batch 4: Constraints & Dependencies**
+```
+Use AskUserQuestion tool with questions from level4_constraints section
+```
+
+**Batch 5: Acceptance Criteria**
+```
+Use AskUserQuestion tool with questions from level5_acceptance section
+```
+
+**Write answers file:**
+
+```bash
+# Create answers file in YAML format
+cat > .claude/memory/.tmp-answers-${FEATURE_SLUG}.md <<EOF
+# Answers for {Feature Name}
+# AUTO-DELETE after requirements generated
+# Answered: $(date +%Y-%m-%d)
+
+answers:
+  purpose-01: "{User's answer to purpose-01}"
+  purpose-02: "{User's answer to purpose-02}"
+  functional-01: "{User's answer to functional-01}"
+  # ... continue for all questions
+EOF
+
+echo "✓ Answers written to .claude/memory/.tmp-answers-${FEATURE_SLUG}.md"
+```
+
+**Cleanup Phase 2a artifacts:**
+
+```bash
+# Delete questions file (no longer needed)
+rm .claude/memory/.tmp-questions-${FEATURE_SLUG}.md
+echo "✓ Cleaned up temporary questions file"
+```
+
+#### Phase 2c: Requirements Generation (Agent Pass 2)
+
+**Invoke requirements-analyst agent in requirements generation mode:**
+
+```bash
+# Use Task tool to invoke agent
+Task(
+  subagent_type="requirements-analyst",
+  description="Generate requirements document",
+  prompt="""
+**Mode:** generate_requirements
+
+**Feature slug:** {feature-slug}
+
+**Task:** Generate comprehensive requirements document from user answers
+
+**Instructions:**
+1. Read answers from: .claude/memory/.tmp-answers-{feature-slug}.md
+2. Parse and analyze all user responses
+3. Apply Chain-of-Thought reasoning and Chain-of-Verification
+4. Generate complete requirements document
+5. Write to: .claude/memory/requirements-{feature-slug}.md
+6. Return confirmation with summary statistics
+
+Follow MODE 2 workflow in your agent instructions.
+
+**Quality Requirements:**
+- Every requirement must have source attribution ("According to user response...")
+- Every requirement must have confidence level
+- Flag assumptions and open questions
+- Use MoSCoW prioritization for MVP definition
+"""
+)
+```
+
+**Expected Output:**
+- Agent creates `.claude/memory/requirements-{slug}.md`
+- Agent returns: "Requirements document generated" with statistics
+
+**Cleanup Phase 2b artifacts:**
+
+```bash
+# Delete answers file (no longer needed)
+rm .claude/memory/.tmp-answers-${FEATURE_SLUG}.md
+echo "✓ Cleaned up temporary answers file"
+```
+
+**Verify final artifact:**
+
+```bash
+# Verify requirements document was created
+if [ ! -f ".claude/memory/requirements-${FEATURE_SLUG}.md" ]; then
+  echo "ERROR: Requirements document not found"
+  exit 1
+fi
+
+echo "✓ Requirements document verified at .claude/memory/requirements-${FEATURE_SLUG}.md"
+```
+
+### Phase 3: Validation
+
+After requirements document is generated, perform validation:
+
+**Read and validate requirements document:**
+
+```bash
+# Read requirements document
+REQUIREMENTS_FILE=".claude/memory/requirements-${FEATURE_SLUG}.md"
+cat "$REQUIREMENTS_FILE"
+```
 
 **Validation Checklist**:
 
@@ -315,11 +293,8 @@ After agent completes requirements gathering:
 <question>Did agent follow 5-level framework?</question>
 <check>Verify all 5 levels covered (Purpose, Functional, NFR, Constraints, Acceptance)</check>
 
-<question>Did agent perform CoVe validation?</question>
-<check>Verify agent presented verification checklist to user</check>
-
-<question>Is output in correct XML structure?</question>
-<check>Verify all required sections present (metadata, goals, FR, NFR, constraints, etc.)</check>
+<question>Is output in correct structure?</question>
+<check>Verify all required sections present (metadata, goals, FR, NFR, constraints, MVP, etc.)</check>
 
 <question>Are requirements testable and specific?</question>
 <check>Spot-check acceptance criteria for measurability</check>
@@ -332,27 +307,30 @@ After agent completes requirements gathering:
 <question>Is MVP clearly defined?</question>
 <check>Verify MoSCoW prioritization (must/should/could have)</check>
 
-<question>Did agent use Step-Back domain context?</question>
-<check>Verify domain-specific NFRs included</check>
+<question>Are sources attributed?</question>
+<check>Verify each requirement references user answers</check>
+
+<question>Are temporary files cleaned up?</question>
+<check>Verify .tmp-questions-{slug}.md deleted</check>
+<check>Verify .tmp-answers-{slug}.md deleted</check>
 </orchestrator_validation>
 ```
 
-**Write to Memory**:
-
+**If validation passes:**
 ```bash
-# Extract feature slug from feature name
-FEATURE_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')
-
-# Write requirements to memory
-code-tools create_file \
-  --file .claude/memory/requirements-$FEATURE_SLUG.md \
-  --content @- \
-  --add-last-line-newline <<EOF
-{Agent's requirements document content}
-EOF
+echo "✅ Requirements validation passed"
+echo "✅ All temporary handoff files cleaned up"
+echo "✅ Requirements document ready: .claude/memory/requirements-${FEATURE_SLUG}.md"
 ```
 
-### Phase 4: Quality Gates
+**If validation fails:**
+```bash
+echo "❌ Validation failed: {specific issues}"
+echo "Action: Review requirements document and address issues"
+# Keep temporary files for debugging if validation fails
+```
+
+### Phase 4: Quality Gates and Completion
 
 Before considering requirements complete, verify:
 
@@ -364,49 +342,95 @@ Before considering requirements complete, verify:
 - [ ] Out-of-scope explicitly listed
 - [ ] Dependencies identified
 - [ ] MVP defined with MoSCoW prioritization
-- [ ] User confirmed completeness
+- [ ] All user answers incorporated
 
 **Quality Gates**:
 
 - [ ] No ambiguous terms (or defined in glossary)
 - [ ] All requirements are testable
-- [ ] All requirements have unique IDs
+- [ ] All requirements have unique IDs (FR-001, NFR-PERF-001, etc.)
 - [ ] Assumptions documented with confidence levels
 - [ ] Open questions prioritized
+- [ ] Every requirement has source attribution
 
 **Traceability Gates**:
 
-- [ ] Feature name matches argument
+- [ ] Feature name matches argument: $ARGUMENTS
 - [ ] Created date is today (2025-10-23)
 - [ ] Status is Draft (will be updated after review)
 - [ ] File saved to .claude/memory/requirements-{slug}.md
 
+**Cleanup Verification**:
+
+- [ ] .tmp-questions-{slug}.md deleted
+- [ ] .tmp-answers-{slug}.md deleted
+- [ ] Only requirements-{slug}.md remains in memory
+
+**Present Summary to User**:
+
+```
+✅ Requirements Gathering Complete
+
+**Feature:** $ARGUMENTS
+**Artifact:** .claude/memory/requirements-{slug}.md
+
+**Statistics:**
+- Functional Requirements: {N}
+- Non-Functional Requirements: {N}
+- Constraints: {N}
+- Dependencies: {N}
+- Open Questions: {N}
+- Assumptions: {N}
+
+**Confidence:**
+- High: {N}%
+- Medium: {N}%
+- Low: {N}%
+
+**Next Steps:**
+1. Review requirements document
+2. Resolve open questions if needed
+3. Run /research-tech {slug} for technology analysis
+```
+
 ## Error Handling
 
-**Agent Returns Incomplete Requirements**:
+**Phase 2a Fails (Question Generation)**:
 
 ```
-If missing required sections:
-  - Report: "Requirements incomplete - missing {sections}"
-  - Re-invoke agent with specific instruction to complete missing sections
-  - Do NOT accept incomplete output
+If agent fails to generate questions:
+  - Check if docs/idea.md exists and is readable
+  - Retry agent invocation with more explicit instructions
+  - No cleanup needed (no files created yet)
 ```
 
-**Agent Asks Unclear Questions**:
+**Phase 2b Fails (Question Asking)**:
 
 ```
-If agent's questions are confusing to user:
-  - Intervene and rephrase questions for clarity
-  - Guide agent to use simpler language
-```
+If questions file not found or malformed:
+  - Report: "Questions file missing or invalid"
+  - Check .claude/memory/.tmp-questions-{slug}.md exists
+  - If exists but malformed, ask agent to regenerate
 
-**User Unable to Answer Questions**:
-
-```
-If user doesn't know answer:
-  - Document as open question with HIGH priority
+If user unable to answer questions:
+  - Mark answer as "Unknown - requires investigation"
+  - Document as HIGH priority open question
   - Continue with remaining questions
-  - Note assumption if necessary to proceed
+  - Agent will flag this in requirements document
+```
+
+**Phase 2c Fails (Requirements Generation)**:
+
+```
+If agent fails to generate requirements:
+  - Keep .tmp-answers-{slug}.md for debugging
+  - Retry agent invocation
+  - If retry fails, user can inspect answers file manually
+
+If requirements document incomplete:
+  - Report: "Requirements incomplete - missing {sections}"
+  - Keep temporary files for debugging
+  - Re-invoke agent with corrective instructions
 ```
 
 **Validation Fails**:
@@ -414,25 +438,50 @@ If user doesn't know answer:
 ```
 If orchestrator validation checklist fails:
   - Identify specific failures
-  - Re-invoke agent with corrective instructions
-  - Do NOT write to memory until validation passes
+  - Keep temporary files if they still exist
+  - Options:
+    1. Re-run Phase 2c with corrected instructions
+    2. Manually edit requirements-{slug}.md
+    3. Re-run entire workflow with clarifications
+```
+
+**Cleanup Failures**:
+
+```
+If temporary files not deleted:
+  - Log warning but don't fail workflow
+  - User can manually run /cleanup-memory {slug}
+  - Temporary files are prefixed with .tmp- for easy identification
 ```
 
 ## Success Criteria
 
 Requirements gathering is successful when:
 
+- ✅ Agent successfully generated questions (Phase 2a)
+- ✅ All 20-30 questions asked to user (Phase 2b)
+- ✅ User provided answers to all questions (Phase 2b)
+- ✅ Agent successfully generated requirements document (Phase 2c)
 - ✅ All requirements are clear, testable, and unambiguous
-- ✅ User confirms completeness and accuracy
 - ✅ No assumptions are undocumented
 - ✅ Acceptance criteria are measurable
 - ✅ Out-of-scope items are explicitly listed
-- ✅ MVP is clearly defined
+- ✅ MVP is clearly defined with MoSCoW
 - ✅ Domain-specific considerations included
-- ✅ Document written to .claude/memory/requirements-{slug}.md
+- ✅ Every requirement has source attribution
+- ✅ Temporary handoff files cleaned up
+- ✅ Final document at .claude/memory/requirements-{slug}.md
 
 ## Output
 
-Comprehensive requirements artifact in `.claude/memory/requirements-{slug}.md` ready for tech research phase.
+**Primary Artifact:**
+`.claude/memory/requirements-{slug}.md` - Comprehensive requirements document ready for tech research phase
 
-**Next Steps**: Run `/research-tech {feature-slug}` to analyze technology options.
+**Temporary Files (deleted after completion):**
+- `.claude/memory/.tmp-questions-{slug}.md` - Agent-generated questions (deleted after Phase 2b)
+- `.claude/memory/.tmp-answers-{slug}.md` - User answers (deleted after Phase 2c)
+
+**Next Steps**:
+1. Review requirements document
+2. Resolve any open questions flagged by agent
+3. Run `/research-tech {feature-slug}` to analyze technology options
