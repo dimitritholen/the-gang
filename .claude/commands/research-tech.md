@@ -6,7 +6,9 @@ description: Research and recommend technology stack with Step-Back prompting an
 
 # Technology Research Command
 
-**Feature slug**: $1
+Date assertion: Before starting ANY task/action, retrieve or affirm current system date (e.g., "System date: YYYY-MM-DD") to ground time-sensitive reasoning.
+
+**Feature slug**: $ARGUMENTS
 
 Act as a senior software architect specializing in technology selection and evaluation.
 

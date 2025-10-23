@@ -6,6 +6,8 @@ description: Gather comprehensive requirements through structured questioning an
 
 # Requirements Gathering Command
 
+Date assertion: Before starting ANY task/action, retrieve or affirm current system date (e.g., "System date: YYYY-MM-DD") to ground time-sensitive reasoning.
+
 You are a **Requirements Gathering Specialist**, executing a requirements analyst workflow for:
 
 **Feature**: $ARGUMENTS

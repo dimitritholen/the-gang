@@ -16,9 +16,10 @@ Transforms a feature idea into **working, tested, production-ready code** by:
 2. **Researching Technologies** with grounded, comparative analysis (Step-Back + "According to...")
 3. **Planning Implementation** with detailed task breakdowns and dependencies (CoT + dependency graphs)
 4. **Validating Scope** to prevent feature creep and maintain MVP focus (MoSCoW prioritization)
-5. **Implementing Features** with quality gates and anti-hallucination measures (NEW)
-6. **Testing & Validation** with comprehensive test coverage (NEW)
-7. **Synthesizing Knowledge** into actionable documentation
+5. **🆕 Designing UX/UI** with wireframes, user flows, and accessibility specifications
+6. **Implementing Features** with quality gates and anti-hallucination measures
+7. **Testing & Validation** with comprehensive test coverage
+8. **Synthesizing Knowledge** into actionable documentation
 
 ### Why Use This Workflow
 
@@ -39,11 +40,13 @@ Transforms a feature idea into **working, tested, production-ready code** by:
 ### Installation
 
 1. Install code-tools:
+
    ```bash
    cd tools && pip install -e .[web]
    ```
 
 2. Verify installation:
+
    ```bash
    code-tools --help
    ```
@@ -59,6 +62,7 @@ Analyze a complete feature:
 ```
 
 The workflow will:
+
 1. Launch requirements analyst → gather comprehensive requirements
 2. Launch tech researcher → research and recommend stack
 3. Launch implementation planner → create task breakdown
@@ -78,7 +82,10 @@ Run specific phases independently:
 /plan-implementation "payment-processing"
 /validate-scope "payment-processing"
 
-# Implementation Phase Commands (NEW)
+# Design Phase Command (NEW)
+/design-ui "payment-processing"  # Create UX/UI specifications
+
+# Implementation Phase Commands
 /implement-feature "payment-processing"  # Execute the implementation plan
 ```
 
@@ -106,7 +113,8 @@ This takes you from idea → production-ready code.
 │   ├── research-tech.md
 │   ├── plan-implementation.md
 │   ├── validate-scope.md
-│   └── implement-feature.md        # 🆕 Implementation orchestrator
+│   ├── design-ui.md                # 🆕 UX/UI design orchestrator
+│   └── implement-feature.md        # Implementation orchestrator
 │
 ├── agents/                # Specialized agent prompts
 │   ├── requirements-analyst.md     # Requirements elicitation
@@ -114,18 +122,20 @@ This takes you from idea → production-ready code.
 │   ├── implementation-planner.md   # Work breakdown
 │   ├── scope-guardian.md           # Scope protection
 │   ├── memory-manager.md           # Knowledge synthesis
-│   ├── senior-developer.md         # 🆕 Code implementation
-│   └── qa-engineer.md              # 🆕 Testing & validation
+│   ├── ux-ui-designer.md           # 🆕 UX/UI design specialist
+│   ├── senior-developer.md         # Code implementation
+│   └── qa-engineer.md              # Testing & validation
 │
 └── memory/                # Persistent knowledge storage
     ├── requirements-*.md
     ├── tech-analysis-*.md
     ├── implementation-plan-*.md
     ├── scope-validation-*.md
+    ├── design-spec-*.md            # 🆕 Design specifications
     ├── feature-brief-*.md
-    ├── implementation-*.md         # 🆕 Implementation logs
-    ├── test-results-*.md           # 🆕 Test reports
-    └── implementation-summary-*.md # 🆕 Final summary
+    ├── implementation-*.md         # Implementation logs
+    ├── test-results-*.md           # Test reports
+    └── implementation-summary-*.md # Final summary
 ```
 
 ### Workflow Execution Flow
@@ -180,6 +190,7 @@ graph TD
 **Methodology**: 5-level questioning framework with Chain-of-Verification
 
 **Key Techniques**:
+
 - Iterative questioning to uncover hidden requirements
 - XML-structured output for clarity
 - Explicit assumption flagging
@@ -195,6 +206,7 @@ graph TD
 **Methodology**: Step-Back prompting → Research → Comparative analysis
 
 **Key Techniques**:
+
 - "According to..." prompting (source grounding)
 - Comparative matrices for objective evaluation
 - Hallucination prevention through citation
@@ -210,6 +222,7 @@ graph TD
 **Methodology**: Chain-of-Thought decomposition → Dependency mapping → Phasing
 
 **Key Techniques**:
+
 - Granular task breakdown (2-8 hour tasks)
 - Critical path identification
 - Mermaid dependency graphs
@@ -225,6 +238,7 @@ graph TD
 **Methodology**: Scope baseline → Creep detection → MoSCoW prioritization
 
 **Key Techniques**:
+
 - MoSCoW method (Must/Should/Could/Won't have)
 - Over-engineering detection
 - MVP litmus testing
@@ -240,6 +254,7 @@ graph TD
 **Methodology**: Artifact collection → Synthesis → Organization
 
 **Key Techniques**:
+
 - Multi-artifact synthesis
 - Implementation checklists
 - Semantic search optimization
@@ -255,6 +270,7 @@ graph TD
 **Methodology**: CoT reasoning → Grounded implementation → CoVe verification → Testing
 
 **Key Techniques**:
+
 - Chain-of-Thought for implementation planning
 - "According to..." API verification (prevents hallucinations)
 - Step-Back prompting for complex algorithms
@@ -262,6 +278,7 @@ graph TD
 - Multi-pass refinement (basic → edge cases → optimization → polish)
 
 **Anti-Hallucination Measures**:
+
 - Verifies all APIs in tech analysis or official docs
 - Flags assumptions explicitly
 - Cross-checks against requirements
@@ -277,6 +294,7 @@ graph TD
 **Methodology**: Test strategy → Test generation → Automation → Execution → Reporting
 
 **Key Techniques**:
+
 - Test pyramid (unit, integration, E2E)
 - Edge case identification
 - Test data generation
@@ -284,6 +302,7 @@ graph TD
 - Coverage analysis with gap identification
 
 **Quality Gates**:
+
 - 80%+ code coverage
 - All tests passing
 - Edge cases covered
@@ -291,14 +310,35 @@ graph TD
 
 **Output**: Test suites, test results, coverage reports
 
+---
+
+### 🆕 UX/UI Designer
+
+**Specialization**: User experience research and interface design
+**Methodology**: UX research → IA → Wireframing → Visual design → Accessibility → Responsive → Handoff
+
+**Key Techniques**:
+
+- Step-Back prompting for foundational UX questions
+- Information architecture and user flow diagrams (Mermaid)
+- ASCII wireframes with detailed specifications
+- Design tokens and component libraries
+- WCAG 2.1 AA accessibility compliance
+- Mobile-first responsive design
+- Developer handoff documentation
+
+**Output**: `design-spec-{feature}.md` with complete UI specifications
+
 ## 🧠 Prompt Engineering Techniques
 
 This workflow implements state-of-the-art prompt engineering methods:
 
 ### 1. Chain-of-Thought (CoT)
+
 Agents reason through problems step-by-step before providing answers.
 
 **Example** (Implementation Planner):
+
 ```
 <implementation_reasoning>
 Major Components: Database → API → UI
@@ -308,9 +348,11 @@ Critical Path: Schema → Models → Endpoints → Integration
 ```
 
 ### 2. Chain-of-Verification (CoVe)
+
 Agents verify their own outputs by asking validation questions.
 
 **Example** (Requirements Analyst):
+
 ```
 <verification>
 1. Have I identified all stakeholders? → Yes: Product, Dev, Security
@@ -320,9 +362,11 @@ Agents verify their own outputs by asking validation questions.
 ```
 
 ### 3. Step-Back Prompting
+
 Agents first answer at a higher abstraction level before specifics.
 
 **Example** (Tech Researcher):
+
 ```
 <step_back_analysis>
 Architectural Pattern: Event-driven (because real-time requirements)
@@ -332,16 +376,20 @@ Industry Standard: WebSocket with Redis pub/sub (according to Socket.io docs)
 ```
 
 ### 4. "According to..." Prompting
+
 All factual claims are grounded in sources to prevent hallucinations.
 
 **Example**:
+
 - ✅ "According to the React documentation (react.dev), concurrent features enable..."
 - ❌ "React is the best framework" (unsourced opinion)
 
 ### 5. XML Structure
+
 Complex information is organized using XML-like tags for clarity.
 
 **Example**:
+
 ```xml
 <technology_option>
   <name>PostgreSQL</name>
@@ -352,6 +400,7 @@ Complex information is organized using XML-like tags for clarity.
 ```
 
 ### 6. Role Prompting
+
 Agents adopt expert personas to focus their outputs.
 
 **Example**:
@@ -404,6 +453,7 @@ Agents adopt expert personas to focus their outputs.
 
 2. **For Task T-1-1** (Database schema):
    - **Senior Developer** uses CoT:
+
      ```
      <reasoning>
      Need users table with: id, email, password_hash, created_at
@@ -411,6 +461,7 @@ Agents adopt expert personas to focus their outputs.
      Email unique constraint for login
      </reasoning>
      ```
+
    - Generates migration file
    - Runs CoVe verification (checks against requirements)
    - **QA Engineer** creates tests:
@@ -447,6 +498,7 @@ Agents adopt expert personas to focus their outputs.
    - **Output**: `implementation-summary-user-authentication.md`
 
 **Complete Output Files**:
+
 ```
 .claude/memory/
 ├── requirements-user-authentication.md        # 7 FRs, 5 NFRs
@@ -483,6 +535,7 @@ Agents adopt expert personas to focus their outputs.
 ```
 
 **What Happens**:
+
 - Requirements Analyst asks questions about:
   - Which social providers? (Google, GitHub initially)
   - Account linking strategy? (link to existing or create new)
@@ -506,6 +559,7 @@ Agents adopt expert personas to focus their outputs.
 ```
 
 **What Happens**:
+
 - Tech Researcher loads requirements from memory
 - Researches caching solutions: Redis, Memcached, Cloudflare Workers KV
 - Compares based on: speed, TTL features, distributed support, cost
@@ -524,6 +578,7 @@ Agents adopt expert personas to focus their outputs.
 ```
 
 **What Happens**:
+
 - Scope Guardian loads all artifacts
 - Validates each requirement, tech choice, and task against original user request
 - Flags: "Push notifications to mobile devices" as scope creep (not in original request)
@@ -538,6 +593,7 @@ Agents adopt expert personas to focus their outputs.
 All agents leverage the `code-tools` CLI for:
 
 ### Context Gathering
+
 ```bash
 # Understand existing codebase
 code-tools list_dir --path src --depth 2
@@ -546,18 +602,21 @@ code-tools grep_code --pattern "class |function |def " --limit 50
 ```
 
 ### Memory Retrieval
+
 ```bash
 # Search for relevant past decisions
 code-tools search_memory --dir .claude/memory --query "authentication security" --topk 5
 ```
 
 ### Artifact Storage
+
 ```bash
 # Create memory artifacts
 code-tools create_file --file .claude/memory/requirements-{feature}.md --content @reqs.txt
 ```
 
 ### External Research
+
 ```bash
 # Fetch documentation for grounding
 code-tools fetch_content --url https://react.dev/reference/react
@@ -618,9 +677,11 @@ This workflow employs multiple strategies to prevent AI hallucinations:
 ## 📊 Output Artifacts
 
 ### 1. Requirements Document
+
 **File**: `requirements-{feature}.md`
 
 **Contains**:
+
 - Executive summary
 - Functional requirements (with acceptance criteria)
 - Non-functional requirements (performance, security, etc.)
@@ -633,9 +694,11 @@ This workflow employs multiple strategies to prevent AI hallucinations:
 ---
 
 ### 2. Technology Analysis
+
 **File**: `tech-analysis-{feature}.md`
 
 **Contains**:
+
 - Step-back architectural analysis
 - 2-3 evaluated options per technology category
 - Comparative matrices
@@ -648,9 +711,11 @@ This workflow employs multiple strategies to prevent AI hallucinations:
 ---
 
 ### 3. Implementation Plan
+
 **File**: `implementation-plan-{feature}.md`
 
 **Contains**:
+
 - Work breakdown structure (30-50 tasks)
 - Dependency graph (Mermaid diagram)
 - Critical path analysis
@@ -665,9 +730,11 @@ This workflow employs multiple strategies to prevent AI hallucinations:
 ---
 
 ### 4. Scope Validation
+
 **File**: `scope-validation-{feature}.md`
 
 **Contains**:
+
 - Core scope baseline
 - Scope creep analysis (per artifact)
 - MVP definition (MoSCoW prioritization)
@@ -679,9 +746,11 @@ This workflow employs multiple strategies to prevent AI hallucinations:
 ---
 
 ### 5. Feature Brief
+
 **File**: `feature-brief-{feature}.md`
 
 **Contains**:
+
 - Executive summary (what/why/how/when)
 - Requirements summary
 - Technology decisions
@@ -695,9 +764,11 @@ This workflow employs multiple strategies to prevent AI hallucinations:
 ---
 
 ### 6. Implementation Checklist
+
 **File**: `checklist-{feature}.md`
 
 **Contains**:
+
 - Pre-development setup
 - Phase-by-phase task checklist
 - Exit criteria per phase
@@ -735,6 +806,7 @@ Idea → Requirements → Tech Research → Planning → Validation → Implemen
 **Symptom**: Tech Researcher says "requirements not found"
 
 **Solution**:
+
 ```bash
 # Check if file exists
 ls .claude/memory/requirements-*.md
@@ -750,6 +822,7 @@ code-tools search_file --glob ".claude/memory/requirements-*" --limit 10
 **Symptom**: Scope Guardian defers most features to Phase 2
 
 **Solution**:
+
 - Review original requirements for clarity
 - May indicate requirements were vague
 - Re-run `/gather-requirements` with more specificity
@@ -761,6 +834,7 @@ code-tools search_file --glob ".claude/memory/requirements-*" --limit 10
 **Symptom**: Tasks estimated at 20+ hours
 
 **Solution**:
+
 - Edit `.claude/agents/implementation-planner.md`
 - Adjust task granularity guidance
 - Re-run `/plan-implementation`
@@ -772,6 +846,7 @@ code-tools search_file --glob ".claude/memory/requirements-*" --limit 10
 **Symptom**: Always recommends trendy technologies
 
 **Solution**:
+
 - Review `.claude/agents/tech-researcher.md`
 - Ensure "According to..." prompting is enforced
 - Add constraint: "Prioritize proven, stable technologies"
