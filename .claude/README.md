@@ -12,15 +12,16 @@ A complete, end-to-end SDLC workflow that takes features from idea to production
 
 Transforms a feature idea into **working, tested, production-ready code** by:
 
-1. **Gathering Requirements** through structured, iterative questioning (5-level framework + CoVe)
-2. **Researching Technologies** with grounded, comparative analysis (Step-Back + "According to...")
-3. **Planning Implementation** with detailed task breakdowns and dependencies (CoT + dependency graphs)
-4. **Validating Scope** to prevent feature creep and maintain MVP focus (MoSCoW prioritization)
-5. **🆕 Designing UX/UI** with wireframes, user flows, and accessibility specifications
-6. **Implementing Features** with quality gates and anti-hallucination measures
-7. **🆕 Reviewing Code** with systematic peer review before merge
-8. **Testing & Validation** with comprehensive test coverage
-9. **Synthesizing Knowledge** into actionable documentation
+1. **🆕 Generating Memory** from existing codebases (for brownfield projects)
+2. **Gathering Requirements** through structured, iterative questioning (5-level framework + CoVe)
+3. **Researching Technologies** with grounded, comparative analysis (Step-Back + "According to...")
+4. **Planning Implementation** with detailed task breakdowns and dependencies (CoT + dependency graphs)
+5. **Validating Scope** to prevent feature creep and maintain MVP focus (MoSCoW prioritization)
+6. **🆕 Designing UX/UI** with wireframes, user flows, and accessibility specifications
+7. **Implementing Features** with quality gates and anti-hallucination measures
+8. **🆕 Reviewing Code** with systematic peer review before merge
+9. **Testing & Validation** with comprehensive test coverage
+10. **Synthesizing Knowledge** into actionable documentation
 
 ### Why Use This Workflow
 
@@ -54,7 +55,32 @@ Transforms a feature idea into **working, tested, production-ready code** by:
 
 ## 🚀 Quick Start
 
-### Basic Usage
+### For Existing Codebases (Brownfield)
+
+**Step 1: Generate memory baseline** (one-time setup):
+
+```bash
+/generate-memory
+```
+
+This analyzes your existing codebase and creates 5 memory artifacts:
+- `project-context.md` - High-level overview
+- `tech-stack-baseline.md` - Current technologies with rationale
+- `coding-conventions.md` - Patterns agents should follow
+- `architecture-decisions.md` - Inferred ADRs
+- `feature-inventory.md` - Existing features catalog
+
+**Step 2: Add new features** (agents now have context):
+
+```bash
+/analyze-feature "Add real-time chat functionality"
+```
+
+Agents will automatically reference existing conventions and architecture.
+
+---
+
+### For New Projects (Greenfield)
 
 Analyze a complete feature:
 
@@ -77,19 +103,27 @@ The workflow will:
 Run specific phases independently:
 
 ```bash
+# Memory Generation (for existing codebases)
+/generate-memory                           # Deep analysis of entire codebase
+/generate-memory --scope "src/frontend"    # Analyze specific directory
+/generate-memory --focus "architecture"    # Focus on specific aspect
+/update-memory "tech-stack"                # Refresh after dependency changes
+/validate-consistency "new-feature"        # Check feature against conventions
+/mine-patterns --type "error-handling"     # Extract dominant patterns
+
 # Planning Phase Commands
 /gather-requirements "Add payment processing"
 /research-tech "payment-processing"
 /plan-implementation "payment-processing"
 /validate-scope "payment-processing"
 
-# Design Phase Command (NEW)
+# Design Phase Command
 /design-ui "payment-processing"  # Create UX/UI specifications
 
 # Implementation Phase Commands
 /implement-feature "payment-processing"  # Execute the implementation plan
 
-# Code Review Phase Command (NEW)
+# Code Review Phase Command
 /review-code "payment-processing"  # Peer review before merge
 ```
 

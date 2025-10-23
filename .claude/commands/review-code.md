@@ -22,6 +22,7 @@ Before proceeding, verify these artifacts exist:
 </prerequisites>
 
 Use code-tools (Read, Bash) to check:
+
 - `.claude/memory/` for planning artifacts
 - Git status for branch information
 - CI/CD pipeline status
@@ -93,6 +94,7 @@ You are conducting a code review for the **$ARGUMENTS** feature before merging t
 
 **Output:**
 Create `code-review-$ARGUMENTS.md` in `.claude/memory/` with:
+
 - Executive summary
 - Merge recommendation (APPROVED / APPROVED WITH CONCERNS / CHANGES REQUIRED)
 - Findings classified by severity (BLOCKER / MAJOR / MINOR / SUGGESTION)
@@ -269,12 +271,14 @@ If code review encounters issues:
 **After this command:**
 
 [If APPROVED or APPROVED WITH CONCERNS]:
+
 - Merge feature branch to main
 - Deploy to staging
 - Run integration tests
 - Monitor production
 
 [If CHANGES REQUIRED]:
+
 - Developer fixes blockers
 - Re-run `/review-code` for another review iteration
 - Repeat until approved
