@@ -18,8 +18,9 @@ Transforms a feature idea into **working, tested, production-ready code** by:
 4. **Validating Scope** to prevent feature creep and maintain MVP focus (MoSCoW prioritization)
 5. **🆕 Designing UX/UI** with wireframes, user flows, and accessibility specifications
 6. **Implementing Features** with quality gates and anti-hallucination measures
-7. **Testing & Validation** with comprehensive test coverage
-8. **Synthesizing Knowledge** into actionable documentation
+7. **🆕 Reviewing Code** with systematic peer review before merge
+8. **Testing & Validation** with comprehensive test coverage
+9. **Synthesizing Knowledge** into actionable documentation
 
 ### Why Use This Workflow
 
@@ -87,6 +88,9 @@ Run specific phases independently:
 
 # Implementation Phase Commands
 /implement-feature "payment-processing"  # Execute the implementation plan
+
+# Code Review Phase Command (NEW)
+/review-code "payment-processing"  # Peer review before merge
 ```
 
 ### Complete Workflow (Planning + Implementation)
@@ -114,7 +118,8 @@ This takes you from idea → production-ready code.
 │   ├── plan-implementation.md
 │   ├── validate-scope.md
 │   ├── design-ui.md                # 🆕 UX/UI design orchestrator
-│   └── implement-feature.md        # Implementation orchestrator
+│   ├── implement-feature.md        # Implementation orchestrator
+│   └── review-code.md              # 🆕 Code review orchestrator
 │
 ├── agents/                # Specialized agent prompts
 │   ├── requirements-analyst.md     # Requirements elicitation
@@ -124,6 +129,7 @@ This takes you from idea → production-ready code.
 │   ├── memory-manager.md           # Knowledge synthesis
 │   ├── ux-ui-designer.md           # 🆕 UX/UI design specialist
 │   ├── senior-developer.md         # Code implementation
+│   ├── code-review-specialist.md   # 🆕 Peer code review
 │   └── qa-engineer.md              # Testing & validation
 │
 └── memory/                # Persistent knowledge storage
@@ -134,6 +140,7 @@ This takes you from idea → production-ready code.
     ├── design-spec-*.md            # 🆕 Design specifications
     ├── feature-brief-*.md
     ├── implementation-*.md         # Implementation logs
+    ├── code-review-*.md            # 🆕 Code review reports
     ├── test-results-*.md           # Test reports
     └── implementation-summary-*.md # Final summary
 ```
@@ -170,8 +177,13 @@ graph TD
     V -->|No| O
     W --> X{More Tasks?}
     X -->|Yes| N
-    X -->|No| Y[implementation-summary-*.md]
-    Y --> Z[Complete: Production Ready]
+    X -->|No| Y[Code Review Specialist]
+    Y --> Z[6-Dimension Review]
+    Z --> AA{Approved?}
+    AA -->|Yes| AB[Merge to Main]
+    AA -->|Changes Required| O
+    AB --> AC[implementation-summary-*.md]
+    AC --> AD[Complete: Production Ready]
 
     style B fill:#4ecdc4
     style D fill:#4ecdc4
@@ -180,6 +192,7 @@ graph TD
     style J fill:#4ecdc4
     style O fill:#ff6b6b
     style S fill:#95e1d3
+    style Y fill:#ffd166
 ```
 
 ## 🤖 Agents
@@ -328,6 +341,32 @@ graph TD
 - Developer handoff documentation
 
 **Output**: `design-spec-{feature}.md` with complete UI specifications
+
+---
+
+### 🆕 Code Review Specialist
+
+**Specialization**: Pre-merge peer review for code quality and correctness
+**Methodology**: Context gathering → Structural review → 6-dimension analysis → Line-by-line review → CoVe
+
+**Key Techniques**:
+
+- 6-dimension review framework (Correctness, Quality, Security, Performance, Testability, Maintainability)
+- Evidence-based severity classification (Blocker/Major/Minor/Suggestion)
+- "According to..." prompting for grounded best practices
+- Step-Back prompting for architectural review
+- Anti-hallucination validation (verify against project conventions)
+- Merge decision logic with clear criteria
+
+**Review Dimensions**:
+- **Correctness** (P0): Logic errors, edge cases, concurrency issues
+- **Code Quality** (P1): Clarity, simplicity, idioms, naming
+- **Security** (P0): Vulnerabilities, secrets, injection attacks
+- **Performance** (P2): Algorithmic complexity, N+1 queries, resource leaks
+- **Testability** (P1): Test coverage, test quality, dependency injection
+- **Maintainability** (P2): Documentation, API design, error messages
+
+**Output**: `code-review-{feature}.md` with findings and merge recommendation
 
 ## 🧠 Prompt Engineering Techniques
 
