@@ -120,6 +120,7 @@ This command delegates to @task-manager agent:
 ```
 
 The task manager handles:
+
 - Status validation (must be IN_PROGRESS)
 - XML file update with blocker
 - Manifest updates (task and root)

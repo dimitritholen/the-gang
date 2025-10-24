@@ -11,6 +11,7 @@
 Hooks are event-driven scripts that execute automatically in response to specific Claude Code events. They enable validation, automation, and integration between components without modifying core behavior.
 
 **When to create a hook**:
+
 - You need to validate or modify tool usage
 - Workflow requires automatic pre/post-processing
 - Security validation is needed
@@ -102,6 +103,7 @@ Hooks are configured in `.claude/settings.json` (project-level) or `~/.claude/se
 Executes **before** tool is invoked. Can block execution.
 
 **Use cases**:
+
 - Security validation
 - Input sanitization
 - Permission checks
@@ -109,6 +111,7 @@ Executes **before** tool is invoked. Can block execution.
 - Constraint enforcement
 
 **Behavior**:
+
 - Exit code 0: Allow tool execution
 - Exit code 2: Block tool execution
 - Blocking shows hook output to user
@@ -138,6 +141,7 @@ Executes **before** tool is invoked. Can block execution.
 Executes **after** successful tool execution.
 
 **Use cases**:
+
 - Code formatting
 - Quality checks
 - Automated testing
@@ -145,6 +149,7 @@ Executes **after** successful tool execution.
 - Logging and auditing
 
 **Behavior**:
+
 - Runs only if tool succeeded
 - Cannot block (tool already executed)
 - Output shown to user
@@ -174,12 +179,14 @@ Executes **after** successful tool execution.
 Executes when user submits a prompt.
 
 **Use cases**:
+
 - Context validation
 - Automatic project setup
 - Workflow initiation
 - Environment checks
 
 **Behavior**:
+
 - Runs before AI processes prompt
 - Can provide context to AI
 - Cannot block user input
@@ -209,12 +216,14 @@ Executes when user submits a prompt.
 Executes when conversation or subagent completes.
 
 **Use cases**:
+
 - Resource cleanup
 - Status reporting
 - Result validation
 - Archiving outputs
 
 **Behavior**:
+
 - Runs at completion
 - Cannot affect execution
 - Good for cleanup tasks
@@ -258,6 +267,7 @@ The name of the tool being invoked.
 ```
 
 **Usage**:
+
 ```bash
 #!/bin/bash
 echo "Tool: $CLAUDE_TOOL_NAME"
@@ -278,6 +288,7 @@ Arguments passed to the tool (as JSON string).
 ```
 
 **Usage**:
+
 ```python
 #!/usr/bin/env python3
 import os
@@ -300,6 +311,7 @@ Absolute path to project root directory.
 ```
 
 **Usage**:
+
 ```bash
 #!/bin/bash
 PROJECT_DIR="${CLAUDE_PROJECT_DIR}"
@@ -634,11 +646,12 @@ tools: Write, Edit, Bash
 
 <security_integration>
 This agent works with security hooks to:
+
 - Validate all file operations against project boundaries
 - Check code for security patterns
 - Ensure compliance with project policies
 - Prevent credential leaks
-</security_integration>
+  </security_integration>
 
 <workflow>
 All code changes will be automatically validated by security hooks.
@@ -657,20 +670,30 @@ Proceed with development tasks. Security validation is automatic.
     "PreToolUse": [
       {
         "matcher": "Bash.*",
-        "hooks": [{"type": "command", "command": "python scripts/validate_bash.py"}]
+        "hooks": [
+          { "type": "command", "command": "python scripts/validate_bash.py" }
+        ]
       },
       {
         "matcher": "(Write|Edit).*",
         "hooks": [
-          {"type": "command", "command": "bash scripts/validate_file_access.sh"},
-          {"type": "command", "command": "python scripts/check_credentials.py"}
+          {
+            "type": "command",
+            "command": "bash scripts/validate_file_access.sh"
+          },
+          {
+            "type": "command",
+            "command": "python scripts/check_credentials.py"
+          }
         ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Write.*\\.(ts|js|tsx|jsx)$",
-        "hooks": [{"type": "command", "command": "prettier --write $CLAUDE_TOOL_ARGS"}]
+        "hooks": [
+          { "type": "command", "command": "prettier --write $CLAUDE_TOOL_ARGS" }
+        ]
       }
     ]
   }
@@ -813,12 +836,14 @@ Before deploying hooks:
 ### Hook Not Triggering
 
 **Causes**:
+
 - Matcher pattern doesn't match tool usage
 - Settings.json syntax error
 - Hook script not executable
 - Wrong event type (PreToolUse vs PostToolUse)
 
 **Debug**:
+
 ```bash
 # Check settings.json syntax
 jq . .claude/settings.json
@@ -836,12 +861,14 @@ chmod +x scripts/hook.sh
 ### Hook Blocking Unexpectedly
 
 **Causes**:
+
 - Hook script error causes exit code 2
 - Validation logic too strict
 - Environment variable not available
 - Path resolution issues
 
 **Debug**:
+
 ```bash
 # Test hook directly
 bash -x scripts/hook.sh
@@ -855,12 +882,14 @@ echo $?
 ### Performance Impact
 
 **Causes**:
+
 - Hook does expensive operations
 - Multiple hooks on same event
 - Hook doesn't exit quickly
 - External API calls in hook
 
 **Solutions**:
+
 - Cache results when possible
 - Run expensive operations async
 - Optimize validation logic
@@ -882,6 +911,7 @@ echo $?
 ---
 
 **See Also**:
+
 - [commands.md](./commands.md) - Command+hook integration
 - [agents.md](./agents.md) - Agent+hook coordination
 - [patterns.md](./patterns.md) - Hook in workflow patterns

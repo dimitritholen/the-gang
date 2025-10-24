@@ -29,27 +29,27 @@ code_tools/
 
 ## Entity Types
 
-| Entity | Fields | Example |
-|--------|--------|---------|
-| Feature | id, name, status, priority, dependencies[], tags[] | `feature:user-authentication` |
-| Requirement | req_type, priority, acceptance_criteria[], parent_feature | `req:FR-001` (functional), `req:NFR-SEC-001` (security) |
-| TechDecision | decision, rationale, alternatives[], stakeholders[] | Why JWT vs sessions |
-| Component | component_type, file_path, dependencies[], line_range | `auth_service.ts:10-50` |
-| Task | status, dependencies[], blockers[], assigned_to | `T01: NOT_STARTED` |
-| Pattern | pattern_type, examples[], conformance_pct, violations[] | PascalCase for components (95% conformance) |
-| Convention | category, rule, conformance_pct, deviations[] | API design: REST conventions |
+| Entity       | Fields                                                    | Example                                                 |
+| ------------ | --------------------------------------------------------- | ------------------------------------------------------- |
+| Feature      | id, name, status, priority, dependencies[], tags[]        | `feature:user-authentication`                           |
+| Requirement  | req_type, priority, acceptance_criteria[], parent_feature | `req:FR-001` (functional), `req:NFR-SEC-001` (security) |
+| TechDecision | decision, rationale, alternatives[], stakeholders[]       | Why JWT vs sessions                                     |
+| Component    | component_type, file_path, dependencies[], line_range     | `auth_service.ts:10-50`                                 |
+| Task         | status, dependencies[], blockers[], assigned_to           | `T01: NOT_STARTED`                                      |
+| Pattern      | pattern_type, examples[], conformance_pct, violations[]   | PascalCase for components (95% conformance)             |
+| Convention   | category, rule, conformance_pct, deviations[]             | API design: REST conventions                            |
 
 ## Relationship Types
 
-| Relationship | Direction | Example |
-|--------------|-----------|---------|
-| `requires` | Feature → Requirement | Auth feature requires FR-001 |
-| `depends_on` | Feature → Feature, Task → Task | Payment depends on Auth |
-| `implements` | Component → Requirement | `auth.ts` implements FR-001 |
-| `follows` | Component → Pattern/Convention | `UserProfile.tsx` follows PascalCase |
-| `justifies` | TechDecision → Component | JWT decision justifies token handling |
-| `blocks` | Task → Task | T02 blocks T05 |
-| `derived_from` | Requirement → Requirement | Child requirement from parent |
+| Relationship   | Direction                      | Example                               |
+| -------------- | ------------------------------ | ------------------------------------- |
+| `requires`     | Feature → Requirement          | Auth feature requires FR-001          |
+| `depends_on`   | Feature → Feature, Task → Task | Payment depends on Auth               |
+| `implements`   | Component → Requirement        | `auth.ts` implements FR-001           |
+| `follows`      | Component → Pattern/Convention | `UserProfile.tsx` follows PascalCase  |
+| `justifies`    | TechDecision → Component       | JWT decision justifies token handling |
+| `blocks`       | Task → Task                    | T02 blocks T05                        |
+| `derived_from` | Requirement → Requirement      | Child requirement from parent         |
 
 ## Token Efficiency
 

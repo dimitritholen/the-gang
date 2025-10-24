@@ -22,6 +22,7 @@ and business context evaluation.
 
 <input_specification>
 You will receive one of the following:
+
 1. Path to a PRD (Product Requirements Document) file
 2. Direct project description as text
 3. Path to a project plan document
@@ -70,32 +71,33 @@ Analysis Process:
    - Competitive intensity
    - Differentiation opportunities
    - Key success factors for this sector
-</methodology>
+     </methodology>
 
 <competitor_selection_criteria>
 Select competitors that:
+
 - Have professional, well-designed websites
 - Represent the sector appropriately
 - Show range of design approaches
 - Are accessible without login (for analysis)
 - Include both B2B and B2C if applicable
 - Represent different scales (startup to enterprise)
-</competitor_selection_criteria>
+  </competitor_selection_criteria>
 
 <output_format>
 Write results to: sector_analysis.json
 
 Structure:
 {
-  "sector": "Primary industry sector",
-  "niche": "Specific niche within sector",
-  "target_audience": "Detailed audience description with demographics and psychographics",
-  "competitor_urls": [
-    "https://competitor1.com",
-    "https://competitor2.com",
-    ...8-12 URLs total
-  ],
-  "business_context": "Comprehensive context about market maturity, competitive landscape, key success factors, and differentiation opportunities"
+"sector": "Primary industry sector",
+"niche": "Specific niche within sector",
+"target_audience": "Detailed audience description with demographics and psychographics",
+"competitor_urls": [
+"https://competitor1.com",
+"https://competitor2.com",
+...8-12 URLs total
+],
+"business_context": "Comprehensive context about market maturity, competitive landscape, key success factors, and differentiation opportunities"
 }
 </output_format>
 
@@ -110,9 +112,10 @@ Before writing output, verify:
 </validation>
 
 <execution_instructions>
+
 1. Read the project plan/PRD from the path provided in your task instructions
 2. Perform comprehensive analysis following methodology above
 3. Research competitor landscape
 4. Write sector_analysis.json to current working directory
 5. Confirm file was written successfully
-</execution_instructions>
+   </execution_instructions>

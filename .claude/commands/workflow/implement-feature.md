@@ -13,6 +13,7 @@ Act as a **Staff Engineer and Technical Lead** orchestrating the implementation 
 ## Objective
 
 Transform the implementation plan into working, tested, production-ready code by:
+
 1. Executing tasks in dependency order
 2. Applying advanced prompt engineering at each step (CoT, CoVe, Step-Back)
 3. Preventing hallucinations through context grounding
@@ -32,6 +33,7 @@ code-tools read_file --path .claude/memory/scope-validation-$1.md
 ```
 
 If ANY artifact is missing, **STOP** and run the appropriate planning command first:
+
 - Missing requirements → `/gather-requirements`
 - Missing tech analysis → `/research-tech $1`
 - Missing implementation plan → `/plan-implementation $1`
@@ -191,6 +193,7 @@ Context artifacts:
 ```
 
 The senior-developer agent will:
+
 1. **Chain-of-Thought Reasoning**: Plan the implementation approach using code-tools
 2. **Grounded Implementation**: Write code using only verified APIs/patterns via code-tools
 3. **Chain-of-Verification**: Self-check the implementation
@@ -198,6 +201,7 @@ The senior-developer agent will:
 5. **Documentation**: Create implementation log using code-tools
 
 **Pass to agent**:
+
 - Task ID and specification
 - All context artifacts (paths)
 - Dependencies outputs (if any)
@@ -206,6 +210,7 @@ The senior-developer agent will:
 - **Code-tools CLI enforcement requirements (above)**
 
 **Receive from agent**:
+
 - Implementation files (code)
 - Test suite (passing tests)
 - CoVe verification results
@@ -466,10 +471,10 @@ code-tools create_file --file .claude/memory/implementation-summary-$1.md --cont
 
 ## Requirements Coverage
 
-| Requirement ID | Description | Status | Tasks | Tests |
-|----------------|-------------|--------|-------|-------|
-| REQ-001 | {Text} | ✅ Complete | T-1-1, T-2-3 | 15 tests |
-| REQ-002 | {Text} | ⚠️ Partial | T-2-4 | 8 tests |
+| Requirement ID | Description | Status      | Tasks        | Tests    |
+| -------------- | ----------- | ----------- | ------------ | -------- |
+| REQ-001        | {Text}      | ✅ Complete | T-1-1, T-2-3 | 15 tests |
+| REQ-002        | {Text}      | ⚠️ Partial  | T-2-4        | 8 tests  |
 
 ## Quality Metrics
 
@@ -485,6 +490,7 @@ code-tools create_file --file .claude/memory/implementation-summary-$1.md --cont
 OR
 
 ⚠️ **Scope Deviations**:
+
 - {Feature X}: Added because {justification}
 - {Feature Y}: Deferred to Phase 2 due to {reason}
 
@@ -506,15 +512,18 @@ OR
 ## Testing Summary
 
 ### Unit Tests
+
 - Total: {Count}
 - Coverage: {%}
 - Key areas: {List}
 
 ### Integration Tests
+
 - Scenarios covered: {List}
 - All passing: {Yes/No}
 
 ### E2E Tests
+
 - Critical user flows tested: {List}
 - Status: {All passing | Issues found}
 
@@ -531,19 +540,23 @@ OR
 ## Next Steps
 
 ### Immediate
+
 1. {Action item}
 2. {Action item}
 
 ### Phase 2 / Future Enhancements
+
 1. {Deferred feature}
 2. {Optimization opportunity}
 
 ## Lessons Learned
 
 ### What Went Well
+
 - {Positive observation}
 
 ### What Could Be Improved
+
 - {Area for improvement}
 
 ## Reference Artifacts
@@ -560,7 +573,9 @@ OR
 Throughout implementation, enforce these safeguards:
 
 ### 1. Context Injection
+
 **Every agent invocation** must include:
+
 - Full requirements context
 - Tech stack from analysis
 - Task specification
@@ -570,13 +585,17 @@ Throughout implementation, enforce these safeguards:
 **Never** let agent operate without context.
 
 ### 2. "According to..." Verification
+
 **Every** library/framework usage must be verified:
+
 - Is it in tech analysis? → Approved
 - Is it in official docs? → Fetch and confirm
 - Is it a hallucination? → Reject and find alternative
 
 ### 3. API Method Validation
+
 Before using ANY API method:
+
 ```bash
 # Check if it exists in official docs
 code-tools fetch_content --url {official-docs-url} | grep "{method-name}"
@@ -588,7 +607,9 @@ code-tools grep_code --pattern "{method-name}" --limit 10
 **If not found**: It's likely a hallucination. Use alternative or verify first.
 
 ### 4. Assumption Flagging
+
 **Require** agent to flag assumptions:
+
 ```
 <assumptions_made>
   <assumption status="needs_validation">
@@ -598,12 +619,15 @@ code-tools grep_code --pattern "{method-name}" --limit 10
 ```
 
 **Review** all flagged assumptions and either:
+
 - Validate with user
 - Look up in documentation
 - Reject if unsupported
 
 ### 5. Cross-Artifact Verification
+
 **Before implementing**: Verify consistency
+
 ```
 <consistency_check>
   Requirements say: {X}
@@ -620,17 +644,20 @@ code-tools grep_code --pattern "{method-name}" --limit 10
 ### Continuous Scope Monitoring
 
 **Before each task**:
+
 ```
 Is this task in the plan? {Yes → Proceed | No → Reject}
 ```
 
 **During implementation**:
+
 ```
 Agent wants to add feature F.
 Is F in requirements? {Yes → Allow | No → Reject as scope creep}
 ```
 
 **After each phase**:
+
 ```
 Compare implemented features to scope validation doc.
 Flag any extras for review.
@@ -639,6 +666,7 @@ Flag any extras for review.
 ### Scope Creep Triggers
 
 **Immediately flag and halt if**:
+
 - Agent mentions "let's also add..."
 - Agent implements features not in task spec
 - Agent uses libraries not in tech analysis

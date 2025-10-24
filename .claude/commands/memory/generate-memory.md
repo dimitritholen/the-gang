@@ -693,36 +693,43 @@ Present comprehensive summary to user:
 ### Recommendations
 
 {If low consistency:}
+
 - Consider standardizing {specific inconsistency}
 - Run `/mine-patterns` to identify dominant conventions
 
 {If missing tests:}
+
 - {X}% of features lack tests
 - Consider implementing test coverage for critical paths
 
 {If architectural drift:}
+
 - Some modules don't follow {pattern}
 - Consider refactoring {specific modules}
 
 ### Next Steps
 
 **For New Feature Development**:
+
 1. All agents will now load these memory artifacts automatically
 2. New code will follow existing conventions
 3. New features will integrate with existing architecture
 
 **To Keep Memory Updated**:
+
 - After major refactors: `/update-memory "architecture"`
 - After dependency changes: `/update-memory "tech-stack"`
 - After establishing new patterns: `/mine-patterns --type "{pattern}"`
 
 **To Validate New Features**:
+
 - Before implementation: `/validate-consistency "{feature}"`
 - This checks if new feature aligns with conventions
 
 ### Files Ready for Use
 
 All agents (Requirements Analyst, Tech Researcher, Implementation Planner, Senior Developer, Code Review Specialist) will now automatically reference:
+
 - `project-context.md` for high-level context
 - `tech-stack-baseline.md` for technology decisions
 - `coding-conventions.md` for style and patterns
@@ -744,11 +751,13 @@ All agents (Requirements Analyst, Tech Researcher, Implementation Planner, Senio
 ❌ Error: No source files found in scope "{SCOPE}"
 
 **Possible causes**:
+
 - Incorrect path specified
 - Empty repository
 - All code is gitignored
 
 **Solution**:
+
 - Check scope path: `/generate-memory --scope "src"`
 - Verify code exists: `ls -R {SCOPE}`
 ```
@@ -759,6 +768,7 @@ All agents (Requirements Analyst, Tech Researcher, Implementation Planner, Senio
 ❌ Error: Cannot write to .claude/memory/
 
 **Solution**:
+
 - Check directory permissions
 - Create directory: `mkdir -p .claude/memory`
 - Verify write access: `touch .claude/memory/test`
@@ -773,6 +783,7 @@ All agents (Requirements Analyst, Tech Researcher, Implementation Planner, Senio
 **Missing**: src/, lib/, app/
 
 **Solution**:
+
 - Ensure you're in project root
 - Check if source code is in subdirectory
 - Specify correct scope: `/generate-memory --scope "packages/app/src"`
@@ -784,10 +795,12 @@ All agents (Requirements Analyst, Tech Researcher, Implementation Planner, Senio
 **Checkpoint Interrupted**
 
 **Progress Saved**:
+
 - Phase 1-2 complete
 - Partial artifacts generated
 
 **To Resume**:
+
 - Re-run `/generate-memory` (will detect partial artifacts)
 - Or manually complete remaining phases
 ```
@@ -798,10 +811,12 @@ All agents (Requirements Analyst, Tech Researcher, Implementation Planner, Senio
 ⚠️ Warning: No git repository detected
 
 **Impact**:
+
 - Cannot generate ADR timeline
 - Cannot attribute technology adoption to commits
 
 **Workaround**:
+
 - ADRs will be generated without dates
 - Technology choices inferred from current state only
 - Confidence levels may be lower

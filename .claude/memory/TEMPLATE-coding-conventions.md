@@ -14,6 +14,7 @@
 **Conformance**: {X}% ({Y}/{Z} files)
 
 **Examples**:
+
 - ✅ `UserProfile.tsx`
 - ✅ `AppointmentCard.tsx`
 - ❌ `user-list.tsx` (deviation)
@@ -26,15 +27,17 @@
 **Conformance**: {X}% ({Y}/{Z} files)
 
 **Examples**:
+
 - ✅ `authService.ts`
 - ✅ `dateUtils.ts`
 
 ### Tests
 
-**Pattern**: {*.test.ts | *.spec.ts | __tests__/}
+**Pattern**: {_.test.ts | _.spec.ts | **tests**/}
 **Conformance**: {X}% ({Y}/{Z} files)
 
 **Examples**:
+
 - ✅ `UserProfile.test.tsx`
 - ✅ `authService.spec.ts`
 - ⚠️ `__tests__/utils.ts` (alternative pattern)
@@ -48,6 +51,7 @@
 **Organization Strategy**: {Feature-based | Type-based | Hybrid}
 
 **Evidence**:
+
 ```
 {ACTUAL_DIRECTORY_STRUCTURE}
 ```
@@ -66,11 +70,13 @@
 **Conformance**: {X}%
 
 **Special Cases**:
+
 - Constants: `UPPER_SNAKE_CASE` ({X}% conformance)
 - Private members: `_prefixedCamelCase` ({X}% conformance)
 - Boolean flags: `is*`, `has*`, `should*` prefix
 
 **Examples**:
+
 ```typescript
 // ✅ Good
 const userName = "John";
@@ -79,9 +85,9 @@ const _privateData = {};
 const isAuthenticated = true;
 
 // ❌ Avoid
-const user_name = "John";  // snake_case
-const maxretries = 3;  // no constant naming
-const privateData = {};  // no underscore prefix
+const user_name = "John"; // snake_case
+const maxretries = 3; // no constant naming
+const privateData = {}; // no underscore prefix
 ```
 
 ### Functions/Methods
@@ -90,12 +96,14 @@ const privateData = {};  // no underscore prefix
 **Conformance**: {X}%
 
 **Conventions**:
+
 - Async functions: Prefix with `fetch`, `load`, `get`, `save`
 - Event handlers: Prefix with `handle` (e.g., `handleClick`)
 - Boolean getters: Prefix with `is`, `has`, `should`
 - Transforms: Use verbs like `format`, `parse`, `validate`
 
 **Examples**:
+
 ```typescript
 // ✅ Good
 async function fetchUserData() {}
@@ -104,9 +112,9 @@ function isValidEmail() {}
 function formatDate() {}
 
 // ❌ Avoid
-async function userData() {}  // Missing fetch/get
-function submit() {}  // Missing handle
-function validEmail() {}  // Missing is/has
+async function userData() {} // Missing fetch/get
+function submit() {} // Missing handle
+function validEmail() {} // Missing is/has
 ```
 
 ---
@@ -154,10 +162,11 @@ function validEmail() {}  // Missing is/has
 **Usage**: {Always | ES5 | Never}
 **Evidence**: {Prettier config}
 **Example**:
+
 ```typescript
 const obj = {
-  name: 'John',
-  age: 30,  // ← Trailing comma
+  name: "John",
+  age: 30, // ← Trailing comma
 };
 ```
 
@@ -171,6 +180,7 @@ const obj = {
 **Confidence**: {X}% ({Y}/{Z} error handling blocks)
 
 **Evidence** (analyzed {N} error handlers):
+
 - Toast notifications: {X} instances ({Y}%)
 - Console.error: {X} instances ({Y}%)
 - Throw: {X} instances ({Y}%)
@@ -208,11 +218,13 @@ catch (error) {
 **Conformance**: {X}%
 
 **Standard Format**:
+
 ```
 {METHOD} /api/{version}/{resource}/{id?}/{action?}
 ```
 
 **Examples**:
+
 ```
 GET    /api/v1/users
 GET    /api/v1/users/:id
@@ -226,6 +238,7 @@ POST   /api/v1/users/:id/activate
 ### HTTP Methods
 
 **Usage** (RESTful compliance: {X}%):
+
 - GET: Read operations ({X} endpoints)
 - POST: Create operations ({X} endpoints)
 - PUT: Full updates ({X} endpoints)
@@ -235,6 +248,7 @@ POST   /api/v1/users/:id/activate
 ### Request/Response Format
 
 **Request Body**:
+
 ```typescript
 {
   // JSON payload
@@ -242,6 +256,7 @@ POST   /api/v1/users/:id/activate
 ```
 
 **Response Format** ({X}% conformance):
+
 ```typescript
 {
   success: boolean;
@@ -257,6 +272,7 @@ POST   /api/v1/users/:id/activate
 ### Status Codes
 
 **Standard Usage**:
+
 - 200: Success
 - 201: Created
 - 400: Bad Request (validation errors)
@@ -277,10 +293,11 @@ POST   /api/v1/users/:id/activate
 **Conformance**: {X}%
 
 **Standard Format**:
+
 ```typescript
-describe('ComponentName', () => {
-  describe('when condition', () => {
-    it('should expected behavior', () => {
+describe("ComponentName", () => {
+  describe("when condition", () => {
+    it("should expected behavior", () => {
       // Arrange
       const input = setupInput();
 
@@ -296,10 +313,11 @@ describe('ComponentName', () => {
 
 ### Test File Organization
 
-**Pattern**: {Co-located | __tests__ directory | Separate test/ folder}
+**Pattern**: {Co-located | **tests** directory | Separate test/ folder}
 **Conformance**: {X}%
 
 **Examples**:
+
 - Co-located: `UserProfile.test.tsx` next to `UserProfile.tsx`
 - Directory: `__tests__/UserProfile.test.tsx`
 - Separate: `test/components/UserProfile.test.tsx`
@@ -309,23 +327,25 @@ describe('ComponentName', () => {
 **Libraries**: {Jest | Sinon | MSW | etc.}
 
 **Patterns**:
+
 - Database: {In-memory SQLite | Test containers | Mocked ORM}
 - External APIs: {MSW | Nock | Manual mocks}
 - Time/Date: {jest.useFakeTimers | Sinon fake timers}
 - File system: {mock-fs | In-memory}
 
 **Examples**:
+
 ```typescript
 // Database mocking
-jest.mock('./db', () => ({
-  query: jest.fn()
+jest.mock("./db", () => ({
+  query: jest.fn(),
 }));
 
 // API mocking (MSW)
 server.use(
-  rest.get('/api/users', (req, res, ctx) => {
+  rest.get("/api/users", (req, res, ctx) => {
     return res(ctx.json({ users: [] }));
-  })
+  }),
 );
 ```
 
@@ -334,19 +354,20 @@ server.use(
 **Pattern**: {Factory functions | Fixtures | Inline}
 
 **Example**:
+
 ```typescript
 // Factory
 function createTestUser(overrides = {}) {
   return {
     id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-    ...overrides
+    name: "Test User",
+    email: "test@example.com",
+    ...overrides,
   };
 }
 
 // Usage
-const user = createTestUser({ name: 'John' });
+const user = createTestUser({ name: "John" });
 ```
 
 ---
@@ -358,12 +379,14 @@ const user = createTestUser({ name: 'John' });
 **Philosophy**: {Self-documenting code preferred | Liberal comments | JSDoc/Docstrings required}
 
 **Required Comments**:
+
 - Complex algorithms (explain why, not what)
 - Public APIs (JSDoc/Docstrings)
 - Workarounds (explain why workaround needed)
 - TODOs (with issue tracker reference)
 
 **Avoided Comments**:
+
 - Obvious code (what is already clear from reading)
 - Commented-out code (delete instead)
 - Outdated comments (update or remove)
@@ -371,6 +394,7 @@ const user = createTestUser({ name: 'John' });
 ### Documentation Format
 
 **JSDoc/TypeDoc** (for TypeScript/JavaScript):
+
 ```typescript
 /**
  * Fetches user data from the API
@@ -384,6 +408,7 @@ async function fetchUser(userId: string): Promise<User> {
 ```
 
 **Python Docstrings** (if applicable):
+
 ```python
 def fetch_user(user_id: str) -> User:
     """
@@ -410,25 +435,27 @@ def fetch_user(user_id: str) -> User:
 **Pattern**: {Grouped | Alphabetical | None}
 
 **Standard Order**:
+
 1. External libraries (React, lodash, etc.)
 2. Internal absolute imports (@/components)
 3. Relative imports (./utils)
 4. CSS/assets
 
 **Example**:
+
 ```typescript
 // External
-import React from 'react';
-import { useState } from 'react';
-import axios from 'axios';
+import React from "react";
+import { useState } from "react";
+import axios from "axios";
 
 // Internal
-import { Button } from '@/components/Button';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from "@/components/Button";
+import { useAuth } from "@/hooks/useAuth";
 
 // Relative
-import { formatDate } from './utils';
-import './styles.css';
+import { formatDate } from "./utils";
+import "./styles.css";
 ```
 
 ### Export Style
@@ -437,6 +464,7 @@ import './styles.css';
 **Preference**: {DETECTED_PREFERENCE}
 
 **Examples**:
+
 ```typescript
 // Named exports (preferred for utilities/components)
 export function formatDate() {}
@@ -455,6 +483,7 @@ export default function UserProfile() {}
 **Pattern**: {useState | this.state | etc.}
 
 **Example**:
+
 ```typescript
 const [count, setCount] = useState(0);
 const [user, setUser] = useState<User | null>(null);
@@ -467,16 +496,17 @@ const [user, setUser] = useState<User | null>(null);
 **Structure**: {Slice-based | Module-based | Atom-based}
 
 **Example**:
+
 ```typescript
 // Redux Toolkit slice
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState: { user: null, token: null },
   reducers: {
     setUser: (state, action) => {
       state.user = action.payload;
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -487,13 +517,17 @@ const authSlice = createSlice({
 **Pattern**: {Constructor injection | Parameter injection | Service locator | None}
 
 **Example**:
+
 ```typescript
 class UserService {
-  constructor(private db: Database, private logger: Logger) {}
+  constructor(
+    private db: Database,
+    private logger: Logger,
+  ) {}
 
   async getUser(id: string) {
     this.logger.info(`Fetching user ${id}`);
-    return this.db.query('SELECT * FROM users WHERE id = ?', [id]);
+    return this.db.query("SELECT * FROM users WHERE id = ?", [id]);
   }
 }
 ```
@@ -510,10 +544,11 @@ class UserService {
 **Coverage**: {X}% of endpoints
 
 **Example**:
+
 ```typescript
 const userSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).required()
+  password: Joi.string().min(8).required(),
 });
 ```
 
@@ -523,10 +558,11 @@ const userSchema = Joi.object({
 **Token Storage**: {HttpOnly cookie | LocalStorage | etc.}
 
 **Middleware**:
+
 ```typescript
 function requireAuth(req, res, next) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
 
   const user = verifyToken(token);
   req.user = user;
@@ -544,6 +580,7 @@ function requireAuth(req, res, next) {
 **Locations**: {DETECTED_LOCATIONS}
 
 **Example**:
+
 ```typescript
 // Redis caching
 const cached = await redis.get(`user:${id}`);
@@ -560,6 +597,7 @@ return user;
 **Query Patterns**: {Eager loading | Lazy loading | Query builders}
 
 **Example**:
+
 ```sql
 -- Indexes for performance
 CREATE INDEX idx_users_email ON users(email);
@@ -573,11 +611,13 @@ CREATE INDEX idx_appointments_user_id ON appointments(user_id);
 ### Known Deviations
 
 **File Naming**:
+
 - {N} files use kebab-case instead of PascalCase
 - Files: {LIST_FILES}
 - Reason: {Legacy | Third-party | Unknown}
 
 **Error Handling**:
+
 - {N} instances use console.error instead of toast
 - Locations: {LIST_LOCATIONS}
 - Reason: {Background jobs | Server-side | Legacy}

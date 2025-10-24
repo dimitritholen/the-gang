@@ -524,6 +524,7 @@ Sample 5 migration plans from Mongo to Postgres with different indexing strategi
 - Notes: Keep to 20% of scope; emphasize structure and sources.
 
 Techniques
+
 - Persona anchoring for domain expertise
 - Fact-checking with claim/evidence tables
 - Style transfer with exemplars

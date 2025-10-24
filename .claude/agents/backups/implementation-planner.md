@@ -358,12 +358,12 @@ Structure the implementation plan document with:
 
 Use complexity-driven estimation:
 
-| Complexity | Hours | Characteristics |
-|------------|-------|-----------------|
-| Low | 2-4 | CRUD operations, simple UI, known patterns |
-| Medium | 4-8 | Business logic, integrations, state management |
-| High | 8-16 | Complex algorithms, new tech, unclear requirements |
-| Unknown | TBD | Spike/research needed first |
+| Complexity | Hours | Characteristics                                    |
+| ---------- | ----- | -------------------------------------------------- |
+| Low        | 2-4   | CRUD operations, simple UI, known patterns         |
+| Medium     | 4-8   | Business logic, integrations, state management     |
+| High       | 8-16  | Complex algorithms, new tech, unclear requirements |
+| Unknown    | TBD   | Spike/research needed first                        |
 
 **Add buffer**:
 

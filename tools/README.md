@@ -12,7 +12,7 @@ Install
 Usage examples
 
 - List: code-tools list_dir --path . --depth 1
-- Search files: code-tools search_file --glob "src/**/*.py"
+- Search files: code-tools search_file --glob "src/\*_/_.py"
 - Grep: code-tools grep_code --pattern "def main" --paths "src,lib"
 - Read: code-tools read_file --path docs/code-assistant.md --start 1 --end 200
 - Fetch: code-tools fetch_content --url <https://example.com>
@@ -65,9 +65,9 @@ Three new commands for JSONL-based knowledge graph memory:
 2. **query_memory** - Query knowledge graph with natural language
    code-tools query_memory --dir .claude/memory --feature slug --query "security requirements" [--mode direct|nlp|auto] [--limit 10]
    Modes:
-     - direct: Fast keyword-based graph query (default for now)
-     - nlp: LLM-powered query translation (placeholder)
-     - auto: Try direct, fallback to NLP if no results
+   - direct: Fast keyword-based graph query (default for now)
+   - nlp: LLM-powered query translation (placeholder)
+   - auto: Try direct, fallback to NLP if no results
 
 3. **Entity Types Supported**:
    - Feature (status, priority, dependencies, tags)
@@ -90,19 +90,23 @@ Three new commands for JSONL-based knowledge graph memory:
 Token Efficiency: Graph queries return 50-300 tokens vs 1200-3000 tokens for full markdown (80-95% reduction).
 
 Example Workflow:
-  # Sync markdown to graph
-  code-tools sync_memory_graph --dir .claude/memory
 
-  # Query graph
-  code-tools query_memory --feature user-authentication --query "high priority requirements" --limit 5
+# Sync markdown to graph
 
-  # Result: Returns only matching entities + relationships (not full markdown)
+code-tools sync_memory_graph --dir .claude/memory
+
+# Query graph
+
+code-tools query_memory --feature user-authentication --query "high priority requirements" --limit 5
+
+# Result: Returns only matching entities + relationships (not full markdown)
 
 Architecture:
-  - Storage: {feature-slug}.jsonl per feature (one JSON object per line)
-  - Cache: mtime-based invalidation (auto-rebuilds when markdown changes)
-  - Parsers: requirements_parser.py (more coming: conventions, tech-analysis)
-  - Graph Store: code_tools/graph.py (entities, relationships, traversal, queries)
+
+- Storage: {feature-slug}.jsonl per feature (one JSON object per line)
+- Cache: mtime-based invalidation (auto-rebuilds when markdown changes)
+- Parsers: requirements_parser.py (more coming: conventions, tech-analysis)
+- Graph Store: code_tools/graph.py (entities, relationships, traversal, queries)
 
 Notes
 
@@ -110,4 +114,4 @@ Notes
 - `search_web` is a placeholder that returns an error unless you wire a provider.
 - Tests
 - Run smoke tests with pytest:
--   cd tools && python -m pip install -e .[web] && python -m pip install pytest jsonschema && pytest -q
+- cd tools && python -m pip install -e .[web] && python -m pip install pytest jsonschema && pytest -q

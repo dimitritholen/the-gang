@@ -3,6 +3,7 @@ allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch, mcp_
 argument-hint: [vague prompt to enhance]
 description: Transform vague prompts into advanced prompt-engineered versions
 ---
+
 # Role
 
 You are a prompt engineering specialist. Transform the user's vague prompt into a well-crafted, advanced prompt using the best matching technique from available prompt engineering methods.
@@ -27,9 +28,9 @@ Save the path that works in $PE_PATH
 
 ### Task 2: Analyze User Intent with Chain-of-Thought
 
-  For the incoming vague prompt, reason through:
+For the incoming vague prompt, reason through:
 
-  Step 2.1: Problem classification
+Step 2.1: Problem classification
 
 - What type of problem? (debugging, design, architecture, implementation, decision-making)
 - What complexity level? (basic, intermediate, advanced, expert)
@@ -44,9 +45,9 @@ Save the path that works in $PE_PATH
 
 ### Task 3: Evaluate Technique Combinations
 
-  Analyze from multiple angles:
+Analyze from multiple angles:
 
-  Angle A: Complexity assessment
+Angle A: Complexity assessment
 
 - Does the problem have multiple dimensions requiring different approaches?
 - Would combining techniques provide more comprehensive coverage?
@@ -65,7 +66,7 @@ Save the path that works in $PE_PATH
 
 ### Task 4: Load and Study Examples
 
-  For each selected technique:
+For each selected technique:
 
 - Read the "exampleFile" path
 - Analyze 10 examples provided
@@ -75,9 +76,9 @@ Save the path that works in $PE_PATH
 
 ### Task 5: Generate Enhanced Prompt
 
-  Using learned patterns:
+Using learned patterns:
 
-  Component 5.1: Preserve original intent
+Component 5.1: Preserve original intent
 
 - Keep user's core objective intact
 - Maintain domain context and specifics
@@ -96,8 +97,8 @@ Save the path that works in $PE_PATH
 
 ### Task 6: Present and Request Confirmation
 
-  Output format:
-  ANALYSIS SUMMARY:
+Output format:
+ANALYSIS SUMMARY:
 
 - Problem type: [X]
 - Complexity: [Y]

@@ -16,6 +16,7 @@ Verify that task-level and root-level manifests remain synchronized after modifi
 **Type**: PostToolUse (runs after tool execution)
 
 **Triggers on**:
+
 - Write tool calls to manifest files (`.tasks/manifest.json` or `.tasks/*/manifest.json`)
 - Bash commands that modify manifests
 - Task status changes that affect manifests
@@ -80,15 +81,17 @@ function validateManifestConsistency(toolCall, result) {
   // Check if manifest was modified
   const filePath = toolCall.parameters.file_path;
 
-  let isRootManifest = filePath === '.tasks/manifest.json';
-  let isTaskManifest = filePath.match(/\.tasks\/[0-9]{2}-[a-z0-9-]+\/manifest\.json$/);
+  let isRootManifest = filePath === ".tasks/manifest.json";
+  let isTaskManifest = filePath.match(
+    /\.tasks\/[0-9]{2}-[a-z0-9-]+\/manifest\.json$/,
+  );
 
   if (!isRootManifest && !isTaskManifest) {
     return { valid: true }; // Not a manifest file
   }
 
   // Read both manifests
-  const rootManifest = readJSON('.tasks/manifest.json');
+  const rootManifest = readJSON(".tasks/manifest.json");
 
   // Get all features to validate
   const featuresToValidate = isRootManifest
@@ -113,22 +116,24 @@ function validateManifestConsistency(toolCall, result) {
     if (feature.taskCount !== taskManifest.tasks.length) {
       errors.push({
         feature: feature.id,
-        check: 'taskCount',
+        check: "taskCount",
         expected: taskManifest.tasks.length,
         actual: feature.taskCount,
-        fix: `Update root manifest: feature ${feature.id} taskCount to ${taskManifest.tasks.length}`
+        fix: `Update root manifest: feature ${feature.id} taskCount to ${taskManifest.tasks.length}`,
       });
     }
 
     // Check 2: Completed count
-    const actualCompleted = taskManifest.tasks.filter(t => t.status === 'COMPLETED').length;
+    const actualCompleted = taskManifest.tasks.filter(
+      (t) => t.status === "COMPLETED",
+    ).length;
     if (feature.completedCount !== actualCompleted) {
       errors.push({
         feature: feature.id,
-        check: 'completedCount',
+        check: "completedCount",
         expected: actualCompleted,
         actual: feature.completedCount,
-        fix: `Update root manifest: feature ${feature.id} completedCount to ${actualCompleted}`
+        fix: `Update root manifest: feature ${feature.id} completedCount to ${actualCompleted}`,
       });
     }
 
@@ -154,14 +159,14 @@ function validateManifestConsistency(toolCall, result) {
       valid: false,
       errors: errors,
       warnings: warnings,
-      autoFixAvailable: true
+      autoFixAvailable: true,
     };
   }
 
   if (warnings.length > 0) {
     return {
       valid: true,
-      warnings: warnings
+      warnings: warnings,
     };
   }
 
@@ -169,29 +174,31 @@ function validateManifestConsistency(toolCall, result) {
 }
 
 function validateFeatureStatus(feature, tasks) {
-  const allCompleted = tasks.every(t => t.status === 'COMPLETED');
-  const anyInProgress = tasks.some(t => t.status === 'IN_PROGRESS' || t.status === 'COMPLETED');
-  const anyBlocked = tasks.some(t => t.status === 'BLOCKED');
-  const allNotStarted = tasks.every(t => t.status === 'NOT_STARTED');
+  const allCompleted = tasks.every((t) => t.status === "COMPLETED");
+  const anyInProgress = tasks.some(
+    (t) => t.status === "IN_PROGRESS" || t.status === "COMPLETED",
+  );
+  const anyBlocked = tasks.some((t) => t.status === "BLOCKED");
+  const allNotStarted = tasks.every((t) => t.status === "NOT_STARTED");
 
   let expectedStatus;
   if (allCompleted) {
-    expectedStatus = 'COMPLETED';
+    expectedStatus = "COMPLETED";
   } else if (allNotStarted) {
-    expectedStatus = 'NOT_STARTED';
+    expectedStatus = "NOT_STARTED";
   } else if (anyBlocked && !anyInProgress) {
-    expectedStatus = 'BLOCKED';
+    expectedStatus = "BLOCKED";
   } else {
-    expectedStatus = 'IN_PROGRESS';
+    expectedStatus = "IN_PROGRESS";
   }
 
   if (feature.status !== expectedStatus) {
     return {
       feature: feature.id,
-      check: 'featureStatus',
+      check: "featureStatus",
       expected: expectedStatus,
       actual: feature.status,
-      fix: `Update root manifest: feature ${feature.id} status to ${expectedStatus}`
+      fix: `Update root manifest: feature ${feature.id} status to ${expectedStatus}`,
     };
   }
 
@@ -203,48 +210,48 @@ function validateNextTask(taskManifest, featureDir) {
 
   // If null, all tasks should be complete
   if (nextTaskId === null) {
-    const incomplete = taskManifest.tasks.find(t => t.status !== 'COMPLETED');
+    const incomplete = taskManifest.tasks.find((t) => t.status !== "COMPLETED");
     if (incomplete) {
       return {
         feature: taskManifest.featureId,
-        check: 'nextTask',
+        check: "nextTask",
         issue: `nextTask is null but ${incomplete.id} is ${incomplete.status}`,
-        fix: `Update task manifest: set nextTask to ${incomplete.id}`
+        fix: `Update task manifest: set nextTask to ${incomplete.id}`,
       };
     }
     return null; // Valid
   }
 
   // Next task must exist
-  const nextTask = taskManifest.tasks.find(t => t.id === nextTaskId);
+  const nextTask = taskManifest.tasks.find((t) => t.id === nextTaskId);
   if (!nextTask) {
     return {
       feature: taskManifest.featureId,
-      check: 'nextTask',
+      check: "nextTask",
       issue: `nextTask ${nextTaskId} does not exist`,
-      fix: `Update task manifest: find valid next task or set to null`
+      fix: `Update task manifest: find valid next task or set to null`,
     };
   }
 
   // Next task must be NOT_STARTED
-  if (nextTask.status !== 'NOT_STARTED') {
+  if (nextTask.status !== "NOT_STARTED") {
     return {
       feature: taskManifest.featureId,
-      check: 'nextTask',
+      check: "nextTask",
       issue: `nextTask ${nextTaskId} has status ${nextTask.status}, not NOT_STARTED`,
-      fix: `Update task manifest: find next NOT_STARTED task with met dependencies`
+      fix: `Update task manifest: find next NOT_STARTED task with met dependencies`,
     };
   }
 
   // Dependencies must be met
-  for (const depId of (nextTask.dependencies || [])) {
-    const depTask = taskManifest.tasks.find(t => t.id === depId);
-    if (!depTask || depTask.status !== 'COMPLETED') {
+  for (const depId of nextTask.dependencies || []) {
+    const depTask = taskManifest.tasks.find((t) => t.id === depId);
+    if (!depTask || depTask.status !== "COMPLETED") {
       return {
         feature: taskManifest.featureId,
-        check: 'nextTask',
+        check: "nextTask",
         issue: `nextTask ${nextTaskId} depends on ${depId} which is not COMPLETED`,
-        fix: `Update task manifest: choose task with satisfied dependencies`
+        fix: `Update task manifest: choose task with satisfied dependencies`,
       };
     }
   }
@@ -254,25 +261,32 @@ function validateNextTask(taskManifest, featureDir) {
 
 function validateBlockers(feature, tasks) {
   const errors = [];
-  const blockedTasks = tasks.filter(t => t.status === 'BLOCKED');
+  const blockedTasks = tasks.filter((t) => t.status === "BLOCKED");
 
   // Check root manifest has blocker entry for each blocked task
-  if (blockedTasks.length > 0 && (!feature.blockers || feature.blockers.length === 0)) {
+  if (
+    blockedTasks.length > 0 &&
+    (!feature.blockers || feature.blockers.length === 0)
+  ) {
     errors.push({
       feature: feature.id,
-      check: 'blockers',
+      check: "blockers",
       issue: `${blockedTasks.length} blocked tasks but no blockers in root manifest`,
-      fix: `Add blocker entries to root manifest for: ${blockedTasks.map(t => t.id).join(', ')}`
+      fix: `Add blocker entries to root manifest for: ${blockedTasks.map((t) => t.id).join(", ")}`,
     });
   }
 
   // Check no phantom blockers
-  if (blockedTasks.length === 0 && feature.blockers && feature.blockers.length > 0) {
+  if (
+    blockedTasks.length === 0 &&
+    feature.blockers &&
+    feature.blockers.length > 0
+  ) {
     errors.push({
       feature: feature.id,
-      check: 'blockers',
+      check: "blockers",
       issue: `Root manifest has blockers but no tasks are BLOCKED`,
-      fix: `Remove blocker entries from root manifest`
+      fix: `Remove blocker entries from root manifest`,
     });
   }
 
@@ -342,19 +356,19 @@ function autoFixManifest(errors) {
 
   for (const error of errors) {
     switch (error.check) {
-      case 'taskCount':
-      case 'completedCount':
-      case 'featureStatus':
+      case "taskCount":
+      case "completedCount":
+      case "featureStatus":
         applyRootManifestFix(error);
         fixes.push(`Fixed ${error.check} for feature ${error.feature}`);
         break;
 
-      case 'nextTask':
+      case "nextTask":
         applyTaskManifestFix(error);
         fixes.push(`Fixed nextTask for feature ${error.feature}`);
         break;
 
-      case 'blockers':
+      case "blockers":
         applyBlockerSync(error);
         fixes.push(`Synchronized blockers for feature ${error.feature}`);
         break;
@@ -371,9 +385,9 @@ function autoFixManifest(errors) {
 hooks:
   validate-manifest-consistency:
     enabled: true
-    auto_fix: true  # Automatically fix inconsistencies
-    strict_mode: false  # Warn vs block on inconsistency
-    check_interval: "after_every_change"  # or "on_demand"
+    auto_fix: true # Automatically fix inconsistencies
+    strict_mode: false # Warn vs block on inconsistency
+    check_interval: "after_every_change" # or "on_demand"
 ```
 
 ## Manual Validation

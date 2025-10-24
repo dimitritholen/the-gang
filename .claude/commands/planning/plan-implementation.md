@@ -136,7 +136,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar featur
 
 Delegate to implementation-planner agent via Task tool:
 
-```
+````
 Create comprehensive implementation plan for feature: $ARGUMENTS
 
 **Role**: Act as a Senior Technical Project Manager and Software Architect specializing in breaking down complex features into manageable, actionable tasks with clear dependencies, risk mitigation, and realistic effort estimates.
@@ -225,7 +225,7 @@ Before creating tasks, reason through the implementation:
   </driver>
 </complexity_drivers>
 </implementation_reasoning>
-```
+````
 
 **Phase 2: Component Identification**
 
@@ -359,15 +359,18 @@ graph TD
 ```
 
 **Legend**:
+
 - **Red nodes**: Critical path (longest dependent sequence)
 - **Blue nodes**: Parallel tracks (independent concurrent work)
 
 Identify:
+
 - **Critical Path**: Longest sequence of dependent tasks (determines minimum timeline)
 - **Bottlenecks**: Tasks blocking multiple downstream tasks
 - **Parallelization Opportunities**: Tasks that can run concurrently
 
 **Dependency Clarity**:
+
 - ✅ **Explicit**: "Depends on T-1-1 (Database schema) because models need tables defined"
 - ❌ **Vague**: "Depends on database stuff"
 
@@ -512,12 +515,12 @@ Use complexity-driven estimation with buffer:
 
 **Base Estimates by Complexity**:
 
-| Complexity | Hours | Characteristics |
-|------------|-------|-----------------|
-| Low | 2-4 | CRUD operations, simple UI components, known patterns |
-| Medium | 4-8 | Business logic, third-party integrations, state management |
-| High | 8-16 | Complex algorithms, new tech stack, unclear requirements |
-| Unknown | TBD | Requires spike/research task first (allocate 4-8 hours for spike) |
+| Complexity | Hours | Characteristics                                                   |
+| ---------- | ----- | ----------------------------------------------------------------- |
+| Low        | 2-4   | CRUD operations, simple UI components, known patterns             |
+| Medium     | 4-8   | Business logic, third-party integrations, state management        |
+| High       | 8-16  | Complex algorithms, new tech stack, unclear requirements          |
+| Unknown    | TBD   | Requires spike/research task first (allocate 4-8 hours for spike) |
 
 **Add Buffer Based on Context**:
 
@@ -573,6 +576,7 @@ Before finalizing plan, verify:
 ```
 
 Present summary to user and ask:
+
 > "Based on the above plan, have I broken down all requirements into actionable tasks? Are there any components or integration points I've missed?"
 
 **Iterate** until user confirms completeness.
@@ -750,6 +754,7 @@ Generate implementation plan document in the following structure (render as mark
 **Iterative Refinement**:
 
 After presenting initial plan:
+
 1. Ask user to confirm all components are covered
 2. Validate timeline aligns with constraints
 3. Refine based on feedback
@@ -757,7 +762,8 @@ After presenting initial plan:
 5. Iterate until user approves
 
 Return final implementation plan document content ready to write to file.
-```
+
+````
 
 ### Phase 3: Validation and Artifact Creation
 
@@ -804,7 +810,7 @@ After agent completes implementation planning:
 <question>Is output in correct XML structure?</question>
 <check>Verify all required sections present</check>
 </orchestrator_validation>
-```
+````
 
 **Write to Memory**:
 

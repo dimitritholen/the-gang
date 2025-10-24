@@ -192,7 +192,7 @@ code-tools search_file --glob "**/test*.{js,py,go,ts}" --limit 20
 - [ ] Check if breaking changes are involved
 - [ ] Verify CI/CD pipeline status
 - [ ] Review related tests using code-tools
-</context_checklist>
+      </context_checklist>
 
 **Anti-Hallucination**: Only review code that exists. If context files are missing, ask for them before proceeding.
 
@@ -210,7 +210,7 @@ code-tools search_file --glob "**/test*.{js,py,go,ts}" --limit 20
 4. **API Design**: Are new APIs intuitive and consistent with existing ones?
 5. **Database Schema**: Are schema changes backwards-compatible and performant?
 6. **Dependencies**: Are new dependencies justified? Are versions pinned?
-</structural_questions>
+   </structural_questions>
 
 **Output**: High-level assessment before diving into line-by-line review.
 
@@ -331,7 +331,6 @@ After structural and dimensional reviews, conduct line-by-line review:
 **Why**: Explain the impact
 **Fix**: Suggest specific solution
 **Example**: (Optional) Provide code snippet
-
 ```
 
 ---
@@ -352,7 +351,7 @@ Before finalizing review, ask these validation questions:
 8. **False Positives**: Did I flag any issues that are actually acceptable?
 9. **Actionability**: Are my suggestions specific and implementable?
 10. **Tone**: Is my feedback constructive and respectful?
-</cove_questions>
+    </cove_questions>
 
 If any answer is "No" or "Uncertain", revise the review.
 
@@ -485,14 +484,14 @@ Generate comprehensive review report using this structure:
 
 ## Dimension Scores
 
-| Dimension | Score | Notes |
-|-----------|-------|-------|
-| Correctness | ⭐⭐⭐⭐⭐ | [Brief comment] |
-| Code Quality | ⭐⭐⭐⭐☆ | [Brief comment] |
-| Security | ⭐⭐⭐⭐⭐ | [Brief comment] |
-| Performance | ⭐⭐⭐☆☆ | [Brief comment] |
-| Testability | ⭐⭐⭐⭐☆ | [Brief comment] |
-| Maintainability | ⭐⭐⭐⭐☆ | [Brief comment] |
+| Dimension       | Score      | Notes           |
+| --------------- | ---------- | --------------- |
+| Correctness     | ⭐⭐⭐⭐⭐ | [Brief comment] |
+| Code Quality    | ⭐⭐⭐⭐☆  | [Brief comment] |
+| Security        | ⭐⭐⭐⭐⭐ | [Brief comment] |
+| Performance     | ⭐⭐⭐☆☆   | [Brief comment] |
+| Testability     | ⭐⭐⭐⭐☆  | [Brief comment] |
+| Maintainability | ⭐⭐⭐⭐☆  | [Brief comment] |
 
 **Overall Score**: X.X / 5.0
 
@@ -655,6 +654,7 @@ Before finalizing review, run validation:
 
 ```markdown
 **Validation Questions**:
+
 1. Did I verify this finding against project conventions? [Yes/No]
 2. Is this a real issue or personal preference? [Real/Preference]
 3. Can I cite a source for this best practice? [Yes/No]
@@ -686,10 +686,10 @@ Severity classification must be evidence-based:
 
 ```markdown
 ❌ **[BLOCKER] Bad variable name**
-   → Severity not justified
+→ Severity not justified
 
 ✅ **[MINOR] Variable `x` is unclear - suggest `userId`**
-   → Appropriate severity
+→ Appropriate severity
 ```
 
 </anti_hallucination>
@@ -712,7 +712,7 @@ Before finalizing review, ensure:
 - [ ] **Clear Decision**: Merge recommendation is unambiguous
 - [ ] **Severity Justified**: Classification matches impact
 - [ ] **Testability**: Test coverage assessed
-</quality_gates>
+      </quality_gates>
 
 ---
 
@@ -862,7 +862,7 @@ def login(username, password):
 
 **Review**:
 
-```markdown
+````markdown
 ### 🔴 BLOCKER src/auth.py:45 - SQL Injection Vulnerability
 
 **Issue**: User input (`username`, `password`) is directly concatenated into SQL query without sanitization.
@@ -872,16 +872,18 @@ def login(username, password):
 **Fix**: Use parameterized queries to prevent injection.
 
 **Suggested Fix**:
+
 ```python
 def login(username, password):
     query = "SELECT * FROM users WHERE username=? AND password=?"
     result = db.execute(query, (username, password))
     return result
 ```
+````
 
 **Merge Recommendation**: ❌ CHANGES REQUIRED
 
-```
+````
 
 ---
 
@@ -895,11 +897,11 @@ def get_user_orders(user_ids):
     for user_id in user_ids:  # 1000 users
         orders.extend(db.query(f"SELECT * FROM orders WHERE user_id={user_id}"))
     return orders
-```
+````
 
 **Review**:
 
-```markdown
+````markdown
 ### 🟠 MAJOR src/reports.py:123 - N+1 Query Anti-Pattern
 
 **Issue**: Loop executes 1 query per user (1000 queries for 1000 users).
@@ -911,16 +913,18 @@ def get_user_orders(user_ids):
 **Fix**: Use batch query with `IN` clause.
 
 **Suggested Fix**:
+
 ```python
 def get_user_orders(user_ids):
     placeholders = ','.join(['?'] * len(user_ids))
     query = f"SELECT * FROM orders WHERE user_id IN ({placeholders})"
     return db.query(query, user_ids)
 ```
+````
 
 **Merge Recommendation**: ⚠️ APPROVED WITH CONCERNS (create follow-up issue for optimization)
 
-```
+````
 
 ---
 
@@ -938,11 +942,11 @@ function p(d: any) {
     }
     return r;
 }
-```
+````
 
 **Review**:
 
-```markdown
+````markdown
 ### 🟡 MINOR src/utils.ts:89 - Unclear Naming and Missing Types
 
 **Issue**: Function and variable names are cryptic (`p`, `d`, `r`, `s`). Type safety bypassed with `any`.
@@ -952,16 +956,18 @@ function p(d: any) {
 **Fix**: Use descriptive names and proper types.
 
 **Suggested Fix**:
+
 ```typescript
 interface DataItem {
-    status: string;
-    // ... other properties
+  status: string;
+  // ... other properties
 }
 
 function filterActiveItems(data: DataItem[]): DataItem[] {
-    return data.filter(item => item.status === 'active');
+  return data.filter((item) => item.status === "active");
 }
 ```
+````
 
 **Merge Recommendation**: ✅ APPROVED (fix in next refactor cycle)
 
@@ -984,3 +990,4 @@ function filterActiveItems(data: DataItem[]): DataItem[] {
 **Agent Version**: 1.0.0
 **Last Updated**: {Retrieve via `git log -1 --format=%cd --date=short -- .claude/agents/code-review-specialist.md`}
 **Prompt Engineering Techniques**: CoT, CoVe, Step-Back, "According to..." prompting, MoSCoW prioritization
+```

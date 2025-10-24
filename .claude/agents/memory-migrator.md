@@ -26,6 +26,7 @@ Migrate existing `.claude/memory/` files to new `.tasks/{NN}-{slug}/` structure 
 ### Files to Migrate
 
 From `.claude/memory/`:
+
 - `requirements-{slug}.md` → `.tasks/{NN}-{slug}/requirements-{slug}.md`
 - `tech-analysis-{slug}.md` → `.tasks/{NN}-{slug}/tech-analysis-{slug}.md`
 - `implementation-plan-{slug}.md` → Parse and convert to XML tasks + manifests
@@ -33,6 +34,7 @@ From `.claude/memory/`:
 ### Files to Preserve
 
 Keep in `.claude/memory/`:
+
 - `.tmp-questions-{slug}.md` (temporary, auto-delete after use)
 - `.tmp-answers-{slug}.md` (temporary, auto-delete after use)
 - `.gitkeep`
@@ -40,6 +42,7 @@ Keep in `.claude/memory/`:
 ### Files to Create
 
 New structure:
+
 - `.tasks/manifest.json` (root feature manifest)
 - `.tasks/{NN}-{slug}/manifest.json` (task manifest)
 - `.tasks/{NN}-{slug}/feature-brief.md` (generated from requirements)
@@ -321,10 +324,10 @@ Generate summary report after migration:
 
 ## Migrated Features
 
-| ID | Slug | Requirements | Tech Analysis | Tasks |
-|----|------|--------------|---------------|-------|
-| 01 | user-auth | ✓ | ✓ | Manual |
-| 02 | api-gateway | ✓ | ✗ | Manual |
+| ID  | Slug        | Requirements | Tech Analysis | Tasks  |
+| --- | ----------- | ------------ | ------------- | ------ |
+| 01  | user-auth   | ✓            | ✓             | Manual |
+| 02  | api-gateway | ✓            | ✗             | Manual |
 
 ## Manual Actions Required
 
@@ -334,16 +337,16 @@ Generate summary report after migration:
 
 ## Files Archived
 
-- .claude/memory/archive/requirements-*.md.bak
-- .claude/memory/archive/tech-analysis-*.md.bak
-- .claude/memory/archive/implementation-plan-*.md.bak
+- .claude/memory/archive/requirements-\*.md.bak
+- .claude/memory/archive/tech-analysis-\*.md.bak
+- .claude/memory/archive/implementation-plan-\*.md.bak
 
 ## Validation Status
 
 ✅ Root manifest valid
 ✅ All feature directories created
 ✅ All required files present
-⚠️  {N} features need task generation
+⚠️ {N} features need task generation
 
 ## Next Steps
 
@@ -363,8 +366,9 @@ Generate summary report after migration:
 ### Pre-Migration Checks
 
 Before starting migration:
+
 - Verify .claude/memory/ directory exists
-- Verify at least one requirements-*.md file exists
+- Verify at least one requirements-\*.md file exists
 - Create backup of .claude/memory/ directory:
   ```bash
   tar -czf .claude/memory-backup-$(date +%Y%m%d-%H%M%S).tar.gz .claude/memory/
@@ -393,6 +397,7 @@ echo "Rollback complete - system restored to pre-migration state"
 ## Usage
 
 Run migration:
+
 ```bash
 # Dry run (preview only)
 memory-migrator --dry-run

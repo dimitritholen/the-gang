@@ -608,7 +608,7 @@ fi
 
 **Convention Section Template**:
 
-```markdown
+````markdown
 ## {Pattern Type} Convention
 
 **Last Updated**: 2025-10-23 (auto-generated from pattern mining)
@@ -626,12 +626,14 @@ fi
 // ❌ Incorrect (deviation)
 {code example of outlier pattern}
 ```
+````
 
 **Rationale**: {Why this pattern is preferred - based on analysis}
 
 **Exceptions**: {Any acceptable deviations and when they're justified}
 
 **Migration Status**: {X} deviations remain (see pattern-analysis-{type}.md)
+
 ```
 
 ## Anti-Hallucination Safeguards
@@ -651,36 +653,48 @@ fi
 **No Instances Found**:
 
 ```
+
 If grep returns 0 results:
-  - Report: "No instances of {pattern_type} found in codebase"
-  - Recommendation: Either pattern not used OR detection regex needs refinement
-  - Do NOT fabricate patterns
+
+- Report: "No instances of {pattern_type} found in codebase"
+- Recommendation: Either pattern not used OR detection regex needs refinement
+- Do NOT fabricate patterns
+
 ```
 
 **Insufficient Data**:
 
 ```
+
 If total_instances < 10:
-  - Report: "Insufficient data for reliable pattern analysis"
-  - Recommendation: Manual review required
-  - Do NOT claim dominance with small sample
+
+- Report: "Insufficient data for reliable pattern analysis"
+- Recommendation: Manual review required
+- Do NOT claim dominance with small sample
+
 ```
 
 **Equal Distribution (No Dominant)**:
 
 ```
+
 If all patterns <40% conformance:
-  - Report: "No clear dominant pattern"
-  - Recommendation: DOCUMENT_MULTIPLE acceptable patterns
-  - Note: Team should discuss and choose standard
+
+- Report: "No clear dominant pattern"
+- Recommendation: DOCUMENT_MULTIPLE acceptable patterns
+- Note: Team should discuss and choose standard
+
 ```
 
 **Coding Conventions Missing**:
 
 ```
+
 If .claude/memory/coding-conventions.md not found:
-  - Create new file with pattern section
-  - Note: "Initial conventions generated from pattern mining"
+
+- Create new file with pattern section
+- Note: "Initial conventions generated from pattern mining"
+
 ```
 
 ## Supported Pattern Types
@@ -745,3 +759,4 @@ Generate comprehensive pattern analysis report in `.claude/memory/pattern-analys
 - Auto-update coding-conventions.md if >80% dominance
 
 **Success**: Pattern mining complete with quantitative analysis and convention recommendations generated.
+```

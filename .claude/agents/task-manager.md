@@ -32,17 +32,20 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: User or agent requests to start a task
 
 **Pre-conditions**:
+
 - Task status = NOT_STARTED
 - All dependencies have status = COMPLETED
 - No blockers on this task
 
 **Actions**:
+
 1. Validate dependencies are complete
 2. Update task XML: status="IN_PROGRESS", add started timestamp
 3. Update task manifest: task status = IN_PROGRESS
 4. Return: Task details and confirmation
 
 **Validation Failures**:
+
 - Blocked by incomplete dependencies → Report which tasks must complete first
 - Task already in progress → Report current status
 - Task already completed → Warn about re-work
@@ -52,11 +55,13 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: Agent or user marks task as completed
 
 **Pre-conditions**:
+
 - Task status = IN_PROGRESS
 - All acceptance criteria met (verified by agent or human)
 - All checklist items checked
 
 **Actions**:
+
 1. Update task XML: status="COMPLETED", add completed timestamp
 2. Update task manifest:
    - Task status = COMPLETED
@@ -73,9 +78,11 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: Blocker encountered during execution
 
 **Pre-conditions**:
+
 - Task status = IN_PROGRESS
 
 **Actions**:
+
 1. Update task XML: status="BLOCKED", add blocker description
 2. Update task manifest: task status = BLOCKED, add to blockedBy array
 3. Update root manifest: add blocker to feature blockers array
@@ -86,10 +93,12 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: Blocker resolved
 
 **Pre-conditions**:
+
 - Task status = BLOCKED
 - Blocker resolution verified
 
 **Actions**:
+
 1. Update task XML: status="IN_PROGRESS", clear blocker
 2. Update task manifest: task status = IN_PROGRESS, remove from blockedBy
 3. Update root manifest: remove blocker from feature blockers if no other tasks blocked
@@ -100,6 +109,7 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: User or workflow needs to know what to work on next
 
 **Actions**:
+
 1. Read task manifest
 2. Check nextTask field
 3. If nextTask is null: "All tasks completed!"
@@ -116,6 +126,7 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: Query about specific task or overall progress
 
 **Actions**:
+
 1. Read task manifest for feature
 2. Calculate metrics:
    - Total tasks: {N}
@@ -131,6 +142,7 @@ You are a task orchestration specialist with expertise in:
 **Trigger**: After any manifest modification or on-demand check
 
 **Actions**:
+
 1. Read root manifest
 2. For each feature, read task manifest
 3. Verify consistency:
@@ -271,18 +283,24 @@ Files Updated:
 ## Error Handling
 
 ### Dependency Violations
+
 If task started with incomplete dependencies:
+
 - DO NOT update status
 - Report: "Cannot start {TASK_ID}: depends on {DEP_IDS} which are not complete"
 
 ### Manifest Inconsistencies
+
 If inconsistency detected:
+
 - Report exact discrepancy
 - Suggest correction
 - DO NOT auto-fix without user confirmation
 
 ### Missing Files
+
 If task XML or manifest missing:
+
 - Report missing file path
 - Suggest running implementation planner or memory migrator
 

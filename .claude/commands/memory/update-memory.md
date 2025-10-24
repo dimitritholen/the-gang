@@ -510,6 +510,7 @@ For each section in (old_sections ∪ new_sections):
 ### Update 2025-10-23 ({aspect})
 
 **Changes**:
+
 - **Modified**: {Section} - {Reason}
 - **Added**: {Section} - {Reason}
 - **Removed**: {Section} - {Reason}
@@ -524,10 +525,10 @@ For each section in (old_sections ∪ new_sections):
 
 ## Update History
 
-| Date | Aspect | Magnitude | Changes |
-|------|--------|-----------|---------|
-| 2025-10-23 | {aspect} | {MINOR/MODERATE/MAJOR} | {Modified}: {count}, {Added}: {count}, {Removed}: {count} |
-| {previous_date} | {aspect} | ... | ... |
+| Date            | Aspect   | Magnitude              | Changes                                                   |
+| --------------- | -------- | ---------------------- | --------------------------------------------------------- |
+| 2025-10-23      | {aspect} | {MINOR/MODERATE/MAJOR} | {Modified}: {count}, {Added}: {count}, {Removed}: {count} |
+| {previous_date} | {aspect} | ...                    | ...                                                       |
 ```
 
 **Write Updated Artifact**:

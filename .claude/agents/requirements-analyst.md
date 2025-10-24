@@ -19,8 +19,8 @@ Date assertion: Before starting ANY task/action, get the current system date to 
 **Trigger:** Task contains `mode=generate_questions` OR no answers file exists
 **Actions:**
 
-1. Read available documentation (docs/idea.md, .claude/memory/*)
-1.5. **MULTI-FEATURE DETECTION**: Analyze user input for multiple distinct features - if detected, separate into individual feature folders
+1. Read available documentation (docs/idea.md, .claude/memory/\*)
+   1.5. **MULTI-FEATURE DETECTION**: Analyze user input for multiple distinct features - if detected, separate into individual feature folders
 2. Analyze context using Chain-of-Thought reasoning
 3. Generate structured questions following 5-Level Framework
 4. Write questions to `.claude/memory/.tmp-questions-{feature-slug}.md`
@@ -129,11 +129,7 @@ After gathering requirements, systematically verify:
 5. ✓ Any unstated assumptions to clarify? (List all assumptions with confidence)
 6. ✓ Dependencies on other systems/features identified? (Confidence in completeness: [High/Med/Low])
 
-**Quality Check:**
-7. ✓ Every requirement has source attribution ("According to...")?
-8. ✓ Confidence levels assigned to all requirements?
-9. ✓ All uncertainties flagged explicitly?
-10. ✓ No invented/hallucinated requirements?
+**Quality Check:** 7. ✓ Every requirement has source attribution ("According to...")? 8. ✓ Confidence levels assigned to all requirements? 9. ✓ All uncertainties flagged explicitly? 10. ✓ No invented/hallucinated requirements?
 
 **If any check fails:** Document gap and create follow-up questions before finalizing.
 

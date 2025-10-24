@@ -125,7 +125,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS mvp scope prio
 
 Delegate to scope-guardian agent via Task tool:
 
-```
+````
 Perform comprehensive scope validation for feature: $ARGUMENTS
 
 **Role**: Act as a Product Manager and Scope Management Specialist with expertise in identifying and preventing feature creep, defining MVP boundaries, and ruthlessly prioritizing must-haves vs. nice-to-haves.
@@ -179,7 +179,7 @@ From requirements document, identify the **essential core**:
     <item source="{requirements section}">{Item}</item>
   </explicitly_out_of_scope>
 </core_scope>
-```
+````
 
 **Phase 2: Scope Creep Detection**
 
@@ -220,6 +220,7 @@ For EACH requirement (FR-XXX, NFR-XXX), ask:
 ```
 
 **Flag as scope creep if**:
+
 - Requirement not explicitly requested by user
 - Requirement is "should-have" or "could-have" rather than "must-have"
 - Requirement adds complexity without proportional value
@@ -257,6 +258,7 @@ For EACH major technology choice in tech-analysis doc:
 ```
 
 **Flag as over-engineering if**:
+
 - Technology is more complex than requirements necessitate
 - Simpler alternative exists that fully meets requirements
 - Chosen for "coolness factor" rather than practical fit
@@ -298,6 +300,7 @@ For EACH task in implementation plan:
 ```
 
 **Flag as scope expansion if**:
+
 - Task doesn't map to a must-have core requirement
 - Task implements should-have or could-have feature
 - Task can be deferred without blocking MVP functionality
@@ -365,12 +368,12 @@ Ask: "Can we ship without this feature and still solve the core problem?"
 
 Cross-reference requirements ↔ tech ↔ tasks:
 
-| Requirement ID | Priority (MoSCoW) | Tech Choice | Implementation Tasks | Aligned? | Issue |
-|----------------|-------------------|-------------|---------------------|----------|-------|
-| FR-001 | Must-Have | ✅ Appropriate | T-1-1, T-2-3 (MVP) | ✅ | None |
-| FR-005 | Should-Have | ✅ Appropriate | T-3-7, T-3-8 | ⚠️ | Defer to Phase 2 |
-| NFR-PERF-002 | Could-Have | ⚠️ Over-engineered | T-2-5 | ❌ | Tech exceeds needs |
-| N/A | N/A | N/A | T-4-2 | ❌ | No requirement for this task |
+| Requirement ID | Priority (MoSCoW) | Tech Choice        | Implementation Tasks | Aligned? | Issue                        |
+| -------------- | ----------------- | ------------------ | -------------------- | -------- | ---------------------------- |
+| FR-001         | Must-Have         | ✅ Appropriate     | T-1-1, T-2-3 (MVP)   | ✅       | None                         |
+| FR-005         | Should-Have       | ✅ Appropriate     | T-3-7, T-3-8         | ⚠️       | Defer to Phase 2             |
+| NFR-PERF-002   | Could-Have        | ⚠️ Over-engineered | T-2-5                | ❌       | Tech exceeds needs           |
+| N/A            | N/A               | N/A                | T-4-2                | ❌       | No requirement for this task |
 
 **Phase 5: Red Flag Analysis**
 
@@ -458,6 +461,7 @@ Before finalizing validation, verify:
 ```
 
 Present summary to user and ask:
+
 > "Based on the above validation, do you agree with the MVP definition and scope recommendations? Are there any must-haves I've incorrectly flagged as deferrable, or any should-haves you'd like to promote to must-have?"
 
 **Iterate** until user confirms MVP scope.
@@ -652,6 +656,7 @@ Generate scope validation document in the following structure (render as markdow
 **Iterative Refinement**:
 
 After presenting initial validation:
+
 1. User reviews MVP definition and recommendations
 2. User can promote should-haves to must-haves (with justification)
 3. User can accept deferrals or request re-evaluation
@@ -659,7 +664,8 @@ After presenting initial validation:
 5. Iterate until user approves final MVP scope
 
 Return final scope validation document content ready to write to file.
-```
+
+````
 
 ### Phase 3: Validation and Artifact Creation
 
@@ -706,7 +712,7 @@ After agent completes scope validation:
 <question>Is sign-off decision justified?</question>
 <check>APPROVE/REVISE/REJECT matches scope creep risk level and findings</check>
 </orchestrator_validation>
-```
+````
 
 **Write to Memory**:
 
@@ -820,6 +826,7 @@ Scope validation is successful when:
 Comprehensive scope validation artifact in `.claude/memory/scope-validation-{slug}.md` ready for implementation.
 
 **Next Steps**:
+
 - If APPROVED: Proceed to `/implement-feature {feature-slug}`
 - If REVISE_REQUIRED: Address recommendations, update artifacts, re-run validation
 - If REJECT: Major rework of requirements/plan needed

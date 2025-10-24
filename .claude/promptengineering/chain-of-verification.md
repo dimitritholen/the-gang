@@ -1,6 +1,6 @@
 # Chain of Verification: 10 example prompts
 
-## 1. Basic  example
+## 1. Basic example
 
 ```text
 I need to fix a bug where users can't submit forms in our React app.

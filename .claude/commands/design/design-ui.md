@@ -129,21 +129,26 @@ Present to the user:
 **Design Specification**: `.claude/memory/design-spec-$ARGUMENTS.md`
 
 **Screens Designed**:
+
 - [List all screen names]
 
 **Key Design Decisions**:
+
 - [Highlight 2-3 important design choices and rationale]
 
 **Accessibility**:
+
 - WCAG 2.1 AA compliance documented
 - Keyboard navigation specified
 - Screen reader support outlined
 
 **Responsive Strategy**:
+
 - Mobile-first approach
 - Breakpoints: < 768px (mobile), 768-1024px (tablet), > 1024px (desktop)
 
 **Next Steps**:
+
 1. Review design specification
 2. Provide feedback or approve
 3. Run `/implement-feature "$ARGUMENTS"` to begin development
@@ -180,7 +185,7 @@ If design phase encounters issues:
 - Highlight accessibility vs. design aesthetic tradeoffs
 - Always prioritize accessibility
 - Suggest alternative designs that meet WCAG
-</error_handling>
+  </error_handling>
 
 <best_practices>
 
@@ -196,7 +201,7 @@ If design phase encounters issues:
 8. **Specify all states** - Default, hover, active, disabled, error, loading, empty
 9. **Plan for failure** - Error states, empty states, loading states
 10. **Ground in reality** - No invented framework APIs or components
-</best_practices>
+    </best_practices>
 
 <integration_notes>
 
@@ -218,7 +223,7 @@ If design phase encounters issues:
 - `/implement-feature` → Senior Developer uses design-spec-{feature}.md as blueprint
 - No more "how should this look?" questions during coding
 - Design decisions already made and documented
-</integration_notes>
+  </integration_notes>
 
 ---
 

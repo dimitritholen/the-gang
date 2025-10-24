@@ -12,6 +12,7 @@ You are helping the user validate manifest consistency across the task managemen
 User provides: `/validate-manifests [feature-id-slug] [--fix]`
 
 Examples:
+
 - `/validate-manifests` - Validate all features
 - `/validate-manifests 01-user-authentication` - Validate specific feature
 - `/validate-manifests --fix` - Validate and auto-fix issues
@@ -109,16 +110,19 @@ fi
 The CLI tool (`validate_manifest`) performs these checks automatically:
 
 ### 1. Task Count Consistency
+
 ```
 Root manifest feature.taskCount === Task manifest tasks.length
 ```
 
 ### 2. Completed Count Consistency
+
 ```
 Root manifest feature.completedCount === Count of COMPLETED tasks
 ```
 
 ### 3. Feature Status Accuracy
+
 ```
 NOT_STARTED: All tasks NOT_STARTED
 IN_PROGRESS: At least one task started, not all complete
@@ -127,6 +131,7 @@ BLOCKED: At least one task BLOCKED
 ```
 
 ### 4. Next Task Validity
+
 ```
 - Points to existing task
 - Task status is NOT_STARTED
@@ -135,6 +140,7 @@ BLOCKED: At least one task BLOCKED
 ```
 
 ### 5. Blocker Synchronization
+
 ```
 - Each BLOCKED task has entry in feature blockers
 - No phantom blockers
@@ -143,6 +149,7 @@ BLOCKED: At least one task BLOCKED
 ## Output Format
 
 ### All Valid
+
 ```
 ✓ Manifest Validation Complete
 
@@ -154,6 +161,7 @@ All manifests are synchronized and consistent.
 ```
 
 ### Issues Found (No Auto-Fix)
+
 ```
 ✗ Manifest Validation Issues Found
 
@@ -198,6 +206,7 @@ Or run: /validate-manifests --fix
 ```
 
 ### Auto-Fix Applied
+
 ```
 ✓ Manifest Validation & Auto-Fix Complete
 
@@ -227,6 +236,7 @@ Run validation again to confirm: /validate-manifests
 This command provides manual validation on demand. The `validate-manifest-consistency` hook runs automatically after manifest modifications.
 
 Use this command:
+
 - After manual manifest edits
 - Before committing changes
 - When debugging workflow issues

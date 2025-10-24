@@ -24,10 +24,11 @@ file locations and line numbers.
 
 <input_specification>
 Read from:
+
 1. HTML files: main_1.html, detail_1.html, main_2.html, detail_2.html, main_3.html, detail_3.html
 2. quality_checklist.json (validation criteria)
 3. design_specs_final.json (expected specifications)
-</input_specification>
+   </input_specification>
 
 <tasks>
 Primary responsibilities:
@@ -44,38 +45,26 @@ Primary responsibilities:
 Code Verification Process:
 
 FOR EACH HTML FILE (main_1.html through detail_3.html):
-  violations = []
+violations = []
 
-  PARSE FILE:
-    - Extract <style> section
-    - Parse CSS properties
-    - Extract color values
-    - Identify layout patterns
-    - Find button/CTA text
+PARSE FILE: - Extract <style> section - Parse CSS properties - Extract color values - Identify layout patterns - Find button/CTA text
 
-  FOR EACH forbidden_pattern IN quality_checklist.json:
-    Execute code inspection test
-    IF pattern detected in actual code:
-      RECORD violation with:
-        - file: filename
-        - line: line number where violation occurs
-        - issue: specific code pattern found
-        - fix: what needs to change
+FOR EACH forbidden_pattern IN quality_checklist.json:
+Execute code inspection test
+IF pattern detected in actual code:
+RECORD violation with: - file: filename - line: line number where violation occurs - issue: specific code pattern found - fix: what needs to change
 
-  CROSS-REFERENCE design_specs_final.json:
-    - Typography: Do font families match?
-    - Colors: Do hex values match?
-    - Layout: Does implementation follow spec?
+CROSS-REFERENCE design_specs_final.json: - Typography: Do font families match? - Colors: Do hex values match? - Layout: Does implementation follow spec?
 
-  IF violations.length > 0:
-    file_status = "FAIL"
-  ELSE:
-    file_status = "PASS"
+IF violations.length > 0:
+file_status = "FAIL"
+ELSE:
+file_status = "PASS"
 
 IF ALL files PASS:
-  overall_decision = "PROCEED"
+overall_decision = "PROCEED"
 ELSE:
-  overall_decision = "REVISE"
+overall_decision = "REVISE"
 </methodology>
 
 <code_inspection_tests>
@@ -92,8 +81,8 @@ Execute these checks on actual code:
    - Focus on custom properties (--color-primary, etc.)
    - Parse hex to RGB for each color
    - Check if any primary colors in forbidden ranges:
-     * Blue: #0000FF to #0099FF
-     * Purple: #6600FF to #9966FF
+     - Blue: #0000FF to #0099FF
+     - Purple: #6600FF to #9966FF
    - Record line number and hex value
    - VIOLATION if in range
 
@@ -134,41 +123,38 @@ Execute these checks on actual code:
    - Check if only layout pattern is card grids
    - VIOLATION if no other patterns
 
-10. **Design Spec Mismatch Detection**
-    - Compare implemented colors to design_specs_final.json
-    - Compare font families to specifications
-    - VIOLATION if mismatches found
-</code_inspection_tests>
+10. **Design Spec Mismatch Detection** - Compare implemented colors to design_specs_final.json - Compare font families to specifications - VIOLATION if mismatches found
+    </code_inspection_tests>
 
 <violation_reporting>
 For each violation, provide:
 
 {
-  "file": "main_1.html",
-  "line": 45,
-  "issue": "Uses linear-gradient(135deg, #667eea 0%, #764ba2 100%) for hero background",
-  "forbidden_pattern": "Gradient backgrounds",
-  "fix": "Replace gradient with solid color from approved palette (e.g., --color-primary)"
+"file": "main_1.html",
+"line": 45,
+"issue": "Uses linear-gradient(135deg, #667eea 0%, #764ba2 100%) for hero background",
+"forbidden_pattern": "Gradient backgrounds",
+"fix": "Replace gradient with solid color from approved palette (e.g., --color-primary)"
 }
 
 OR
 
 {
-  "file": "detail_2.html",
-  "line": 78,
-  "issue": "Primary color is #0066FF (blue in forbidden range)",
-  "forbidden_pattern": "Blue primary color",
-  "fix": "Change to approved primary from design_specs_final.json variant 2"
+"file": "detail_2.html",
+"line": 78,
+"issue": "Primary color is #0066FF (blue in forbidden range)",
+"forbidden_pattern": "Blue primary color",
+"fix": "Change to approved primary from design_specs_final.json variant 2"
 }
 
 OR
 
 {
-  "file": "main_3.html",
-  "line": 156,
-  "issue": "Button text is 'Get Started' (generic CTA)",
-  "forbidden_pattern": "Generic CTAs",
-  "fix": "Use context-specific CTA (e.g., 'Start Your Analysis', 'Explore Tools')"
+"file": "main_3.html",
+"line": 156,
+"issue": "Button text is 'Get Started' (generic CTA)",
+"forbidden_pattern": "Generic CTAs",
+"fix": "Use context-specific CTA (e.g., 'Start Your Analysis', 'Explore Tools')"
 }
 </violation_reporting>
 
@@ -177,31 +163,32 @@ Write to: code_audit_report_v{N}.json (iteration number provided in task instruc
 
 Structure:
 {
-  "iteration": N,
-  "files": [
-    {
-      "file": "main_1.html",
-      "status": "PASS" or "FAIL",
-      "violations": [
-        {violation object},
-        {violation object},
-        ...
-      ]
-    },
-    {
-      "file": "detail_1.html",
-      "status": "PASS" or "FAIL",
-      "violations": [...]
-    },
-    ...all 6 files
-  ],
-  "overall_decision": "PROCEED" or "REVISE",
-  "summary": "Brief summary: X files passed, Y files failed, Z total violations"
+"iteration": N,
+"files": [
+{
+"file": "main_1.html",
+"status": "PASS" or "FAIL",
+"violations": [
+{violation object},
+{violation object},
+...
+]
+},
+{
+"file": "detail_1.html",
+"status": "PASS" or "FAIL",
+"violations": [...]
+},
+...all 6 files
+],
+"overall_decision": "PROCEED" or "REVISE",
+"summary": "Brief summary: X files passed, Y files failed, Z total violations"
 }
 </output_format>
 
 <quality_standards>
 Code audit must:
+
 - Inspect ACTUAL HTML/CSS code (not just specifications)
 - Parse CSS to extract real values
 - Provide exact line numbers for violations
@@ -210,7 +197,7 @@ Code audit must:
 - Cross-reference implementation vs design_specs_final.json
 - Be objective (binary pass/fail based on code inspection)
 - Provide specific fixes with exact replacements
-</quality_standards>
+  </quality_standards>
 
 <validation>
 Before writing audit report, verify:
@@ -229,10 +216,12 @@ Before writing audit report, verify:
 
 <execution_instructions>
 Your task instructions will specify:
+
 - Iteration number for output filename
 - Which HTML files to audit (typically all 6)
 
 Process:
+
 1. Read all HTML files from current working directory
 2. Read quality_checklist.json from current working directory
 3. Read design_specs_final.json from current working directory
@@ -243,4 +232,4 @@ Process:
 8. Determine overall decision
 9. Write code_audit_report_v{N}.json to current working directory
 10. Confirm file was written successfully
-</execution_instructions>
+    </execution_instructions>

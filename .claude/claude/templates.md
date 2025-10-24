@@ -35,6 +35,7 @@ description: Create structured git commit
 </instructions>
 
 <commit_rules>
+
 - Use format: [scope] lowercase description
 - Be concise but descriptive
 - No trailing periods
@@ -43,7 +44,7 @@ description: Create structured git commit
   - [fix] resolve authentication timeout
   - [feat] add user profile page
   - [refactor] simplify data processing logic
-</commit_rules>
+    </commit_rules>
 
 <validation>
 Before committing:
@@ -57,6 +58,7 @@ Before committing:
 Create git commit with message: $ARGUMENTS
 
 After committing:
+
 - Display commit hash and summary
 - Show current branch status
 - Mention any next steps (push, PR, etc.)
@@ -75,11 +77,12 @@ description: Create and switch to new branch
 
 <branch_rules>
 Branch naming conventions:
+
 - Use kebab-case: feature-name, bug-fix-name
 - Include ticket number if applicable: ABC-123-feature-name
 - Descriptive but concise
 - Avoid special characters except hyphen
-</branch_rules>
+  </branch_rules>
 
 <validation>
 Before creating branch:
@@ -93,6 +96,7 @@ Before creating branch:
 Create and switch to branch: $ARGUMENTS
 
 After creation:
+
 - Confirm branch created successfully
 - Show current branch (git branch)- Display git log --oneline -5 for recent commits
 ```
@@ -133,13 +137,14 @@ Critical safety checks before deployment:
    - Run smoke tests if available
    - Display deployment URL
    - Log deployment in project records
-</deployment_safety>
+     </deployment_safety>
 
 <environment_mapping>
 Valid environments:
+
 - dev: Development environment (auto-deploy)- staging: Staging environment (requires approval)
 - production: Production environment (requires explicit confirmation)
-</environment_mapping>
+  </environment_mapping>
 
 Deploy to environment: $ARGUMENTS
 ```
@@ -159,29 +164,31 @@ description: Generate TypeScript React component
 
 <generation_rules>
 Component structure:
+
 - PascalCase component names (e.g., UserProfile, DataTable)
 - TypeScript interfaces for props
 - Functional components with hooks
 - Export component as default
 - Co-locate types with component
 - Follow project structure conventions
-</generation_rules>
+  </generation_rules>
 
 <props_types>
 Props configuration options:
+
 - "none": No props interface
 - "ChildrenProps": {children: React.ReactNode}
 - "ClassNameProps": {className?: string}
 - "custom": Use $2 as custom type name
 - Default: "none"
-</props_types>
+  </props_types>
 
 <file_structure>
 Generated structure:
 ComponentName/
-├── ComponentName.tsx    # Component implementation
-├── ComponentName.test.tsx  # Unit tests (if project has tests)
-└── index.ts              # Re-export
+├── ComponentName.tsx # Component implementation
+├── ComponentName.test.tsx # Unit tests (if project has tests)
+└── index.ts # Re-export
 </file_structure>
 
 <implementation>
@@ -194,12 +201,13 @@ Before generating:
 6. Get confirmation
 
 Generate:
+
 - Component file with TypeScript
 - Props interface if needed
 - Basic JSDoc comment
 - Index file for clean imports
 - Test file skeleton if project uses tests
-</implementation>
+  </implementation>
 
 Generate React component: $1
 Props configuration: ${2:-"none"}
@@ -209,7 +217,7 @@ Props configuration: ${2:-"none"}
 
 **File**: `.claude/commands/endpoint.md`
 
-```markdown
+````markdown
 ---
 allowed-tools: Write, Read, Glob, Edit
 argument-hint: [endpoint-name] [method]
@@ -218,21 +226,24 @@ description: Generate API endpoint with validation
 
 <endpoint_generation>
 REST API conventions:
+
 - Endpoint names: kebab-case (e.g., user-profile, data-export)
 - Methods: GET, POST, PUT, DELETE, PATCH
 - Path: /api/[endpoint-name]
 - File location: src/api/endpoints/[endpoint-name].ts
 
 Method semantics:
+
 - GET: Fetch resources (query params for filters, no body)
 - POST: Create new resource (body required)
 - PUT: Full resource update (body required)
-- PATCH: Partial update (body required)  
+- PATCH: Partial update (body required)
 - DELETE: Remove resource (params/URL, no body)
-</endpoint_generation>
+  </endpoint_generation>
 
 <template_structure>
 Each endpoint includes:
+
 1. Validation schema (Zod or similar)
 2. TypeScript types (request/response)
 3. Route handler with error handling
@@ -240,7 +251,7 @@ Each endpoint includes:
 5. Basic JSDoc documentation
 6. Rate limiting consideration
 7. Authentication check if needed
-</template_structure>
+   </template_structure>
 
 <implementation>
 Generate endpoint file:
@@ -250,41 +261,42 @@ import { z } from 'zod';
 
 // Validation schema
 const [EndpointName]Schema = z.object({
-  // Define based on HTTP method
+// Define based on HTTP method
 });
 
 // Types
 type [EndpointName]Request = z.infer<typeof [EndpointName]Schema>;
 type [EndpointName]Response = {
-  // Define response structure
+// Define response structure
 };
 
 // Handler
 router.[method]('/api/[endpoint-name]', async (req: Request, res: Response) => {
-  try {
-    // Validate input
-    const data = [EndpointName]Schema.parse(req.body || req.query);
-    
+try {
+// Validate input
+const data = [EndpointName]Schema.parse(req.body || req.query);
+
     // Process request
     // ...
-    
+
     // Return response
     res.json({ success: true, data: result });
-  } catch (error) {
-    // Error handling
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: error.errors });
-    }
-    res.status(500).json({ error: 'Internal server error' });
-  }
+
+} catch (error) {
+// Error handling
+if (error instanceof z.ZodError) {
+return res.status(400).json({ error: 'Validation failed', details: error.errors });
+}
+res.status(500).json({ error: 'Internal server error' });
+}
 });
-```
+````
 
 </implementation>
 
 Generate API endpoint: $1 using method: ${2:-"GET"}
 
-```
+````
 
 #### Database Migration Generator
 
@@ -332,7 +344,7 @@ export async function down(knex: Knex): Promise<void> {
   // Rollback migration
   await knex.schema.dropTable('table_name');
 }
-```
+````
 
 </template_structure>
 
@@ -344,7 +356,7 @@ After creation:
 - Suggest testing on dev database first
 - Note any special deployment considerations
 
-```
+````
 
 ---
 
@@ -409,7 +421,7 @@ Systematic development process:
 - Security: Validate inputs, sanitize outputs, follow OWASP
 - Maintainability: Clear naming, single responsibility, DRY
 </code_quality_standards>
-```
+````
 
 #### DevOps Engineer
 
@@ -435,13 +447,14 @@ Core competencies:
 
 <operational_philosophy>
 Principles:
+
 - Automate everything possible
 - Infrastructure as code (version control everything)
 - Immutable infrastructure
 - Security by default
 - Observable systems (metrics, logs, traces)
 - Disaster recovery planning
-</operational_philosophy>
+  </operational_philosophy>
 
 <workflow>
 Infrastructure tasks:
@@ -469,7 +482,7 @@ Infrastructure tasks:
    - Runbooks for common operations
    - Disaster recovery procedures
    - Cost optimization notes
-</workflow>
+     </workflow>
 ```
 
 #### QA Engineer
@@ -512,16 +525,17 @@ Comprehensive QA strategy:
    - Report defects with reproduction steps
    - Assess release readiness
    - Suggest quality improvements
-</testing_approach>
+     </testing_approach>
 
 <test_types>
 Testing levels:
+
 - Unit tests: Individual functions, pure logic
 - Integration tests: Component interactions, API calls
 - E2E tests: Full user workflows, critical paths
 - Performance tests: Load, stress, endurance
 - Security tests: OWASP top 10, vulnerability scanning
-</test_types>
+  </test_types>
 ```
 
 ### Specialized Agents
@@ -540,12 +554,13 @@ model: sonnet
 
 <analytical_skills>
 Data analysis capabilities:
+
 - Statistical analysis: descriptive, inferential, correlation
 - Data visualization: charts, graphs, dashboards
 - Pattern recognition: trends, anomalies, outliers
 - Predictive modeling: regression, classification basics
 - Report generation: insights, recommendations, presentations
-</analytical_skills>
+  </analytical_skills>
 
 <analysis_workflow>
 Data analysis process:
@@ -580,7 +595,7 @@ Data analysis process:
    - Provide actionable recommendations
    - Include supporting visualizations
    - Note data limitations
-</analysis_workflow>
+     </analysis_workflow>
 
 <tools>
 Python libraries:
@@ -606,47 +621,56 @@ model: haiku
 
 <documentation_types>
 Documentation expertise:
+
 - API documentation: Endpoints, parameters, examples
 - User guides: Step-by-step instructions, screenshots
 - Architecture decisions: ADRs, design rationale
 - Process documentation: Workflows, procedures, runbooks
 - Training materials: Tutorials, onboarding guides
-</documentation_types>
+  </documentation_types>
 
 <writing_principles>
 Documentation standards:
+
 - Clarity: Simple language, avoid jargon
 - Completeness: All necessary information included
 - Accuracy: Technically correct, up-to-date
 - Structure: Logical organization, easy navigation
 - Examples: Code samples, use cases, scenarios
 - Maintainability: Version control, easy updates
-</writing_principles>
+  </writing_principles>
 
 <documentation_structure>
 Standard documentation format:
 
 # Title
+
 Brief description of what this documents
 
 ## Overview
+
 High-level explanation
 
 ## Prerequisites
+
 What user needs before starting
 
 ## Step-by-Step Guide
+
 1. First step with explanation
 2. Second step with code examples
 3. Continue...
 
 ## Common Issues
+
 Troubleshooting guidance
 
 ## Examples
+
 Real-world usage examples
 
 ## Related Resources
+
 Links to related documentation
 </documentation_structure>
 ```
@@ -665,12 +689,13 @@ model: opus
 
 <security_domains>
 Security expertise:
+
 - Vulnerability assessment: OWASP Top 10, CVEs
 - Penetration testing: Security validation, exploit identification
 - Security architecture review: Design analysis, threat modeling
 - Compliance validation: SOC2, ISO 27001, GDPR, HIPAA
 - Incident response: Detection, containment, recovery
-</security_domains>
+  </security_domains>
 
 <assessment_methodology>
 Security assessment process:
@@ -705,10 +730,11 @@ Security assessment process:
    - Secure coding examples
    - Architectural improvements
    - Security control implementations
-</assessment_methodology>
+     </assessment_methodology>
 
 <focus_areas>
 Priority vulnerabilities:
+
 - Injection attacks (SQL, NoSQL, command, LDAP)
 - Broken authentication and session management
 - Sensitive data exposure
@@ -719,7 +745,7 @@ Priority vulnerabilities:
 - Insecure deserialization
 - Using components with known vulnerabilities
 - Insufficient logging and monitoring
-</focus_areas>
+  </focus_areas>
 ```
 
 ---
@@ -734,6 +760,7 @@ Priority vulnerabilities:
 
 ```markdown
 Troubleshooting Steps:
+
 1. Check file location
    - Must be in .claude/commands/
    - Filename must match invocation: command.md → /command
@@ -750,7 +777,7 @@ Troubleshooting Steps:
 4. Check tool permissions
    - allowed-tools field present
    - Tool names spelled correctly
-   - Syntax: Tool(command:*) for restrictions
+   - Syntax: Tool(command:\*) for restrictions
 
 5. Test argument parsing
    - Try with different argument patterns
@@ -761,43 +788,47 @@ Troubleshooting Steps:
 
 ```markdown
 Solutions:
+
 - Verify allowed-tools configuration
-  Example: allowed-tools: Bash(git:*), Read, Write
+  Example: allowed-tools: Bash(git:\*), Read, Write
 
 - Check specific tool syntax
-  Correct: Bash(git add:*)
+  Correct: Bash(git add:\*)
   Wrong: Bash git add
 
 - Validate argument patterns
-  Command patterns: tool:command:*
-  All commands: tool:*
+  Command patterns: tool:command:_
+  All commands: tool:_
 
 - Review security restrictions
   Some tools may be restricted by policy
 
 Test permission:
-1. Add * to allowed-tools temporarily
+
+1. Add \* to allowed-tools temporarily
 2. If works, narrow down specific tool needed
-3. Remove * and use specific tool list
+3. Remove \* and use specific tool list
 ```
 
 **Problem**: Arguments not parsing correctly
 
 ```markdown
 Debug argument handling:
+
 - $ARGUMENTS = all arguments as single string
 - $1, $2, $3 = individual space-separated arguments
 - ${2:-"default"} = second argument with fallback
 
 Common issues:
+
 - Multi-word arguments need quotes: /cmd "multi word"
 - Missing default values cause empty strings
 - Argument order matters for $1, $2, etc.
 
 Test patterns:
-/command single          → $ARGUMENTS="single", $1="single"
-/command one two         → $ARGUMENTS="one two", $1="one", $2="two"
-/command "one two"       → $ARGUMENTS="one two", $1="one two"
+/command single → $ARGUMENTS="single", $1="single"
+/command one two → $ARGUMENTS="one two", $1="one", $2="two"
+/command "one two" → $ARGUMENTS="one two", $1="one two"
 ```
 
 #### Agent Issues
@@ -806,6 +837,7 @@ Test patterns:
 
 ```markdown
 Troubleshooting Steps:
+
 1. Check agent description clarity
    - Description should clearly state when to use agent
    - Use specific keywords that match user requests
@@ -908,8 +940,8 @@ Debugging Steps:
 
 2. Check matcher patterns
    - Test regex pattern with tool name
-   - Use .* carefully (matches everything)
-   - Be specific: Bash.*git.* not just Bash
+   - Use .\* carefully (matches everything)
+   - Be specific: Bash._git._ not just Bash
 
 3. Test hook commands manually
    - Run hook script directly
@@ -930,7 +962,7 @@ Debugging Steps:
 
 **Problem**: Hook blocking unexpectedly
 
-```markdown
+````markdown
 Causes and solutions:
 
 1. Hook script error causes exit code 2
@@ -950,6 +982,7 @@ Causes and solutions:
    Solution: Use absolute paths, realpath
 
 Fix example:
+
 ```python
 #!/usr/bin/env python3
 import sys
@@ -963,8 +996,9 @@ except Exception as e:
     print(f"Hook warning: {e}")
     sys.exit(0)  # Allow operation despite error
 ```
+````
 
-```
+````
 
 **Problem**: Performance impact from hooks
 
@@ -999,7 +1033,7 @@ Solutions:
    - Good for non-critical operations
 
 Performance target: < 100ms per hook
-```
+````
 
 ---
 
@@ -1011,52 +1045,62 @@ Performance target: < 100ms per hook
 Pre-deployment checklist:
 
 ✓ YAML frontmatter is valid
-  - Test: yq eval .claude/commands/command.md
-  
+
+- Test: yq eval .claude/commands/command.md
+
 ✓ All required fields present
-  - allowed-tools: specified or *
-  - description: clear, concise
-  - argument-hint: helpful for users
+
+- allowed-tools: specified or \*
+- description: clear, concise
+- argument-hint: helpful for users
 
 ✓ Tool permissions are minimal but sufficient
-  - Only tools actually used
-  - Specific command patterns when possible
-  - No * unless necessary
+
+- Only tools actually used
+- Specific command patterns when possible
+- No \* unless necessary
 
 ✓ Argument handling is correct
-  - $ARGUMENTS for full string
-  - $1, $2 for specific args
-  - Defaults for optional args
+
+- $ARGUMENTS for full string
+- $1, $2 for specific args
+- Defaults for optional args
 
 ✓ Validation logic is comprehensive
-  - Input validation
-  - State checks (git status, file exists)
-  - Error handling
+
+- Input validation
+- State checks (git status, file exists)
+- Error handling
 
 ✓ Error cases are handled
-  - Missing arguments
-  - Invalid inputs
-  - Tool failures
+
+- Missing arguments
+- Invalid inputs
+- Tool failures
 
 ✓ Security considerations addressed
-  - Input sanitization
-  - Path validation
-  - Credential protection
+
+- Input sanitization
+- Path validation
+- Credential protection
 
 ✓ User confirmation for destructive operations
-  - Deleting files
-  - Force pushing
-  - Production deployments
+
+- Deleting files
+- Force pushing
+- Production deployments
 
 ✓ Clear description and hints provided
-  - Description explains what command does
-  - Argument hint shows expected format
-  - Examples in documentation
+
+- Description explains what command does
+- Argument hint shows expected format
+- Examples in documentation
 
 ✓ Tested with various inputs
-  - Normal cases
-  - Edge cases
-  - Error cases
+
+- Normal cases
+- Edge cases
+- Error cases
 ```
 
 ### Agent Validation
@@ -1065,55 +1109,65 @@ Pre-deployment checklist:
 Pre-deployment checklist:
 
 ✓ Role definition is specific and clear
-  - Domain expertise identified
-  - Responsibilities well-defined
-  - Scope is focused (not too broad)
+
+- Domain expertise identified
+- Responsibilities well-defined
+- Scope is focused (not too broad)
 
 ✓ Capabilities are well-defined
-  - Lists specific skills
-  - Includes domain knowledge
-  - References methodologies
+
+- Lists specific skills
+- Includes domain knowledge
+- References methodologies
 
 ✓ Tool access is appropriate
-  - Minimal necessary tools
-  - Security considered
-  - Performance optimized
+
+- Minimal necessary tools
+- Security considered
+- Performance optimized
 
 ✓ Model selection is optimal
-  - Haiku for simple tasks
-  - Sonnet for standard work (default)
-  - Opus for complex reasoning
+
+- Haiku for simple tasks
+- Sonnet for standard work (default)
+- Opus for complex reasoning
 
 ✓ Prompt engineering follows best practices
-  - Structured thinking patterns
-  - Clear methodology
-  - Quality standards defined
-  - Output format specified
+
+- Structured thinking patterns
+- Clear methodology
+- Quality standards defined
+- Output format specified
 
 ✓ Structured thinking patterns included
-  - OODA loop or similar
-  - Step-by-step approach
-  - Verification steps
+
+- OODA loop or similar
+- Step-by-step approach
+- Verification steps
 
 ✓ Integration with other agents considered
-  - Coordination rules defined
-  - Input/output formats clear
-  - Handoff procedures specified
+
+- Coordination rules defined
+- Input/output formats clear
+- Handoff procedures specified
 
 ✓ Performance characteristics acceptable
-  - Response time reasonable
-  - Token usage optimized
-  - Context managed efficiently
+
+- Response time reasonable
+- Token usage optimized
+- Context managed efficiently
 
 ✓ Tested with representative tasks
-  - Normal cases
-  - Edge cases
-  - Complex scenarios
+
+- Normal cases
+- Edge cases
+- Complex scenarios
 
 ✓ Documentation is complete
-  - When to use agent
-  - What to expect
-  - Example use cases
+
+- When to use agent
+- What to expect
+- Example use cases
 ```
 
 ### Hook Validation
@@ -1122,54 +1176,64 @@ Pre-deployment checklist:
 Pre-deployment checklist:
 
 ✓ Matcher patterns are accurate
-  - Test with actual tool names
-  - Specific enough to avoid false matches
-  - Not too broad
+
+- Test with actual tool names
+- Specific enough to avoid false matches
+- Not too broad
 
 ✓ Hook commands are tested
-  - Run manually with test data
-  - Verify exit codes (0 or 2)
-  - Check JSON output when blocking
+
+- Run manually with test data
+- Verify exit codes (0 or 2)
+- Check JSON output when blocking
 
 ✓ Security implications reviewed
-  - Hook can't be exploited
-  - Validates inputs properly
-  - Fails safely
+
+- Hook can't be exploited
+- Validates inputs properly
+- Fails safely
 
 ✓ Error handling is robust
-  - Handles missing environment variables
-  - Catches exceptions
-  - Provides clear error messages
+
+- Handles missing environment variables
+- Catches exceptions
+- Provides clear error messages
 
 ✓ Performance impact is minimal
-  - Executes quickly (< 100ms target)
-  - No blocking operations
-  - Efficient algorithms
+
+- Executes quickly (< 100ms target)
+- No blocking operations
+- Efficient algorithms
 
 ✓ Integration points are validated
-  - Works with commands
-  - Works with agents
-  - Correct event type used
+
+- Works with commands
+- Works with agents
+- Correct event type used
 
 ✓ Documentation is complete
-  - What hook does
-  - When it triggers
-  - How to debug
+
+- What hook does
+- When it triggers
+- How to debug
 
 ✓ Rollback procedures exist
-  - Can disable hook easily
-  - No permanent state changes
-  - Graceful degradation
+
+- Can disable hook easily
+- No permanent state changes
+- Graceful degradation
 
 ✓ Tested in realistic scenarios
-  - Various inputs
-  - Error conditions
-  - Edge cases
+
+- Various inputs
+- Error conditions
+- Edge cases
 
 ✓ Script is executable
-  - chmod +x script.sh
-  - Correct shebang (#!/bin/bash, #!/usr/bin/env python3)
-  - Dependencies available
+
+- chmod +x script.sh
+- Correct shebang (#!/bin/bash, #!/usr/bin/env python3)
+- Dependencies available
 ```
 
 ---
@@ -1250,41 +1314,41 @@ def validate_commands():
     if not commands_dir.exists():
         print("✗ Commands directory not found")
         return False
-        
+
     issues = []
     for cmd_file in commands_dir.glob("*.md"):
         print(f"Checking {cmd_file.name}...")
-        
+
         with open(cmd_file) as f:
             content = f.read()
-            
+
         # Check for frontmatter
         if not content.startswith('---'):
             issues.append(f"{cmd_file.name}: Missing frontmatter")
             continue
-            
+
         # Extract and validate YAML
         try:
             parts = content.split('---', 2)
             if len(parts) < 3:
                 issues.append(f"{cmd_file.name}: Invalid frontmatter structure")
                 continue
-                
+
             frontmatter = yaml.safe_load(parts[1])
-            
+
             # Check required fields
             if 'description' not in frontmatter:
                 issues.append(f"{cmd_file.name}: Missing description")
-                
+
         except yaml.YAMLError as e:
             issues.append(f"{cmd_file.name}: Invalid YAML - {e}")
-    
+
     if issues:
         print("\n✗ Command validation failed:")
         for issue in issues:
             print(f"  - {issue}")
         return False
-    
+
     print("✓ All commands valid")
     return True
 
@@ -1294,49 +1358,49 @@ def validate_agents():
     if not agents_dir.exists():
         print("✗ Agents directory not found")
         return False
-    
+
     issues = []
     for agent_file in agents_dir.glob("*.md"):
         print(f"Checking {agent_file.name}...")
-        
+
         with open(agent_file) as f:
             content = f.read()
-        
+
         # Check for frontmatter
         if not content.startswith('---'):
             issues.append(f"{agent_file.name}: Missing frontmatter")
             continue
-        
+
         # Extract and validate YAML
         try:
             parts = content.split('---', 2)
             if len(parts) < 3:
                 issues.append(f"{agent_file.name}: Invalid frontmatter structure")
                 continue
-            
+
             frontmatter = yaml.safe_load(parts[1])
-            
+
             # Check required fields
             if 'name' not in frontmatter:
                 issues.append(f"{agent_file.name}: Missing name")
             if 'description' not in frontmatter:
                 issues.append(f"{agent_file.name}: Missing description")
-                
+
             # Check model if specified
             if 'model' in frontmatter:
                 valid_models = ['haiku', 'sonnet', 'opus']
                 if frontmatter['model'] not in valid_models:
                     issues.append(f"{agent_file.name}: Invalid model '{frontmatter['model']}'")
-                    
+
         except yaml.YAMLError as e:
             issues.append(f"{agent_file.name}: Invalid YAML - {e}")
-    
+
     if issues:
         print("\n✗ Agent validation failed:")
         for issue in issues:
             print(f"  - {issue}")
         return False
-    
+
     print("✓ All agents valid")
     return True
 
@@ -1346,56 +1410,56 @@ def validate_hooks():
     if not settings_file.exists():
         print("⚠ No settings.json found (hooks optional)")
         return True
-    
+
     print("Checking settings.json...")
-    
+
     try:
         with open(settings_file) as f:
             config = json.load(f)
-        
+
         # Check hooks structure
         if 'hooks' not in config:
             print("⚠ No hooks configured")
             return True
-        
+
         hooks = config['hooks']
         valid_events = ['PreToolUse', 'PostToolUse', 'UserPromptSubmit', 'Stop', 'SubagentStop']
-        
+
         for event_type, matchers in hooks.items():
             if event_type not in valid_events:
                 print(f"✗ Invalid hook event type: {event_type}")
                 return False
-            
+
             for matcher_config in matchers:
                 if 'matcher' not in matcher_config:
                     print(f"✗ Missing matcher in {event_type}")
                     return False
-                
+
                 if 'hooks' not in matcher_config:
                     print(f"✗ Missing hooks array in {event_type}")
                     return False
-                
+
                 for hook in matcher_config['hooks']:
                     if 'type' not in hook or 'command' not in hook:
                         print(f"✗ Invalid hook configuration in {event_type}")
                         return False
-        
+
         print("✓ Hooks configuration valid")
         return True
-        
+
     except json.JSONDecodeError as e:
         print(f"✗ Invalid JSON in settings.json: {e}")
         return False
 
 def main():
     print("Claude Code Configuration Validator\n")
-    
+
     results = [
         validate_commands(),
         validate_agents(),
         validate_hooks()
     ]
-    
+
     if all(results):
         print("\n✓ All validations passed!")
         sys.exit(0)

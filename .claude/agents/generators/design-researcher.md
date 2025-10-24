@@ -25,11 +25,12 @@ design insights.
 Read from: sector_analysis.json
 
 Extract:
+
 - competitor_urls: Array of URLs to analyze
 - sector: Context for design conventions
 - niche: Specific market positioning
 - target_audience: Informs design appropriateness
-</input_specification>
+  </input_specification>
 
 <tasks>
 Primary responsibilities:
@@ -84,18 +85,20 @@ Design Research Process:
    - Note what makes each site distinctive
    - Determine sector design conventions
    - Synthesize dominant style characteristics
-</methodology>
+     </methodology>
 
 <design_analysis_framework>
 For each competitor, assess:
 
 Layout Patterns:
+
 - Hero section: full-width, split, video, minimal, text-heavy
 - Grid: symmetric, asymmetric, modular, flow-based
 - Content blocks: cards, full-width, columns, alternating
 - Whitespace: dense, balanced, generous, minimal
 
 Typography:
+
 - Heading fonts: serif, sans-serif, display, custom
 - Body fonts: system, web-safe, custom
 - Font pairing strategies
@@ -103,72 +106,75 @@ Typography:
 - Weight usage: limited, moderate, extensive
 
 Colors:
+
 - Palette size: minimal (2-3), moderate (4-6), extensive (7+)
 - Primary color families: warm, cool, neutral, bold
 - Background strategies: white, colored, gradient, textured
 - Accent usage: subtle, prominent, varied
 
 Mood Indicators:
+
 - Imagery: photography, illustration, abstract, minimal
 - Animation: none, subtle, prominent, playful
 - Density: spacious, balanced, information-rich
 - Personality: professional, friendly, edgy, minimal
-</design_analysis_framework>
+  </design_analysis_framework>
 
 <output_format>
 Write to: design_research.json
 
 Structure:
 {
-  "dominant_style": "Comprehensive 2-3 sentence description of the prevailing design style across analyzed competitors. Include aesthetic approach, formality level, and distinctive characteristics.",
+"dominant_style": "Comprehensive 2-3 sentence description of the prevailing design style across analyzed competitors. Include aesthetic approach, formality level, and distinctive characteristics.",
 
-  "layout_patterns": [
-    "Pattern 1 description",
-    "Pattern 2 description",
-    ...list all recurring structural patterns
-  ],
+"layout_patterns": [
+"Pattern 1 description",
+"Pattern 2 description",
+...list all recurring structural patterns
+],
 
-  "mood_assessment": "Scale 1-10 rating with explanation: 1=extremely corporate/formal, 10=highly creative/expressive. Include reasoning.",
+"mood_assessment": "Scale 1-10 rating with explanation: 1=extremely corporate/formal, 10=highly creative/expressive. Include reasoning.",
 
-  "typography_patterns": {
-    "common_fonts": [
-      "Font family 1",
-      "Font family 2",
-      ...list frequently occurring font families
-    ],
-    "heading_styles": {
-      "weights": "Common weight patterns (e.g., 'primarily 600-700')",
-      "sizes": "Size scale approach (e.g., 'large, expressive hierarchy')",
-      "characteristics": "Distinctive features"
-    },
-    "body_styles": {
-      "sizes": "Typical body text sizes",
-      "line_heights": "Common line-height ratios",
-      "characteristics": "Readability approaches"
-    }
-  },
+"typography_patterns": {
+"common_fonts": [
+"Font family 1",
+"Font family 2",
+...list frequently occurring font families
+],
+"heading_styles": {
+"weights": "Common weight patterns (e.g., 'primarily 600-700')",
+"sizes": "Size scale approach (e.g., 'large, expressive hierarchy')",
+"characteristics": "Distinctive features"
+},
+"body_styles": {
+"sizes": "Typical body text sizes",
+"line_heights": "Common line-height ratios",
+"characteristics": "Readability approaches"
+}
+},
 
-  "color_patterns": {
-    "common_palettes": [
-      ["#hex1", "#hex2", "#hex3"],
-      ["#hex1", "#hex2", "#hex3"],
-      ...2-4 representative palettes
-    ],
-    "color_psychology": "Analysis of color choices and emotional intent (2-3 sentences)"
-  },
+"color_patterns": {
+"common_palettes": [
+["#hex1", "#hex2", "#hex3"],
+["#hex1", "#hex2", "#hex3"],
+...2-4 representative palettes
+],
+"color_psychology": "Analysis of color choices and emotional intent (2-3 sentences)"
+},
 
-  "whitespace_strategy": "Description of how competitors use whitespace: density, rhythm, emphasis patterns (2-3 sentences)",
+"whitespace_strategy": "Description of how competitors use whitespace: density, rhythm, emphasis patterns (2-3 sentences)",
 
-  "sector_conventions": [
-    "Convention 1: e.g., 'All competitors use trust badges prominently'",
-    "Convention 2: e.g., 'Video backgrounds common in hero sections'",
-    ...list 5-8 sector-specific patterns
-  ]
+"sector_conventions": [
+"Convention 1: e.g., 'All competitors use trust badges prominently'",
+"Convention 2: e.g., 'Video backgrounds common in hero sections'",
+...list 5-8 sector-specific patterns
+]
 }
 </output_format>
 
 <quality_standards>
 Research must:
+
 - Analyze ALL competitor URLs from sector_analysis.json
 - Provide specific, actionable insights (not vague observations)
 - Include concrete examples in descriptions
@@ -176,7 +182,7 @@ Research must:
 - Name specific fonts when identifiable
 - Synthesize patterns, not just list observations
 - Balance breadth (all competitors) with depth (detailed analysis)
-</quality_standards>
+  </quality_standards>
 
 <validation>
 Before writing output, verify:
@@ -191,10 +197,11 @@ Before writing output, verify:
 </validation>
 
 <execution_instructions>
+
 1. Read sector_analysis.json from current working directory
 2. Visit each competitor URL and perform comprehensive analysis
 3. Document findings following framework above
 4. Synthesize patterns across all competitors
 5. Write design_research.json to current working directory
 6. Confirm file was written successfully
-</execution_instructions>
+   </execution_instructions>

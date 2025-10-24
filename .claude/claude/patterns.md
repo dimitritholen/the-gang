@@ -159,21 +159,23 @@ For complex research tasks:
    - Resolve conflicts or contradictions
    - Provide unified recommendations
    - Cite sources comprehensively
-</coordination_strategy>
+     </coordination_strategy>
 
 <subagent_creation>
 When creating research subagents, provide:
+
 - **Specific objective**: Narrow, focused research question
 - **Expected output format**: Structure for findings
 - **Context**: Why this matters, how it fits larger question
 - **Constraints**: Time bounds, source preferences, depth level
 - **Success criteria**: What makes answer complete
-</subagent_creation>
+  </subagent_creation>
 
 <example_delegation>
 For question: "Evaluate React state management solutions"
 
 Create subagents for:
+
 1. Context API patterns and limitations
 2. Redux ecosystem and best practices
 3. Zustand, Jotai, and lightweight alternatives
@@ -242,7 +244,7 @@ Execute comprehensive code review in stages:
    - Component coupling
    - Abstraction appropriateness
    - Technical debt assessment
-</review_pipeline>
+     </review_pipeline>
 
 <execution>
 For each stage:
@@ -270,6 +272,7 @@ Focus exclusively on security vulnerabilities, authentication flaws,
 and data protection issues.
 
 <review_checklist>
+
 - SQL injection risks
 - XSS vulnerabilities
 - CSRF protection
@@ -280,9 +283,10 @@ and data protection issues.
 - Cryptographic weaknesses
 - Input validation gaps
 - Output encoding issues
-</review_checklist>
+  </review_checklist>
 
 Provide findings with:
+
 - Severity (Critical/High/Medium/Low)
 - Location (file:line)
 - Description of vulnerability
@@ -303,6 +307,7 @@ model: sonnet
 Analyze performance bottlenecks, memory usage, and optimization opportunities.
 
 <review_focus>
+
 - Algorithmic complexity (O(n), O(n²), etc.)
 - Unnecessary re-renders (React)
 - Memory leaks
@@ -311,9 +316,10 @@ Analyze performance bottlenecks, memory usage, and optimization opportunities.
 - Missing caching opportunities
 - Bundle size impact
 - Network request optimization
-</review_focus>
+  </review_focus>
 
 Provide findings with:
+
 - Impact level (High/Medium/Low)
 - Location (file:line)
 - Performance issue description
@@ -334,6 +340,7 @@ model: haiku
 Check coding standards, documentation quality, and maintainability patterns.
 
 <review_checklist>
+
 - Naming conventions (camelCase, PascalCase, kebab-case)
 - Code organization and structure
 - Comment quality and JSDoc completeness
@@ -342,7 +349,7 @@ Check coding standards, documentation quality, and maintainability patterns.
 - Import organization
 - Consistent error handling
 - Test coverage patterns
-</review_checklist>
+  </review_checklist>
 
 Provide findings as suggestions, not requirements.
 Focus on maintainability improvements.
@@ -400,7 +407,7 @@ Implement complete feature from design to deployment:
    - Usage examples
    - Architecture decision records
    - Update README if needed
-</workflow>
+     </workflow>
 
 <execution>
 Each stage:
@@ -466,10 +473,11 @@ Incremental Improvement Process:
    - What was improved
    - Any trade-offs accepted
    - Future improvement opportunities
-</enhancement_strategy>
+     </enhancement_strategy>
 
 <improvement_categories>
 Focus areas:
+
 - Type safety improvements (add TypeScript types)
 - Error handling (add try-catch, validation)
 - Code duplication (extract shared logic)
@@ -477,16 +485,17 @@ Focus areas:
 - Accessibility improvements (ARIA, semantic HTML)
 - Test coverage (add missing tests)
 - Documentation (JSDoc, comments)
-</improvement_categories>
+  </improvement_categories>
 
 <safety_rules>
 Never:
+
 - Change multiple unrelated things at once
 - Break existing functionality
 - Skip validation steps
 - Assume improvements without measuring
 - Ignore user feedback
-</safety_rules>
+  </safety_rules>
 ```
 
 ---
@@ -504,6 +513,7 @@ Maximize efficiency by running independent operations concurrently.
 When gathering information from multiple sources:
 
 INEFFICIENT (Sequential):
+
 1. Read file1.ts
 2. Wait for result
 3. Read file2.ts
@@ -512,6 +522,7 @@ INEFFICIENT (Sequential):
 6. Wait for result
 
 EFFICIENT (Parallel):
+
 1. Issue Read(file1.ts), Read(file2.ts), Read(file3.ts) simultaneously
 2. Receive all results together
 3. Process combined information
@@ -529,17 +540,19 @@ Use Task tool to run multiple agents in parallel:
 
 <when_to_parallelize>
 Safe for parallel execution:
+
 - Reading different files
 - Independent web searches
 - Multiple agent analysis of same code
 - Non-conflicting file operations
 
 Must be sequential:
+
 - Operations with dependencies
 - File write followed by read
 - Command execution with state changes
 - User confirmation in workflow
-</when_to_parallelize>
+  </when_to_parallelize>
 ```
 
 ### Context Management
@@ -578,16 +591,17 @@ Minimize token usage while maintaining effectiveness.
    - Stream results rather than bulk load
    - Cache frequently accessed data
    - Reuse analysis between operations
-</context_optimization>
+     </context_optimization>
 
 <anti_patterns>
 Avoid:
+
 - Reading entire codebase at once
 - Unnecessary file reads for validation
 - Redundant searches for same information
 - Creating subagents for trivial tasks
 - Including irrelevant context in agent prompts
-</anti_patterns>
+  </anti_patterns>
 ```
 
 ---
@@ -600,10 +614,13 @@ Command delegates complex work to specialized agent.
 
 ```markdown
 # Command: /analyze [file-or-directory]
+
 ---
+
 allowed-tools: Task, Read
 argument-hint: [file-or-directory]
 description: Comprehensive code analysis
+
 ---
 
 <workflow>
@@ -625,11 +642,14 @@ High-level agent orchestrates specialized agents.
 
 ```markdown
 # Agent: feature-architect
+
 ---
+
 name: feature-architect
 description: Design and coordinate feature implementation
 tools: Task
 model: opus
+
 ---
 
 <orchestration>
@@ -651,21 +671,24 @@ Hook provides automatic enhancement without code changes.
 
 ```markdown
 # Command: /write [file] [content]
+
 ---
-allowed-tools: Write
----
+
+## allowed-tools: Write
+
 Write file with content...
 
 # Hook: Auto-format after write
+
 {
-  "hooks": {
-    "PostToolUse": [{
-      "matcher": "Write.*\\.(ts|js)$",
-      "hooks": [
-        {"type": "command", "command": "prettier --write $CLAUDE_TOOL_ARGS"}
-      ]
-    }]
-  }
+"hooks": {
+"PostToolUse": [{
+"matcher": "Write.\*\\.(ts|js)$",
+"hooks": [
+{"type": "command", "command": "prettier --write $CLAUDE_TOOL_ARGS"}
+]
+}]
+}
 }
 
 # Result: File written AND formatted automatically
@@ -687,25 +710,29 @@ Stage 1: Research
 - Identifies constraints and dependencies
 
 Stage 2: Design
+
 - architect-agent creates design
 - Reviews research findings
 - Proposes architecture and approach
 
 Stage 3: Implement
+
 - developer-agent writes code
 - Follows design specifications
 - Handles edge cases
 
 Stage 4: Test
+
 - test-agent creates tests
 - Validates implementation
 - Checks edge cases
 
 Stage 5: Document
+
 - docs-agent writes documentation
 - Explains architecture decisions
 - Provides usage examples
-</workflow>
+  </workflow>
 ```
 
 ### Analyze → Prioritize → Execute → Validate
@@ -720,20 +747,23 @@ Stage 1: Analyze
 - Estimates effort for each
 
 Stage 2: Prioritize
+
 - Orchestrator ranks by impact/effort
 - Gets user approval for priority list
 - Plans implementation order
 
 Stage 3: Execute
+
 - enhancer-agent makes improvements
 - One change at a time
 - Tests after each change
 
 Stage 4: Validate
+
 - reviewer-agent validates changes
 - Runs test suite
 - Confirms no regressions
-</workflow>
+  </workflow>
 ```
 
 ---

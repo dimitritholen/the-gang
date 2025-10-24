@@ -13,6 +13,7 @@ Implement a secure user authentication system that allows users to register, log
 **Primary Goal**: Enable secure user access control for the application
 
 **Secondary Objectives**:
+
 - Reduce unauthorized access attempts
 - Improve user onboarding experience
 - Meet SOC 2 compliance requirements for authentication
@@ -22,9 +23,11 @@ Implement a secure user authentication system that allows users to register, log
 ### Core Capabilities
 
 #### FR-001: User Registration
+
 **Description**: Users must be able to create new accounts using email and password
 
 **Acceptance Criteria**:
+
 - [ ] Email validation (format check, uniqueness)
 - [ ] Password strength requirements enforced (min 8 chars, 1 uppercase, 1 number, 1 special char)
 - [ ] Confirmation email sent upon successful registration
@@ -37,9 +40,11 @@ Implement a secure user authentication system that allows users to register, log
 ---
 
 #### FR-002: User Login
+
 **Description**: Registered users must be able to authenticate and access the system
 
 **Acceptance Criteria**:
+
 - [ ] Email and password validation
 - [ ] JWT token issued upon successful login
 - [ ] Session persists for 7 days or until logout
@@ -53,9 +58,11 @@ Implement a secure user authentication system that allows users to register, log
 ---
 
 #### FR-003: Password Reset
+
 **Description**: Users must be able to reset forgotten passwords
 
 **Acceptance Criteria**:
+
 - [ ] Password reset link sent to registered email
 - [ ] Reset link expires after 1 hour
 - [ ] New password must meet strength requirements
@@ -69,9 +76,11 @@ Implement a secure user authentication system that allows users to register, log
 ---
 
 #### FR-004: User Logout
+
 **Description**: Users must be able to securely end their session
 
 **Acceptance Criteria**:
+
 - [ ] JWT token invalidated server-side
 - [ ] User redirected to login page
 - [ ] Session data cleared from client
@@ -83,32 +92,36 @@ Implement a secure user authentication system that allows users to register, log
 ## Non-Functional Requirements
 
 ### Performance
-| ID | Requirement | Target Metric | Priority |
-|----|-------------|---------------|----------|
-| NFR-PERF-001 | Login response time | < 500ms | High |
-| NFR-PERF-002 | Registration completion | < 1 second | Medium |
-| NFR-PERF-003 | Concurrent users supported | 10,000 | High |
+
+| ID           | Requirement                | Target Metric | Priority |
+| ------------ | -------------------------- | ------------- | -------- |
+| NFR-PERF-001 | Login response time        | < 500ms       | High     |
+| NFR-PERF-002 | Registration completion    | < 1 second    | Medium   |
+| NFR-PERF-003 | Concurrent users supported | 10,000        | High     |
 
 ### Security
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| NFR-SEC-001 | Passwords hashed with bcrypt (cost factor 12) | High |
-| NFR-SEC-002 | JWT tokens signed with RS256 | High |
-| NFR-SEC-003 | HTTPS required for all authentication endpoints | High |
-| NFR-SEC-004 | Rate limiting: 5 requests/minute per IP for login | Medium |
-| NFR-SEC-005 | Sensitive data (passwords) never logged | High |
+
+| ID          | Requirement                                       | Priority |
+| ----------- | ------------------------------------------------- | -------- |
+| NFR-SEC-001 | Passwords hashed with bcrypt (cost factor 12)     | High     |
+| NFR-SEC-002 | JWT tokens signed with RS256                      | High     |
+| NFR-SEC-003 | HTTPS required for all authentication endpoints   | High     |
+| NFR-SEC-004 | Rate limiting: 5 requests/minute per IP for login | Medium   |
+| NFR-SEC-005 | Sensitive data (passwords) never logged           | High     |
 
 ### Availability
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| NFR-AVAIL-001 | 99.9% uptime for authentication service | High |
-| NFR-AVAIL-002 | Graceful degradation if email service unavailable | Medium |
+
+| ID            | Requirement                                       | Priority |
+| ------------- | ------------------------------------------------- | -------- |
+| NFR-AVAIL-001 | 99.9% uptime for authentication service           | High     |
+| NFR-AVAIL-002 | Graceful degradation if email service unavailable | Medium   |
 
 ### Compliance
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| NFR-COMP-001 | SOC 2 Type II compliant authentication | High |
-| NFR-COMP-002 | GDPR-compliant user data handling | High |
+
+| ID           | Requirement                            | Priority |
+| ------------ | -------------------------------------- | -------- |
+| NFR-COMP-001 | SOC 2 Type II compliant authentication | High     |
+| NFR-COMP-002 | GDPR-compliant user data handling      | High     |
 
 ## Constraints
 

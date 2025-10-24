@@ -59,20 +59,24 @@ ajv validate -s .claude/schemas/task-manifest-schema.json -d .tasks/01-feature/m
 ## 📐 Naming Conventions
 
 ### Feature IDs
+
 - Format: Two-digit zero-padded number (`01`, `02`, ..., `99`)
 - Example: `01-user-authentication`
 
 ### Feature Slugs
+
 - Format: lowercase letters, numbers, hyphens only
 - Pattern: `^[a-z0-9]+(-[a-z0-9]+)*$`
 - Examples: `user-authentication`, `api-rate-limiting`, `email-notifications`
 
 ### Task IDs
+
 - Format: `T` + two-digit zero-padded number
 - Pattern: `^T[0-9]{2}$`
 - Examples: `T01`, `T02`, `T15`
 
 ### Task Slugs
+
 - Same as feature slugs (lowercase, hyphen-separated)
 - Examples: `database-schema`, `api-endpoints`, `unit-tests`
 
@@ -103,49 +107,64 @@ ajv validate -s .claude/schemas/task-manifest-schema.json -d .tasks/01-feature/m
 ## 🤖 Agent Responsibilities
 
 ### Requirements Analyst (`requirements-analyst`)
+
 Creates:
+
 - `feature-brief.md`
 - `requirements-{slug}.md`
 - Initial entry in root `manifest.json`
 
 ### Tech Researcher (`tech-researcher`)
+
 Creates:
+
 - `tech-analysis-{slug}.md`
 
 ### Implementation Planner (`implementation-planner`)
+
 Creates:
+
 - Task-level `manifest.json`
 - `TNN-{slug}.xml` files for each task
 - Updates root manifest status: NOT_STARTED → IN_PROGRESS
 
 ### Task Manager (`task-manager`)
+
 Creates:
+
 - Task progression and status updates
 - Updates both manifests as tasks complete
 
 ### Execution Agents
+
 Creates:
+
 - `TNN-output.md` files documenting work completed
 
 ## 🔒 Validation Rules
 
 ### Task Dependencies
+
 - Must reference valid task IDs within same feature
 - No circular dependencies allowed
 - All dependencies must exist before task can start
 
 ### Status Transitions
+
 Valid transitions:
+
 - `NOT_STARTED` → `IN_PROGRESS`
 - `IN_PROGRESS` → `COMPLETED`
 - `IN_PROGRESS` → `BLOCKED`
 - `BLOCKED` → `IN_PROGRESS`
 
 Invalid transitions:
+
 - `COMPLETED` → any other status (completed tasks are immutable)
 - `NOT_STARTED` → `COMPLETED` (must go through IN_PROGRESS)
 
 ### Manifest Consistency
+
 - Root manifest `taskCount` must match task manifest length
 - Root manifest `completedCount` must match COMPLETED tasks in task manifest
 - `nextTask` must be `null` only when all tasks completed

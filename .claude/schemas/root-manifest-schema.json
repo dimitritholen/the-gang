@@ -58,7 +58,13 @@
         "status": {
           "type": "string",
           "description": "Current feature status",
-          "enum": ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "BLOCKED", "CANCELLED"]
+          "enum": [
+            "NOT_STARTED",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "BLOCKED",
+            "CANCELLED"
+          ]
         },
         "priority": {
           "type": "string",

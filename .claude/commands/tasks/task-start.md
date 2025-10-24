@@ -152,6 +152,7 @@ This command delegates to @task-manager agent:
 ```
 
 The task manager handles:
+
 - Dependency validation
 - Status transitions
 - Manifest updates

@@ -6,11 +6,12 @@ description: Clean up temporary handoff files from .claude/memory/
 
 # Memory Cleanup Utility
 
-Clean up temporary handoff files (.tmp-*) from `.claude/memory/` directory.
+Clean up temporary handoff files (.tmp-\*) from `.claude/memory/` directory.
 
 ## Purpose
 
 During workflows like `/gather-requirements`, temporary handoff files are created for agent-orchestrator communication. These files are normally auto-deleted after use, but may persist if:
+
 - Workflow was interrupted
 - Error occurred during cleanup
 - Workflow validation failed
@@ -20,11 +21,13 @@ This command helps manually clean up those temporary files.
 ## Usage
 
 **Clean up specific feature:**
+
 ```bash
 /cleanup-memory expense-tracking
 ```
 
 **Clean up all temporary files:**
+
 ```bash
 /cleanup-memory
 ```
@@ -183,13 +186,15 @@ ls -lh .claude/memory/*.md 2>/dev/null | grep -v ".tmp-" || echo "None"
 ## Safety Features
 
 **Protected Files:**
+
 - Only deletes files matching `.tmp-*` pattern
-- Never deletes permanent artifacts (requirements-*.md, tech-analysis-*.md, etc.)
+- Never deletes permanent artifacts (requirements-_.md, tech-analysis-_.md, etc.)
 - Shows file preview before deletion
 - Requires user confirmation
 
 **Dry Run Mode:**
 To preview what would be deleted without actually deleting:
+
 ```bash
 # Just list the files without running the full command
 ls -lh .claude/memory/.tmp-*
@@ -198,18 +203,21 @@ ls -lh .claude/memory/.tmp-*
 ## Common Scenarios
 
 **After interrupted workflow:**
+
 ```bash
 # Find and remove leftover handoffs
 /cleanup-memory expense-tracking
 ```
 
 **Bulk cleanup after multiple workflows:**
+
 ```bash
 # Remove all temporary files
 /cleanup-memory
 ```
 
 **Check what's taking up space:**
+
 ```bash
 # Before cleanup, inspect
 du -h .claude/memory/.tmp-* 2>/dev/null

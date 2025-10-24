@@ -136,6 +136,7 @@ Follow MODE 1 workflow in your agent instructions.
 ```
 
 **Expected Output:**
+
 - Agent creates `.claude/memory/.tmp-questions-{slug}.md`
 - Agent returns: "Questions generated - ready for user input"
 
@@ -164,26 +165,31 @@ cat "$QUESTIONS_FILE"
 Extract questions from YAML structure and present using `AskUserQuestion` tool in batches:
 
 **Batch 1: Purpose & Goals**
+
 ```
 Use AskUserQuestion tool with questions from level1_purpose section
 ```
 
 **Batch 2: Functional Requirements**
+
 ```
 Use AskUserQuestion tool with questions from level2_functional section
 ```
 
 **Batch 3: Non-Functional Requirements**
+
 ```
 Use AskUserQuestion tool with questions from level3_nfr section
 ```
 
 **Batch 4: Constraints & Dependencies**
+
 ```
 Use AskUserQuestion tool with questions from level4_constraints section
 ```
 
 **Batch 5: Acceptance Criteria**
+
 ```
 Use AskUserQuestion tool with questions from level5_acceptance section
 ```
@@ -251,6 +257,7 @@ Follow MODE 2 workflow in your agent instructions.
 ```
 
 **Expected Output:**
+
 - Agent creates `.claude/memory/requirements-{slug}.md`
 - Agent returns: "Requirements document generated" with statistics
 
@@ -317,6 +324,7 @@ cat "$REQUIREMENTS_FILE"
 ```
 
 **If validation passes:**
+
 ```bash
 echo "✅ Requirements validation passed"
 echo "✅ All temporary handoff files cleaned up"
@@ -324,6 +332,7 @@ echo "✅ Requirements document ready: .claude/memory/requirements-${FEATURE_SLU
 ```
 
 **If validation fails:**
+
 ```bash
 echo "❌ Validation failed: {specific issues}"
 echo "Action: Review requirements document and address issues"
@@ -478,10 +487,12 @@ Requirements gathering is successful when:
 `.claude/memory/requirements-{slug}.md` - Comprehensive requirements document ready for tech research phase
 
 **Temporary Files (deleted after completion):**
+
 - `.claude/memory/.tmp-questions-{slug}.md` - Agent-generated questions (deleted after Phase 2b)
 - `.claude/memory/.tmp-answers-{slug}.md` - User answers (deleted after Phase 2c)
 
 **Next Steps**:
+
 1. Review requirements document
 2. Resolve any open questions flagged by agent
 3. Run `/research-tech {feature-slug}` to analyze technology options

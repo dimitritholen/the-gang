@@ -182,12 +182,14 @@ Create actionable developer checklist:
 # Implementation Checklist: {Feature Name}
 
 ## Pre-Development
+
 - [ ] Review all reference artifacts (requirements, tech analysis, implementation plan)
 - [ ] Set up development environment with recommended stack
 - [ ] Create feature branch: `feature/{feature-slug}`
 - [ ] Review scope boundaries (know what NOT to build)
 
 ## Phase 1: Foundation (Est: {duration})
+
 - [ ] **Task 1.1**: {Task name}
   - Acceptance: {criterion}
   - Files: {files to create/modify}
@@ -201,15 +203,19 @@ Create actionable developer checklist:
 **Phase 1 Exit Criteria**: {What must be true to proceed}
 
 ## Phase 2: Core Functionality (Est: {duration})
+
 {Same structure}
 
 ## Phase 3: Integration & UI (Est: {duration})
+
 {Same structure}
 
 ## Phase 4: Polish & Testing (Est: {duration})
+
 {Same structure}
 
 ## Definition of Done
+
 - [ ] All tasks completed with acceptance criteria met
 - [ ] Code reviewed and approved
 - [ ] Unit tests written and passing (target: {coverage}%)
@@ -222,6 +228,7 @@ Create actionable developer checklist:
 - [ ] Stakeholder acceptance obtained
 
 ## Quick Reference
+
 - **Core Capabilities**: {list}
 - **Success Metrics**: {list}
 - **Out of Scope**: {list}
@@ -480,6 +487,7 @@ When updating memory artifacts, check for conflicts:
 - **Consistency**: "Low confidence in alignment between {artifact A} and {artifact B} - statements appear contradictory but may reflect different perspectives. Recommend clarification"
 
 **If ANY CoVe check fails:**
+
 1. Document the gap/conflict explicitly
 2. Assess impact (Blocker/High/Medium/Low)
 3. Resolve if Blocker/High, document if Medium/Low

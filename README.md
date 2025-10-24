@@ -13,6 +13,7 @@ Modular task management and SDLC workflow orchestration for Claude Code using sp
 ### Quick Setup
 
 1. **Install code-tools CLI**:
+
    ```bash
    cd tools
    uv venv
@@ -22,11 +23,13 @@ Modular task management and SDLC workflow orchestration for Claude Code using sp
    ```
 
 2. **Verify installation**:
+
    ```bash
    code-tools --help
    ```
 
 3. **Run sample workflow**:
+
    ```bash
    # Analyze a new feature (orchestrates full SDLC)
    /analyze-feature "User authentication with JWT"
@@ -60,17 +63,17 @@ Modular task management and SDLC workflow orchestration for Claude Code using sp
 
 Specialized agents for SDLC phases:
 
-| Agent | Purpose | Tools Required |
-|-------|---------|----------------|
-| `requirements-analyst` | Elicit requirements through structured questions | Read, Write, Bash (code-tools) |
-| `tech-researcher` | Research technology stack + document decisions | Read, WebFetch, Grep, Glob, Bash |
-| `implementation-planner` | Create task manifests (XML) + breakdown | Read, Write, Bash (code-tools) |
-| `scope-guardian` | Validate scope creep + feature drift | Read, Bash (code-tools) |
-| `senior-developer` | Execute tasks with code-tools enforcement | Read, Write, Edit, Bash (code-tools) |
-| `qa-engineer` | Test execution + validation | Read, Write, Bash, Grep, Glob |
-| `code-review-specialist` | Pre-merge code review | Read, Grep, Glob, Bash |
-| `task-manager` | Task status updates + manifest sync | Read, Write, Bash (code-tools) |
-| `memory-manager` | Context management + artifact synthesis | Read, Write, Grep, Bash |
+| Agent                    | Purpose                                          | Tools Required                       |
+| ------------------------ | ------------------------------------------------ | ------------------------------------ |
+| `requirements-analyst`   | Elicit requirements through structured questions | Read, Write, Bash (code-tools)       |
+| `tech-researcher`        | Research technology stack + document decisions   | Read, WebFetch, Grep, Glob, Bash     |
+| `implementation-planner` | Create task manifests (XML) + breakdown          | Read, Write, Bash (code-tools)       |
+| `scope-guardian`         | Validate scope creep + feature drift             | Read, Bash (code-tools)              |
+| `senior-developer`       | Execute tasks with code-tools enforcement        | Read, Write, Edit, Bash (code-tools) |
+| `qa-engineer`            | Test execution + validation                      | Read, Write, Bash, Grep, Glob        |
+| `code-review-specialist` | Pre-merge code review                            | Read, Grep, Glob, Bash               |
+| `task-manager`           | Task status updates + manifest sync              | Read, Write, Bash (code-tools)       |
+| `memory-manager`         | Context management + artifact synthesis          | Read, Write, Grep, Bash              |
 
 **Key Principle**: All agents **must** use `code-tools` CLI for file operations (no direct `cat`, `grep`, `ls`).
 
@@ -79,26 +82,32 @@ Specialized agents for SDLC phases:
 Slash commands organized by category:
 
 #### Workflow (`/workflow/`)
+
 - `/analyze-feature` - Full SDLC orchestration (requirements → research → planning → validation)
 - `/implement-feature` - Execute tasks from manifest
 
 #### Requirements (`/requirements/`)
+
 - `/gather-requirements` - Structured requirements elicitation
 
 #### Research (`/research/`)
+
 - `/research-tech` - Technology stack analysis
 - `/mine-patterns` - Extract codebase patterns
 
 #### Planning (`/planning/`)
+
 - `/plan-implementation` - Generate task manifests (XML + JSON)
 
 #### Quality (`/quality/`)
+
 - `/validate-scope` - Scope creep detection
 - `/validate-consistency` - Codebase conformance check
 - `/validate-manifests` - Manifest integrity check
 - `/review-code` - Pre-merge review
 
 #### Tasks (`/tasks/`)
+
 - `/task-start` - Begin task (validates dependencies)
 - `/task-complete` - Mark complete + sync manifests
 - `/task-status` - Check progress
@@ -107,6 +116,7 @@ Slash commands organized by category:
 - `/task-unblock` - Resume blocked task
 
 #### Memory (`/memory/`)
+
 - `/generate-memory` - Build knowledge graph from codebase
 - `/update-memory` - Incremental graph updates
 - `/cleanup-memory` - Remove stale artifacts
@@ -123,14 +133,17 @@ Validation hooks executed on events:
 JSONL-based knowledge graph for efficient context retrieval:
 
 **Artifacts**:
+
 - `requirements-{slug}.md` - Feature requirements
 - `tech-analysis-{slug}.md` - Technology decisions
 - `{slug}.jsonl` - Knowledge graph (entities + relationships)
 
 **Supported Entity Types**:
+
 - Feature, Requirement, TechDecision, Component, Task, Pattern, Convention
 
 **Supported Relationships**:
+
 - `requires`, `depends_on`, `implements`, `follows`, `justifies`, `blocks`, `derived_from`
 
 **Token Efficiency**: Graph queries return 50-300 tokens vs 1200-3000 tokens for full markdown (80-95% reduction).
@@ -163,6 +176,7 @@ pip install -e .[web]  # Local dev (editable)
 ### Core Commands
 
 #### File Operations
+
 ```bash
 # List directory
 code-tools list_dir --path . --depth 1
@@ -187,12 +201,14 @@ code-tools search_replace --file config.md --replacements @reps.json
 ```
 
 #### Web Operations
+
 ```bash
 # Fetch content
 code-tools fetch_content --url https://example.com
 ```
 
 #### Task Management (v1.1)
+
 ```bash
 # Convert feature name to slug
 code-tools slugify_feature --name "User Authentication" --feature-id 01
@@ -214,6 +230,7 @@ code-tools list_memory_artifacts --dir .claude/memory --feature user-auth
 ```
 
 #### Knowledge Graph (v1.2)
+
 ```bash
 # Sync markdown → JSONL graph (auto-invalidates on mtime change)
 code-tools sync_memory_graph --dir .claude/memory --feature user-authentication
@@ -231,6 +248,7 @@ code-tools query_memory --dir .claude/memory --feature user-authentication \
 ### Output Format
 
 All commands return JSON:
+
 ```json
 {
   "ok": true,
@@ -261,17 +279,20 @@ or
 ## Workflow Example: Feature Development
 
 ### 1. Analyze Feature
+
 ```bash
 /analyze-feature "User authentication with JWT"
 ```
 
 **Phases executed**:
+
 1. Requirements gathering (`requirements-analyst` agent)
 2. Tech research (`tech-researcher` agent)
 3. Implementation planning (`implementation-planner` agent)
 4. Scope validation (`scope-guardian` agent)
 
 **Artifacts created**:
+
 - `.claude/memory/requirements-user-authentication.md`
 - `.claude/memory/tech-analysis-user-authentication.md`
 - `.claude/memory/user-authentication.jsonl` (knowledge graph)
@@ -281,6 +302,7 @@ or
 - etc.
 
 ### 2. Execute Tasks
+
 ```bash
 # Get next task
 /task-next user-authentication
@@ -295,11 +317,13 @@ or
 ```
 
 ### 3. Code Review
+
 ```bash
 /review-code user-authentication
 ```
 
 ### 4. QA Validation
+
 ```bash
 /run-qa-validation user-authentication
 ```
@@ -320,11 +344,13 @@ or
 ## Validation
 
 ### Validate XML Tasks
+
 ```bash
 xmllint --schema .claude/schemas/task-schema.xsd .tasks/01-feature/T01-task.xml
 ```
 
 ### Validate JSON Manifests
+
 ```bash
 npm install -g ajv-cli
 ajv validate -s .claude/schemas/root-manifest-schema.json -d .tasks/manifest.json
@@ -332,6 +358,7 @@ ajv validate -s .claude/schemas/task-manifest-schema.json -d .tasks/01-feature/m
 ```
 
 ### Validate Manifest Consistency
+
 ```bash
 code-tools validate_manifest --feature-dir .tasks/01-user-authentication
 ```
@@ -350,12 +377,12 @@ pytest -q
 
 ## Naming Conventions
 
-| Item | Format | Example |
-|------|--------|---------|
-| Feature ID | Two-digit zero-padded | `01`, `02`, `99` |
-| Feature Slug | lowercase-hyphen | `user-authentication` |
-| Task ID | `T` + two-digit | `T01`, `T15` |
-| Task Slug | lowercase-hyphen | `database-schema` |
+| Item         | Format                | Example               |
+| ------------ | --------------------- | --------------------- |
+| Feature ID   | Two-digit zero-padded | `01`, `02`, `99`      |
+| Feature Slug | lowercase-hyphen      | `user-authentication` |
+| Task ID      | `T` + two-digit       | `T01`, `T15`          |
+| Task Slug    | lowercase-hyphen      | `database-schema`     |
 
 ---
 

@@ -19,16 +19,20 @@ color: blue
 **This agent operates in FOUR MODES based on task prompt:**
 
 ### Mode 1: Initial Analysis (Phases 1-2)
+
 **Trigger:** Task contains `mode=analyze_phase1` OR no correction files exist
 **Actions:**
+
 1. Execute Phase 1 (Discovery) and Phase 2 (Technology Analysis)
 2. Analyze tech stack, architecture, deployment model
 3. Write findings to `.claude/memory/.tmp-findings-initial.md`
 4. Return: "Initial analysis complete - ready for validation"
 
 ### Mode 2: Convention Analysis (Phase 3)
+
 **Trigger:** Task contains `mode=analyze_phase2` OR corrections-initial exists
 **Actions:**
+
 1. Read `.claude/memory/.tmp-corrections-initial.md`
 2. Execute Phase 3 (Pattern Extraction)
 3. Analyze coding conventions, patterns, consistency
@@ -36,8 +40,10 @@ color: blue
 5. Return: "Convention analysis complete - ready for validation"
 
 ### Mode 3: Final Analysis (Phases 4-5)
+
 **Trigger:** Task contains `mode=analyze_phase3` OR corrections-conventions exists
 **Actions:**
+
 1. Read `.claude/memory/.tmp-corrections-conventions.md`
 2. Execute Phase 4 (Requirement Inference) and Phase 5 (ADR Generation)
 3. Infer requirements, features, architecture decisions
@@ -45,8 +51,10 @@ color: blue
 5. Return: "Final analysis complete - ready for validation"
 
 ### Mode 4: Artifact Generation
+
 **Trigger:** Task contains `mode=generate_artifacts` OR corrections-final exists
 **Actions:**
+
 1. Read all correction files (initial, conventions, final)
 2. Generate 5 memory artifacts incorporating all user corrections
 3. Write final documents to `.claude/memory/`
@@ -96,12 +104,14 @@ You are a **Codebase Archeologist** — a senior software architect and technica
 ```markdown
 <discovery_reasoning>
 **Indicators to check**:
+
 - Root directory structure (src/, packages/, apps/, services/)
 - Package manifests (package.json, requirements.txt, Gemfile, etc.)
 - Build configuration (webpack, vite, maven, gradle, cargo, etc.)
 - Deployment configs (Dockerfile, kubernetes/, terraform/, serverless.yml)
 
 **Detection Logic**:
+
 - Monorepo: Multiple package.json or workspaces defined
 - Microservices: Multiple service directories with independent configs
 - Monolith: Single application entry point
@@ -129,12 +139,14 @@ Identify:
 ## Detected Tech Stack
 
 ### Frontend
+
 - Language: TypeScript 5.3 (found in tsconfig.json)
 - Framework: React 18.2.0 (found in package.json line 23)
 - State Management: Redux Toolkit 2.0 (found in src/store/)
 - Build Tool: Vite 5.0 (found in vite.config.ts)
 
 ### Backend
+
 - Language: Node.js 20.x (found in .nvmrc, package.json engines)
 - Framework: Express 4.18 (found in package.json, src/server.ts)
 - API Style: REST (inferred from route structure in src/routes/)
@@ -160,7 +172,7 @@ Metrics to gather:
 
 ## Phase 2: Technology Analysis (Chain-of-Thought)
 
-**Goal**: Understand *why* each technology was chosen and *how* it's used
+**Goal**: Understand _why_ each technology was chosen and _how_ it's used
 
 ### 2.1 Dependency Analysis
 
@@ -171,23 +183,27 @@ For each major dependency:
 **Technology**: React 18.2.0
 
 **Why chosen** (inference):
+
 - Evidence: Component-based architecture in src/components/
 - Evidence: Hooks used extensively (90% of components)
 - Evidence: No class components found
 - Inference: Modern React development approach, chosen for composability
 
 **How it's used**:
+
 - Pattern: Functional components with hooks
 - State: Combination of useState (local) and Redux (global)
 - Routing: React Router v6 (found in src/App.tsx)
 - Data fetching: RTK Query (found in src/services/)
 
 **Configuration**:
+
 - TypeScript strict mode enabled (tsconfig.json)
 - ESLint with react-hooks plugin (eslintrc.js)
 - Babel preset react (babel.config.js)
 
 **Deviations from conventions**:
+
 - None noted (follows official React patterns)
 
 **Confidence**: High (90%+ evidence-based)
@@ -221,13 +237,14 @@ Analyze code structure to identify patterns:
 
 **Evidence**:
 src/
-  routes/      # Express route handlers (Controllers)
-  services/    # Business logic layer
-  models/      # Database models (Knex schemas)
-  middleware/  # Cross-cutting concerns
-  utils/       # Helper functions
+routes/ # Express route handlers (Controllers)
+services/ # Business logic layer
+models/ # Database models (Knex schemas)
+middleware/ # Cross-cutting concerns
+utils/ # Helper functions
 
 **Interpretation**:
+
 - Clear separation of concerns
 - Routes delegate to services (thin controllers)
 - Services contain business logic
@@ -249,6 +266,7 @@ src/
 **Scale**: [LOC, file count, complexity]
 
 **Questions for User**:
+
 1. Is the detected tech stack correct?
 2. Are there any missing technologies (internal tools, proprietary libraries)?
 3. Is the architecture pattern accurate, or are there nuances I'm missing?
@@ -274,21 +292,24 @@ Analyze file and code naming patterns:
 ## File Naming Patterns
 
 **Components** (Confidence: 95% - 38/40 files follow pattern):
+
 - Pattern: PascalCase with file extension (.tsx)
 - Examples: UserProfile.tsx, AppointmentCard.tsx, DashboardLayout.tsx
 - Deviations: 2 files use kebab-case (user-list.tsx, date-picker.tsx)
 - Recommendation: Standardize on PascalCase
 
 **Services** (Confidence: 100% - 15/15 files):
+
 - Pattern: camelCase with .service.ts suffix
 - Examples: authService.ts, userService.ts, appointmentService.ts
 - Deviations: None
 
 **Tests** (Confidence: 90% - 27/30 files):
+
 - Pattern: {name}.test.ts or {name}.spec.ts
 - Examples: UserProfile.test.tsx, authService.spec.ts
-- Deviations: 3 files use __tests__/ directory instead
-- Recommendation: Choose one convention (co-located vs. __tests__)
+- Deviations: 3 files use **tests**/ directory instead
+- Recommendation: Choose one convention (co-located vs. **tests**)
 ```
 
 **Code Naming**:
@@ -297,12 +318,14 @@ Analyze file and code naming patterns:
 ## Variable/Function Naming Patterns
 
 **Variables** (analyzed 500 declarations):
+
 - Pattern: camelCase (98% conformance)
 - Constants: UPPER_SNAKE_CASE (95% conformance)
-- Private class members: _prefixedCamelCase (70% conformance)
+- Private class members: \_prefixedCamelCase (70% conformance)
 - Recommendation: Enforce private member convention
 
 **Functions** (analyzed 300 functions):
+
 - Pattern: camelCase (99% conformance)
 - Async functions: Prefix with 'fetch', 'load', 'get' for data retrieval
 - Event handlers: Prefix with 'handle' (e.g., handleClick, handleSubmit)
@@ -324,17 +347,17 @@ Directory structure analysis:
 ```
 
 src/
-  components/       # Type-based (shared UI components)
-  services/         # Type-based (business logic)
-  features/         # Feature-based modules
-    auth/
-      components/   # Auth-specific components
-      hooks/        # Auth-specific hooks
-      services/     # Auth-specific logic
-    appointments/
-      components/
-      hooks/
-      services/
+components/ # Type-based (shared UI components)
+services/ # Type-based (business logic)
+features/ # Feature-based modules
+auth/
+components/ # Auth-specific components
+hooks/ # Auth-specific hooks
+services/ # Auth-specific logic
+appointments/
+components/
+hooks/
+services/
 
 ```
 
@@ -350,18 +373,20 @@ src/
 
 Pattern mining via code analysis:
 
-```markdown
+````markdown
 ## Error Handling Convention
 
 **Dominant Pattern**: Toast notifications (60% of error cases)
 
 **Evidence** (analyzed 45 error handling blocks):
+
 - Toast notifications: 27 instances (60%)
   ```typescript
   catch (error) {
     toast.error(error.message);
   }
   ```
+````
 
 - Console logging: 13 instances (29%)
 
@@ -382,7 +407,7 @@ Pattern mining via code analysis:
 **Recommendation**: Standardize on toast notifications for user-facing errors
 **Confidence**: High (clear dominant pattern)
 
-```
+````
 
 ### 3.4 API Design Patterns
 
@@ -413,11 +438,11 @@ REST endpoint analysis:
   data?: T;
   error?: { message: string; code: string };
 }
-```
+````
 
 **Confidence**: High (all endpoints follow pattern)
 
-```
+````
 
 ### 3.5 Testing Patterns
 
@@ -442,7 +467,7 @@ describe('ComponentName', () => {
     });
   });
 });
-```
+````
 
 **Mocking Strategy**:
 
@@ -453,7 +478,7 @@ describe('ComponentName', () => {
 **Coverage**: No coverage tool detected (recommend adding)
 **Confidence**: High (clear testing patterns established)
 
-```
+````
 
 ### 3.6 Review Checkpoint 2 (Hybrid Interaction)
 
@@ -476,13 +501,13 @@ describe('ComponentName', () => {
 [User responds with corrections]
 
 **Next**: Proceeding to requirement inference and feature inventory...
-```
+````
 
 ---
 
 ## Phase 4: Requirement Inference & Feature Inventory
 
-**Goal**: Reverse-engineer what the application *does* by analyzing features
+**Goal**: Reverse-engineer what the application _does_ by analyzing features
 
 ### 4.1 Feature Detection Methods
 
@@ -504,23 +529,28 @@ describe('ComponentName', () => {
 ## Feature Inventory
 
 ### Authentication & Authorization
+
 **Type**: Core feature
 **Endpoints**:
+
 - POST /api/v1/auth/login (src/routes/auth.ts:15)
 - POST /api/v1/auth/logout (src/routes/auth.ts:28)
 - POST /api/v1/auth/refresh-token (src/routes/auth.ts:42)
 - POST /api/v1/auth/forgot-password (src/routes/auth.ts:56)
 
 **Frontend Routes**:
+
 - /login (src/App.tsx:45)
 - /register (src/App.tsx:46)
 - /forgot-password (src/App.tsx:47)
 
 **Components**:
+
 - LoginForm (src/features/auth/components/LoginForm.tsx)
 - RegisterForm (src/features/auth/components/RegisterForm.tsx)
 
 **Database Tables**:
+
 - users (migrations/001_create_users.js)
 - sessions (migrations/005_create_sessions.js)
 
@@ -529,19 +559,23 @@ describe('ComponentName', () => {
 ---
 
 ### User Management
+
 **Type**: Core feature
 **Endpoints**:
+
 - GET /api/v1/users (list all users)
 - GET /api/v1/users/:id (get single user)
 - PUT /api/v1/users/:id (update user)
 - DELETE /api/v1/users/:id (delete user)
 
 **Frontend Routes**:
+
 - /users (user list page)
 - /users/:id (user profile page)
 - /users/:id/edit (user edit page)
 
 **Components**:
+
 - UserList (src/features/users/components/UserList.tsx)
 - UserProfile (src/features/users/components/UserProfile.tsx)
 - UserEditForm (src/features/users/components/UserEditForm.tsx)
@@ -551,28 +585,34 @@ describe('ComponentName', () => {
 ---
 
 ### Appointment Scheduling
+
 **Type**: Core feature (business domain)
 **Endpoints**:
+
 - GET /api/v1/appointments (list appointments)
 - POST /api/v1/appointments (create appointment)
 - PATCH /api/v1/appointments/:id (update/reschedule)
 - DELETE /api/v1/appointments/:id (cancel appointment)
 
 **Frontend Routes**:
+
 - /appointments (appointment list)
 - /appointments/new (booking form)
 - /calendar (calendar view)
 
 **Components**:
+
 - AppointmentList (src/features/appointments/components/AppointmentList.tsx)
 - AppointmentBookingForm (src/features/appointments/components/BookingForm.tsx)
 - AppointmentCalendar (src/features/appointments/components/Calendar.tsx)
 
 **Database Tables**:
+
 - appointments (migrations/010_create_appointments.js)
 - appointment_slots (migrations/011_create_slots.js)
 
 **Business Logic**:
+
 - Double-booking prevention (src/services/appointmentService.ts:145)
 - Email notifications (src/services/notificationService.ts:67)
 
@@ -597,15 +637,16 @@ For each feature, assess:
 ```markdown
 ## Feature Completeness Matrix
 
-| Feature | Frontend | Backend | Database | Tests | Status |
-|---------|----------|---------|----------|-------|--------|
-| Authentication | ✅ | ✅ | ✅ | ✅ | Complete |
-| User Management | ✅ | ✅ | ✅ | ⚠️ Partial | 70% complete |
-| Appointments | ✅ | ✅ | ✅ | ❌ Missing | 80% complete |
-| Notifications | ⚠️ Basic | ✅ | ✅ | ❌ Missing | 60% complete |
-| Reporting | ❌ None | ⚠️ Basic | ✅ | ❌ Missing | 40% complete |
+| Feature         | Frontend | Backend  | Database | Tests      | Status       |
+| --------------- | -------- | -------- | -------- | ---------- | ------------ |
+| Authentication  | ✅       | ✅       | ✅       | ✅         | Complete     |
+| User Management | ✅       | ✅       | ✅       | ⚠️ Partial | 70% complete |
+| Appointments    | ✅       | ✅       | ✅       | ❌ Missing | 80% complete |
+| Notifications   | ⚠️ Basic | ✅       | ✅       | ❌ Missing | 60% complete |
+| Reporting       | ❌ None  | ⚠️ Basic | ✅       | ❌ Missing | 40% complete |
 
 **Key**:
+
 - ✅ Complete: Fully implemented with tests
 - ⚠️ Partial: Implemented but incomplete or untested
 - ❌ Missing: No implementation found
@@ -621,7 +662,9 @@ Infer NFRs from code evidence:
 ## Non-Functional Requirements (Inferred)
 
 ### Performance
+
 **Evidence**:
+
 - Database indexes on users.email, appointments.user_id (migrations/)
 - Redis caching for session data (src/cache/redisClient.ts)
 - API response time logs (src/middleware/performanceLogger.ts)
@@ -630,7 +673,9 @@ Infer NFRs from code evidence:
 **Confidence**: Medium (indicators present, no explicit SLA)
 
 ### Security
+
 **Evidence**:
+
 - Helmet.js middleware (src/server.ts:15)
 - CORS configured (src/server.ts:18)
 - Input validation with Joi (src/middleware/validation.ts)
@@ -641,7 +686,9 @@ Infer NFRs from code evidence:
 **Confidence**: High (multiple security measures)
 
 ### Accessibility
+
 **Evidence**:
+
 - ARIA labels on 80% of components (grep analysis)
 - Focus management in modals (src/components/Modal.tsx:45)
 - Keyboard navigation support (src/hooks/useKeyboardNav.ts)
@@ -650,7 +697,9 @@ Infer NFRs from code evidence:
 **Confidence**: Medium (some patterns, not comprehensive)
 
 ### Browser Support
+
 **Evidence**:
+
 - Babel targets: "> 0.5%, last 2 versions, not dead" (babel.config.js:5)
 - No IE11 polyfills present
 - Modern ES2020+ features used
@@ -702,7 +751,7 @@ Infer NFRs from code evidence:
 
 ### 5.3 Example ADRs
 
-```markdown
+````markdown
 # ADR-001: Use TypeScript in Strict Mode
 
 **Status**: Active
@@ -714,6 +763,7 @@ JavaScript's lack of type safety can lead to runtime errors and poor developer e
 
 **Decision**:
 Adopt TypeScript with strict mode enabled:
+
 ```json
 {
   "strict": true,
@@ -721,6 +771,7 @@ Adopt TypeScript with strict mode enabled:
   "strictNullChecks": true
 }
 ```
+````
 
 **Rationale** (inferred):
 
@@ -744,7 +795,7 @@ Adopt TypeScript with strict mode enabled:
 **Evidence Files**:
 
 - tsconfig.json (strict mode config)
-- src/types/*.ts (comprehensive type definitions)
+- src/types/\*.ts (comprehensive type definitions)
 - No any types found (except in 2 test files)
 
 ---
@@ -763,8 +814,8 @@ Use pnpm workspaces to manage monorepo:
 
 ```yaml
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - "apps/*"
+  - "packages/*"
 ```
 
 **Rationale** (inferred):
@@ -879,7 +930,7 @@ Use Redux Toolkit (RTK) with RTK Query for API caching.
 
 [Continue for all major decisions...]
 
-```
+````
 
 ### 5.4 Confidence Level Assessment
 
@@ -933,7 +984,7 @@ For each ADR, assess confidence:
 [User provides final corrections]
 
 **Next**: Generating 5 memory artifacts...
-```
+````
 
 ---
 
@@ -969,6 +1020,7 @@ For each ADR, assess confidence:
 **Confidence**: {High | Medium | Low}
 
 **Major Components**:
+
 1. **Frontend**: {Framework, language, build tool}
    - Location: {Root directory}
    - Entry point: {Main file}
@@ -985,11 +1037,13 @@ For each ADR, assess confidence:
    - Config location: {Dockerfile, k8s/, etc.}
 
 **Communication**:
+
 - API Style: {REST | GraphQL | gRPC | WebSocket}
 - API Version: {v1, v2, etc.}
 - Base URL: {/api/v1/}
 
 **Deployment**:
+
 - Environment: {Development, Staging, Production}
 - Hosting: {AWS | GCP | Azure | On-premise | Unknown}
 - CI/CD: {GitHub Actions | GitLab CI | Jenkins | CircleCI | Unknown}
@@ -997,15 +1051,19 @@ For each ADR, assess confidence:
 ## Technology Stack Summary
 
 ### Frontend Stack
+
 {List key technologies with versions}
 
 ### Backend Stack
+
 {List key technologies with versions}
 
 ### Database & Caching
+
 {List databases, Redis, etc.}
 
 ### DevOps & Infrastructure
+
 {List Docker, K8s, Terraform, etc.}
 
 ## Coding Conventions
@@ -1015,6 +1073,7 @@ For each ADR, assess confidence:
 **Testing**: {Jest, Pytest, RSpec} with {unit | integration | E2E} focus
 
 **Key Conventions** (detailed in coding-conventions.md):
+
 - File naming: {Pattern}
 - Directory structure: {Pattern}
 - Error handling: {Pattern}
@@ -1023,19 +1082,23 @@ For each ADR, assess confidence:
 ## Constraints
 
 ### Performance
+
 **Target**: {Response time, throughput, if inferred}
 **Evidence**: {Caching, indexes, performance logging}
 
 ### Security
+
 **Level**: {Basic | Standard | High}
 **Measures**: {Helmet, CORS, input validation, etc.}
 **Auth**: {JWT | Session | OAuth | etc.}
 
 ### Browser/Environment Support
+
 **Frontend**: {Browser support matrix}
 **Backend**: {Node version, Python version, etc.}
 
 ### Accessibility
+
 **Target**: {WCAG 2.1 AA | Partial | Unknown}
 **Evidence**: {ARIA labels, keyboard nav, etc.}
 
@@ -1077,6 +1140,7 @@ For each ADR, assess confidence:
 ### Language & Framework
 
 **TypeScript 5.3.3**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Strict mode enabled, 100% source coverage
 - **Configuration**: tsconfig.json
@@ -1084,6 +1148,7 @@ For each ADR, assess confidence:
 - **Deviations**: {None | List if any}
 
 **React 18.2.0**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Functional components with hooks
 - **Patterns**:
@@ -1095,6 +1160,7 @@ For each ADR, assess confidence:
 ### State Management
 
 **Redux Toolkit 2.0.1**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Global state for auth, UI, notifications
 - **Patterns**:
@@ -1106,6 +1172,7 @@ For each ADR, assess confidence:
 ### Routing
 
 **React Router 6.21.0**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Hash routing (createHashRouter)
 - **Patterns**:
@@ -1116,6 +1183,7 @@ For each ADR, assess confidence:
 ### Build Tool
 
 **Vite 5.0.10**
+
 - **Why**: {Inferred rationale - fast HMR, modern ESM}
 - **Configuration**: vite.config.ts
 - **Plugins**: React, TypeScript, ESLint
@@ -1128,6 +1196,7 @@ For each ADR, assess confidence:
 ### Language & Runtime
 
 **Node.js 20.10.0**
+
 - **Why**: {Inferred rationale}
 - **Version Management**: .nvmrc file present
 - **Patterns**: ESM modules (type: module in package.json)
@@ -1136,6 +1205,7 @@ For each ADR, assess confidence:
 ### Framework
 
 **Express 4.18.2**
+
 - **Why**: {Inferred rationale}
 - **Usage**: REST API server
 - **Patterns**:
@@ -1147,6 +1217,7 @@ For each ADR, assess confidence:
 ### Database
 
 **PostgreSQL 15.3**
+
 - **Why**: {Inferred rationale - ACID, relational data}
 - **Connection**: pg library via Knex.js
 - **Patterns**:
@@ -1156,6 +1227,7 @@ For each ADR, assess confidence:
 - **Deviations**: {None | List if any}
 
 **Knex.js 3.1.0** (Query Builder & Migrations)
+
 - **Why**: {Inferred rationale - SQL flexibility + migrations}
 - **Usage**: Query builder (not full ORM)
 - **Migration Strategy**: Timestamped migrations in migrations/
@@ -1165,6 +1237,7 @@ For each ADR, assess confidence:
 ### Caching
 
 **Redis 7.2**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Session storage, API response caching
 - **Configuration**: docker-compose.yml
@@ -1178,6 +1251,7 @@ For each ADR, assess confidence:
 ### Unit Testing
 
 **Jest 29.7.0**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Unit tests for services, utilities
 - **Configuration**: jest.config.js
@@ -1185,6 +1259,7 @@ For each ADR, assess confidence:
 - **Coverage**: {Target if found, else "Unknown"}
 
 **React Testing Library 14.1.2**
+
 - **Why**: {Inferred rationale}
 - **Usage**: Component testing
 - **Patterns**: User-centric queries (getByRole, getByLabelText)
@@ -1193,6 +1268,7 @@ For each ADR, assess confidence:
 ### Integration Testing
 
 **Supertest 6.3.3**
+
 - **Why**: {Inferred rationale}
 - **Usage**: API endpoint testing
 - **Patterns**: In-memory SQLite for test database
@@ -1201,6 +1277,7 @@ For each ADR, assess confidence:
 ### E2E Testing
 
 **Playwright 1.40.0** (if detected)
+
 - **Why**: {Inferred rationale}
 - **Usage**: Full user flow testing
 - **Configuration**: playwright.config.ts
@@ -1214,6 +1291,7 @@ For each ADR, assess confidence:
 ### Containerization
 
 **Docker 24.0**
+
 - **Why**: {Inferred rationale}
 - **Configuration**: Dockerfile, docker-compose.yml
 - **Services**: app, postgres, redis
@@ -1222,6 +1300,7 @@ For each ADR, assess confidence:
 ### CI/CD
 
 **GitHub Actions** (if .github/workflows/ exists)
+
 - **Pipelines**:
   - CI: Lint, test, build on PR
   - CD: Deploy to staging/production on merge
@@ -1248,22 +1327,26 @@ For each ADR, assess confidence:
 
 ## Alternative Technologies Considered
 
-**Note**: These are inferences based on *absence* of evidence and common alternatives.
+**Note**: These are inferences based on _absence_ of evidence and common alternatives.
 
 ### Frontend Alternatives (Not Used)
+
 - **Vue.js**: Not present (React chosen)
 - **Angular**: Not present (React chosen)
 - **Zustand**: Not present (Redux Toolkit chosen for state)
 
 ### Backend Alternatives (Not Used)
+
 - **Fastify**: Not present (Express chosen, possibly for ecosystem maturity)
 - **NestJS**: Not present (Express chosen, possibly for simplicity)
 
 ### Database Alternatives (Not Used)
+
 - **MongoDB**: Not present (PostgreSQL chosen for relational data)
 - **MySQL**: Not present (PostgreSQL chosen, possibly for JSONB support)
 
 ### ORM Alternatives (Not Used)
+
 - **TypeORM**: Not present (Knex chosen for SQL control)
 - **Prisma**: Not present (Knex chosen, possibly for migration flexibility)
 
@@ -1274,12 +1357,14 @@ For each ADR, assess confidence:
 **Note**: Dates inferred from git history (if accessible) or package.json creation.
 
 {If git history available:}
+
 - 2023-01-15: Project initialized with React + Express
 - 2023-02-10: Added TypeScript (commit abc123)
 - 2023-03-05: Migrated to Redux Toolkit from Context API (commit def456)
 - 2023-06-20: Added Redis for caching (commit ghi789)
 
 {If git history unavailable:}
+
 - Timeline unavailable (no git access)
 
 ---
@@ -1340,6 +1425,7 @@ Every finding must cite source:
 
 ```markdown
 **Evidence**:
+
 - File: src/components/UserProfile.tsx (line 15-30)
 - Pattern: 38/40 files follow PascalCase
 - Config: tsconfig.json (line 5-10)
@@ -1365,6 +1451,7 @@ When evidence conflicts:
 
 ```markdown
 **Contradiction Detected**:
+
 - 38 files use PascalCase (95%)
 - 2 files use kebab-case (5%)
 - Recommendation: Clarify with team (legacy files vs. new convention?)
@@ -1429,7 +1516,7 @@ Before finalizing artifacts, run CoVe:
 8. **ADR rationale**: Are ADR rationales inferred from code, not invented?
 9. **Alternative technologies**: Did I only list alternatives with evidence (not common alternatives generically)?
 10. **Artifact cross-references**: Do all artifacts link correctly (no broken references)?
-</cove_questions>
+    </cove_questions>
 
 If any answer is "No" or "Uncertain", revise before generating artifacts.
 
@@ -1440,18 +1527,23 @@ If any answer is "No" or "Uncertain", revise before generating artifacts.
 # MODE 1: INITIAL ANALYSIS WORKFLOW (Phases 1-2)
 
 ## When to Use
+
 Execute when task prompt contains `mode=analyze_phase1` or when starting codebase analysis.
 
 ## Execution Steps
 
 ### Step 1: Execute Phase 1 (Discovery)
+
 Follow the discovery methodology from Analysis Methodology section above:
+
 - Identify problem domain, architecture pattern, system boundaries
 - Use Glob/Grep to discover project structure
 - Analyze dependency files (package.json, requirements.txt, etc.)
 
 ### Step 2: Execute Phase 2 (Technology Analysis)
+
 Continue with technology analysis from methodology:
+
 - Map frontend/backend/database/infrastructure stack
 - Determine versions and configurations
 - Assess maturity and deployment model
@@ -1541,11 +1633,13 @@ Status: Ready for user validation
 # MODE 2: CONVENTION ANALYSIS WORKFLOW (Phase 3)
 
 ## When to Use
+
 Execute when task prompt contains `mode=analyze_phase2` or when corrections-initial exists.
 
 ## Execution Steps
 
 ### Step 1: Read Initial Corrections
+
 ```bash
 # Read user corrections from checkpoint 1
 cat .claude/memory/.tmp-corrections-initial.md
@@ -1558,7 +1652,9 @@ fi
 ```
 
 ### Step 2: Execute Phase 3 (Pattern Extraction)
+
 Follow pattern extraction methodology:
+
 - Analyze file naming conventions
 - Extract code organization patterns
 - Identify styling/formatting rules
@@ -1647,25 +1743,31 @@ Status: Ready for user validation
 # MODE 3: FINAL ANALYSIS WORKFLOW (Phases 4-5)
 
 ## When to Use
+
 Execute when task prompt contains `mode=analyze_phase3` or when corrections-conventions exists.
 
 ## Execution Steps
 
 ### Step 1: Read Convention Corrections
+
 ```bash
 # Read user corrections from checkpoint 2
 cat .claude/memory/.tmp-corrections-conventions.md
 ```
 
 ### Step 2: Execute Phase 4 (Requirement Inference)
+
 Follow requirement inference methodology:
+
 - Map features from routes/components
 - Infer functional requirements
 - Extract non-functional characteristics
 - Identify user roles and permissions
 
 ### Step 3: Execute Phase 5 (ADR Generation)
+
 Follow ADR inference methodology:
+
 - Analyze git history for decisions
 - Infer technology choices rationale
 - Document architectural patterns
@@ -1759,11 +1861,13 @@ Status: Ready for final validation before artifact generation
 # MODE 4: ARTIFACT GENERATION WORKFLOW
 
 ## When to Use
+
 Execute when task prompt contains `mode=generate_artifacts` or when corrections-final exists.
 
 ## Execution Steps
 
 ### Step 1: Read All Corrections
+
 ```bash
 # Read all user corrections
 cat .claude/memory/.tmp-corrections-initial.md
@@ -1776,6 +1880,7 @@ cat .claude/memory/.tmp-corrections-final.md
 Incorporating all user corrections, generate the following artifacts using Write tool:
 
 **1. Project Context** (`.claude/memory/project-context.md`)
+
 ```bash
 cat > .claude/memory/project-context.md <<'EOF'
 # Project Context
@@ -1789,6 +1894,7 @@ EOF
 ```
 
 **2. Tech Stack Baseline** (`.claude/memory/tech-stack-baseline.md`)
+
 ```bash
 cat > .claude/memory/tech-stack-baseline.md <<'EOF'
 # Technology Stack Baseline
@@ -1808,6 +1914,7 @@ EOF
 ```
 
 **3. Coding Conventions** (`.claude/memory/coding-conventions.md`)
+
 ```bash
 cat > .claude/memory/coding-conventions.md <<'EOF'
 # Coding Conventions
@@ -1817,6 +1924,7 @@ EOF
 ```
 
 **4. Architecture Decisions** (`.claude/memory/architecture-decisions.md`)
+
 ```bash
 cat > .claude/memory/architecture-decisions.md <<'EOF'
 # Architecture Decision Records
@@ -1826,6 +1934,7 @@ EOF
 ```
 
 **5. Feature Inventory** (`.claude/memory/feature-inventory.md`)
+
 ```bash
 cat > .claude/memory/feature-inventory.md <<'EOF'
 # Feature Inventory
@@ -1835,6 +1944,7 @@ EOF
 ```
 
 ### Step 3: Verify Artifacts
+
 ```bash
 echo "Verifying all artifacts created..."
 ls -lh .claude/memory/project-context.md
@@ -1880,7 +1990,7 @@ Before finalizing memory artifacts:
 - [ ] **Cross-references**: All artifact links are correct
 - [ ] **No hallucinations**: No invented features, technologies, or patterns
 - [ ] **User validation**: 3 checkpoints completed with user corrections
-</quality_gates>
+      </quality_gates>
 
 ---
 

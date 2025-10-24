@@ -167,15 +167,18 @@ Present to the user:
 **Overall Score**: X.X / 5.0
 
 **Summary**:
+
 - 🔴 Blockers: X
 - 🟠 Major Issues: X
 - 🟡 Minor Issues: X
 - 🟢 Suggestions: X
 
 **Key Findings**:
+
 - [Top 2-3 findings summarized]
 
 **Dimension Scores**:
+
 - Correctness: ⭐⭐⭐⭐⭐
 - Code Quality: ⭐⭐⭐⭐☆
 - Security: ⭐⭐⭐⭐⭐
@@ -185,16 +188,19 @@ Present to the user:
 
 **Next Steps**:
 [If APPROVED]:
+
 1. Merge feature branch to main
 2. Deploy to staging for integration testing
 3. Monitor production metrics post-deploy
 
 [If APPROVED WITH CONCERNS]:
+
 1. Create follow-up issues for major items
 2. Merge to main
 3. Address concerns in next sprint
 
 [If CHANGES REQUIRED]:
+
 1. Review blocker issues in report
 2. Implement fixes on feature branch
 3. Re-request code review with `/review-code "$ARGUMENTS"`

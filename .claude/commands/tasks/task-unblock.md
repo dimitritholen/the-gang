@@ -88,6 +88,7 @@ This command delegates to @task-manager agent:
 ```
 
 The task manager handles:
+
 - Status validation (must be BLOCKED)
 - XML file update
 - Manifest updates (task and root)

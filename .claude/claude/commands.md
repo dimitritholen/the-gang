@@ -11,6 +11,7 @@
 Slash commands are user-invocable operations that provide repeatable, argument-based workflows. They are markdown files with YAML frontmatter configuration that control tool access, argument handling, and execution logic.
 
 **When to create a slash command**:
+
 - User needs repeatable action with specific arguments
 - Task involves executing bash commands or file operations
 - Workflow needs user confirmation or input validation
@@ -36,6 +37,7 @@ Use $ARGUMENTS for all arguments or $1, $2 for specific ones.
 **File naming**: `command-name.md` → invoked as `/command-name [args]`
 
 **Location**:
+
 - Project: `.claude/commands/`
 - User global: `~/.claude/commands/`
 
@@ -64,6 +66,7 @@ allowed-tools: *
 ```
 
 **Security levels**:
+
 - **Minimal**: `Read` - Read-only access
 - **Standard**: `Read, Write, Edit` - File operations
 - **Extended**: `Read, Write, Edit, Bash` - Full development
@@ -90,6 +93,7 @@ argument-hint: [name] [--option value]
 ```
 
 **Best practices**:
+
 - Use square brackets for all arguments
 - Indicate optional vs required clearly
 - Keep hints concise (< 50 chars)
@@ -104,6 +108,7 @@ description: Create structured git commit with validation
 ```
 
 **Guidelines**:
+
 - One sentence, no period
 - Focus on outcome, not implementation
 - 40-80 characters optimal
@@ -141,6 +146,7 @@ Path: ${2:-"src/components"}
 ```
 
 **Access**:
+
 - `$1` = first argument
 - `$2` = second argument
 - `${2:-"default"}` = second argument with default fallback
@@ -167,6 +173,7 @@ After validation passes, create and switch to branch: $ARGUMENTS
 ```
 
 **Validation guidelines**:
+
 - Always validate before destructive operations
 - Check filesystem/git state as needed
 - Provide clear error messages
@@ -196,6 +203,7 @@ allowed-tools: *
 ### Input Validation
 
 **Always validate**:
+
 1. File paths are within project directory
 2. User input doesn't contain injection attempts
 3. Destructive operations have user confirmation
@@ -205,6 +213,7 @@ allowed-tools: *
 
 ```markdown
 Before proceeding:
+
 1. Validate all file paths are within project directory
    - Use realpath to resolve
    - Check prefix matches project root
@@ -223,6 +232,7 @@ Before proceeding:
 
 ```markdown
 # NEVER do these without strong validation:
+
 - rm -rf with user input
 - eval or similar dynamic execution
 - Unvalidated file path operations
@@ -251,11 +261,12 @@ description: Create structured git commit with validation
 </instructions>
 
 <commit_rules>
+
 - Use format: [scope] lowercase description
 - Be concise but descriptive
 - No trailing periods
 - Max 72 characters for first line
-</commit_rules>
+  </commit_rules>
 
 <validation>
 - Check if there are staged changes
@@ -267,6 +278,7 @@ description: Create structured git commit with validation
 Create git commit with message: $ARGUMENTS
 
 After committing:
+
 - Display commit hash and summary
 - Show current branch status
 ```
@@ -283,8 +295,9 @@ description: Generate TypeScript React component
 ---
 
 <component_generation>
+
 1. Validate ComponentName is PascalCase
-   - Reject if not matching /^[A-Z][a-zA-Z0-9]*$/
+   - Reject if not matching /^[A-Z][a-zA-Z0-9]\*$/
 2. Default path: "src/components"
    - Override with second argument if provided
 3. Props types: none, ChildrenProps, ClassNameProps, custom
@@ -296,8 +309,8 @@ description: Generate TypeScript React component
    - Use interface for props
    - Export component as default
    - Include basic JSDoc comment
-5. No aria-* attributes per project rules
-</component_generation>
+5. No aria-\* attributes per project rules
+   </component_generation>
 
 <file_structure>
 ComponentName/
@@ -309,6 +322,7 @@ Generate React component: $1
 Props configuration: ${2:-"none"}
 
 Before writing files:
+
 - Check if component already exists
 - Verify path exists or create it
 - Show user the proposed file structure
@@ -316,13 +330,14 @@ Before writing files:
 ```
 
 **Usage**:
+
 - `/component Button` - No props
 - `/component Modal ChildrenProps` - With children
 - `/component Card CustomCardProps` - Custom props
 
 ### API Endpoint Generator
 
-```markdown
+````markdown
 ---
 allowed-tools: Write, Read, Glob, Edit
 argument-hint: [endpoint-name] [method]
@@ -330,14 +345,16 @@ description: Generate API endpoint with validation and types
 ---
 
 <api_generation>
+
 1. Validate endpoint name is kebab-case
 2. Method must be: GET, POST, PUT, DELETE, PATCH
 3. Generate endpoint file in src/api/endpoints/
 4. Include: route handler, validation schema, types, tests stub
-</api_generation>
+   </api_generation>
 
 <api_patterns>
 RESTful conventions:
+
 - GET: Fetch resources (query params for filters)
 - POST: Create new resource (body required)
 - PUT: Full resource update (body required)
@@ -345,17 +362,19 @@ RESTful conventions:
 - DELETE: Remove resource (no body)
 
 Always include:
+
 - Input validation using Zod or similar
 - Error handling with appropriate status codes
 - Type safety for request/response
 - Basic JSDoc documentation
 - Rate limiting consideration
-</api_patterns>
+  </api_patterns>
 
 <template_structure>
+
 ```typescript
-import { Router } from 'express';
-import { z } from 'zod';
+import { Router } from "express";
+import { z } from "zod";
 
 // Validation schema
 const $1Schema = z.object({
@@ -369,22 +388,26 @@ type $1Response = {
 };
 
 // Handler
-router.$2('/api/$1', async (req, res) => {
+router.$2("/api/$1", async (req, res) => {
   // Validate input
   // Process request
   // Return response
 });
 ```
+````
+
 </template_structure>
 
 Generate API endpoint: $1 using method: ${2:-"GET"}
 
 Before creating:
+
 - Check for existing endpoint
 - Validate method is appropriate for endpoint name
 - Show proposed file location
 - Confirm with user
-```
+
+````
 
 **Usage**:
 - `/endpoint users GET` - List users
@@ -400,24 +423,27 @@ Before creating:
 Path: ${1:-"default/path"}
 Method: ${2:-"GET"}
 Config: ${3:-"standard"}
-```
+````
 
 ### Conditional Logic
 
 ```markdown
 <argument_processing>
 If $1 is empty:
-  - Prompt user for required input
-  - Exit with error if still empty
+
+- Prompt user for required input
+- Exit with error if still empty
 
 If $2 equals "test":
-  - Use test configuration
-  - Skip production validation
+
+- Use test configuration
+- Skip production validation
 
 If $3 is provided:
-  - Override default settings
-  - Validate custom configuration
-</argument_processing>
+
+- Override default settings
+- Validate custom configuration
+  </argument_processing>
 ```
 
 ### Complex Parsing
@@ -425,16 +451,17 @@ If $3 is provided:
 ```markdown
 <parse_arguments>
 Parse $ARGUMENTS as:
-  - First word = command type
-  - Remaining = command-specific args
-  - Flags start with --
-  - Options are --key=value
+
+- First word = command type
+- Remaining = command-specific args
+- Flags start with --
+- Options are --key=value
 
 Example: "create user --admin --email=test@example.com"
-  → command_type = "create"
-  → resource = "user"
-  → flags = ["admin"]
-  → options = {email: "test@example.com"}
+→ command_type = "create"
+→ resource = "user"
+→ flags = ["admin"]
+→ options = {email: "test@example.com"}
 </parse_arguments>
 ```
 
@@ -448,9 +475,12 @@ See [hooks.md](./hooks.md) for detailed hook integration.
 
 ```markdown
 # Command: /deploy
+
 ---
+
 allowed-tools: Bash
 argument-hint: [environment]
+
 ---
 
 Deploy to environment: $ARGUMENTS
@@ -461,10 +491,12 @@ Deploy to environment: $ARGUMENTS
 ```json
 {
   "hooks": {
-    "PreToolUse": [{
-      "matcher": "Bash.*deploy.*",
-      "hooks": [{"type": "command", "command": "python validate_deploy.py"}]
-    }]
+    "PreToolUse": [
+      {
+        "matcher": "Bash.*deploy.*",
+        "hooks": [{ "type": "command", "command": "python validate_deploy.py" }]
+      }
+    ]
   }
 }
 ```
@@ -523,16 +555,19 @@ Before deploying command:
 ### Common Issues
 
 **Command not found**:
+
 - Check file location (`.claude/commands/`)
 - Verify filename matches invocation
 - Ensure `.md` extension
 
 **Tool permission errors**:
+
 - Review `allowed-tools` configuration
 - Check tool name spelling
 - Validate argument patterns (e.g., `Bash(git:*)`)
 
 **Argument parsing failures**:
+
 - Test with quoted multi-word arguments
 - Verify `$1`, `$2` indexing
 - Check default value syntax `${2:-"default"}`
@@ -553,6 +588,7 @@ Before deploying command:
 ---
 
 **See Also**:
+
 - [agents.md](./agents.md) - Creating specialized AI assistants
 - [hooks.md](./hooks.md) - Validating and automating command execution
 - [patterns.md](./patterns.md) - Orchestrating commands with agents

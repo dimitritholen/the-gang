@@ -135,7 +135,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology sta
 
 Delegate to tech-researcher agent via Task tool:
 
-```
+````
 Perform comprehensive technology research for feature: $ARGUMENTS
 
 **Role**: Act as a Senior Software Architect specializing in technology selection, evaluation, and justified recommendation with expertise in comparative analysis and evidence-based decision-making.
@@ -292,25 +292,26 @@ For EACH option:
     </risk>
   </risk_assessment>
 </technology_option>
-```
+````
 
 **Phase 3: Comparative Analysis**
 
 Create comparison matrix for each technology category:
 
-| Criterion | Option A | Option B | Option C | Weight |
-|-----------|----------|----------|----------|--------|
-| Meets FR-001 | ✅ Full | ✅ Full | ⚠️ Partial | HIGH |
-| Meets NFR-PERF-001 | ✅ (cite) | ⚠️ (cite) | ❌ (reason) | HIGH |
-| Learning Curve | Medium | Low | High | MEDIUM |
-| Ecosystem Maturity | Mature (source) | Emerging | Mature (source) | MEDIUM |
-| Integration | Native | Adapter | Complex | HIGH |
-| Cost | Free/OSS | Freemium | Enterprise | LOW |
-| Performance | {metric source} | {metric source} | {metric source} | HIGH |
-| Community Size | {data source} | {data source} | {data source} | LOW |
-| Risk Level | Low | Medium | High | HIGH |
+| Criterion          | Option A        | Option B        | Option C        | Weight |
+| ------------------ | --------------- | --------------- | --------------- | ------ |
+| Meets FR-001       | ✅ Full         | ✅ Full         | ⚠️ Partial      | HIGH   |
+| Meets NFR-PERF-001 | ✅ (cite)       | ⚠️ (cite)       | ❌ (reason)     | HIGH   |
+| Learning Curve     | Medium          | Low             | High            | MEDIUM |
+| Ecosystem Maturity | Mature (source) | Emerging        | Mature (source) | MEDIUM |
+| Integration        | Native          | Adapter         | Complex         | HIGH   |
+| Cost               | Free/OSS        | Freemium        | Enterprise      | LOW    |
+| Performance        | {metric source} | {metric source} | {metric source} | HIGH   |
+| Community Size     | {data source}   | {data source}   | {data source}   | LOW    |
+| Risk Level         | Low             | Medium          | High            | HIGH   |
 
 **Scoring Logic**:
+
 - HIGH weight: 3x multiplier
 - MEDIUM weight: 2x multiplier
 - LOW weight: 1x multiplier
@@ -323,18 +324,21 @@ Calculate weighted scores to inform recommendation.
 For EVERY factual claim, use grounded language:
 
 **Required Patterns**:
+
 - "According to {official docs URL}, {claim}"
 - "Based on {benchmark name} at {URL}, {performance claim}"
 - "{Technology}'s official {guide type} states that {claim}"
 - "A {date} {source type} shows that {trend}"
 
 **Examples of Proper Grounding**:
+
 - "According to the React documentation (react.dev/reference), concurrent features enable non-blocking rendering"
 - "Based on TechEmpower benchmarks Round 22 (techempower.com/benchmarks), FastAPI achieves 28,000 req/s on JSON serialization"
 - "MongoDB's official scaling guide (docs.mongodb.com/manual/sharding) recommends sharding at 2-5GB per shard"
 - "The 2024 State of JS survey (stateofjs.com) shows Next.js with 75% satisfaction rating"
 
 **Forbidden Ungrounded Claims**:
+
 - ❌ "React is the best framework"
 - ❌ "MongoDB is very scalable"
 - ❌ "Everyone uses PostgreSQL"
@@ -385,6 +389,7 @@ Before finalizing recommendations, verify:
 ```
 
 Present summary to user and ask:
+
 > "Based on the above research and analysis, have I covered all technology categories relevant to this feature? Are there additional integration points or constraints I should research?"
 
 **Iterate** until user confirms completeness.
@@ -605,13 +610,15 @@ Generate technology analysis document in the following structure (render as mark
 **Iterative Refinement**:
 
 After presenting initial analysis:
+
 1. Ask user to confirm completeness and accuracy
 2. Refine based on feedback
 3. Re-verify with CoVe checklist
 4. Iterate until user approves
 
 Return final technology analysis document content ready to write to file.
-```
+
+````
 
 ### Phase 3: Validation and Artifact Creation
 
@@ -657,7 +664,7 @@ After agent completes technology research:
 <check>Bleeding-edge choices have compelling justification</check>
 <check>Mature, proven technologies preferred unless good reason</check>
 </orchestrator_validation>
-```
+````
 
 **Write to Memory**:
 

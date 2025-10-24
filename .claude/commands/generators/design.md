@@ -88,29 +88,29 @@ Use Task tool to invoke business-analyst:
 subagent_type: business-analyst
 description: Analyze project and identify sector competitors
 prompt: |
-  Analyze the following project plan/PRD and identify the sector, target audience, and 8-12 competitor websites for design research.
+Analyze the following project plan/PRD and identify the sector, target audience, and 8-12 competitor websites for design research.
 
-  Project Plan/PRD:
-  $ARGUMENTS
+Project Plan/PRD:
+$ARGUMENTS
 
-  Your tasks:
+Your tasks:
 
-  1. Read and analyze the project documentation
-  2. Identify sector/niche classification
-  3. Define target audience clearly
-  4. Research and list 8-12 competitor websites with strong design
-  5. Provide comprehensive business context
+1. Read and analyze the project documentation
+2. Identify sector/niche classification
+3. Define target audience clearly
+4. Research and list 8-12 competitor websites with strong design
+5. Provide comprehensive business context
 
-  Write your findings to: sector_analysis.json
+Write your findings to: sector_analysis.json
 
-  Use this structure:
-  {
-    "sector": "Primary industry sector",
-    "niche": "Specific niche within sector",
-    "target_audience": "Detailed audience description",
-    "competitor_urls": ["https://competitor1.com", ...8-12 URLs],
-    "business_context": "Comprehensive market context"
-  }
+Use this structure:
+{
+"sector": "Primary industry sector",
+"niche": "Specific niche within sector",
+"target_audience": "Detailed audience description",
+"competitor_urls": ["https://competitor1.com", ...8-12 URLs],
+"business_context": "Comprehensive market context"
+}
 
 Wait for business-analyst to complete and write sector_analysis.json.
 </stage_1>
@@ -129,21 +129,21 @@ Use Task tool to invoke design-researcher:
 subagent_type: design-researcher
 description: Research competitor designs and extract patterns
 prompt: |
-  Analyze competitor websites from sector research to extract design patterns and sector conventions.
+Analyze competitor websites from sector research to extract design patterns and sector conventions.
 
-  Read from: sector_analysis.json (in current working directory)
+Read from: sector_analysis.json (in current working directory)
 
-  Your tasks:
+Your tasks:
 
-  1. Visit each competitor URL from sector_analysis.json
-  2. Document layout patterns, visual mood, typography, colors
-  3. Extract sector-specific design conventions
-  4. Synthesize dominant design style for this niche
+1. Visit each competitor URL from sector_analysis.json
+2. Document layout patterns, visual mood, typography, colors
+3. Extract sector-specific design conventions
+4. Synthesize dominant design style for this niche
 
-  Write your findings to: design_research.json
+Write your findings to: design_research.json
 
-  Include: dominant_style, layout_patterns, mood_assessment (1-10 scale),
-  typography_patterns, color_patterns, whitespace_strategy, sector_conventions
+Include: dominant_style, layout_patterns, mood_assessment (1-10 scale),
+typography_patterns, color_patterns, whitespace_strategy, sector_conventions
 
 Wait for design-researcher to complete and write design_research.json.
 </stage_2>
@@ -162,21 +162,21 @@ Use Task tool to invoke qa-specialist:
 subagent_type: qa-specialist
 description: Create quality checklist with binary validation criteria
 prompt: |
-  Create a comprehensive quality checklist with CONCRETE, testable rejection criteria to prevent AI-generated design failures.
+Create a comprehensive quality checklist with CONCRETE, testable rejection criteria to prevent AI-generated design failures.
 
-  Read from: design_research.json (in current working directory)
+Read from: design_research.json (in current working directory)
 
-  Your tasks:
+Your tasks:
 
-  1. Research AI-generated UI common failures
-  2. Create CONCRETE, testable rejection criteria (not subjective)
-  3. Map pain points to this specific sector
-  4. Define FORBIDDEN_PATTERNS with binary tests
-  5. Define REQUIRED_ELEMENTS with validation criteria
+1. Research AI-generated UI common failures
+2. Create CONCRETE, testable rejection criteria (not subjective)
+3. Map pain points to this specific sector
+4. Define FORBIDDEN_PATTERNS with binary tests
+5. Define REQUIRED_ELEMENTS with validation criteria
 
-  Write your checklist to: quality_checklist.json
+Write your checklist to: quality_checklist.json
 
-  Include TWO sections:
+Include TWO sections:
 
 - FORBIDDEN_PATTERNS: Minimum 10 patterns with objective tests
 - REQUIRED_ELEMENTS: Minimum 5 requirements with validation criteria
@@ -212,17 +212,16 @@ Use Task tool to invoke design-strategist:
 subagent_type: design-strategist
 description: Generate 3 design variants from research
 prompt: |
-  Create 3 design variants based on sector research while avoiding AI design cliches.
+Create 3 design variants based on sector research while avoiding AI design cliches.
 
-  MODE: INITIAL GENERATION
+MODE: INITIAL GENERATION
 
-  Read from (current working directory):
+Read from (current working directory):
 
 - design_research.json
 - quality_checklist.json
 
   Your tasks:
-
   1. Create 3 variants of SAME base style (from dominant_style in design_research.json)
   2. Variants differ by: layout, typography, color palette, spacing
   3. All variants stay within researched design language
@@ -257,12 +256,12 @@ iteration = 1
 current_spec_file = "design_specs_draft.json"
 
 LOOP (max 3 iterations):
-  Use Task tool to invoke quality-auditor:
+Use Task tool to invoke quality-auditor:
 
-  subagent_type: quality-auditor
-  description: Audit design specifications iteration {iteration}
-  prompt: |
-    Audit design specifications against quality checklist with binary pass/fail validation.
+subagent_type: quality-auditor
+description: Audit design specifications iteration {iteration}
+prompt: |
+Audit design specifications against quality checklist with binary pass/fail validation.
 
     Read from (current working directory):
     - {current_spec_file}
@@ -292,18 +291,17 @@ LOOP (max 3 iterations):
       "summary": "X variants passed, Y variants failed, Z total violations"
     }
 
-  Wait for quality-auditor to complete and write audit_report_v{iteration}.json.
+Wait for quality-auditor to complete and write audit_report_v{iteration}.json.
 
-  Read audit_report_v{iteration}.json to check overall_decision.
+Read audit_report_v{iteration}.json to check overall_decision.
 
-  IF overall_decision == "PROCEED":
-    Rename {current_spec_file} to design_specs_final.json
-    BREAK loop
-    Proceed to Stage 5
+IF overall_decision == "PROCEED":
+Rename {current_spec_file} to design_specs_final.json
+BREAK loop
+Proceed to Stage 5
 
-  ELSE IF iteration < 3:
-    ### Stage 4C: Design Revision
-    Use Task tool to invoke design-strategist:
+ELSE IF iteration < 3: ### Stage 4C: Design Revision
+Use Task tool to invoke design-strategist:
 
     subagent_type: design-strategist
     description: Revise design specifications based on audit feedback
@@ -338,9 +336,9 @@ LOOP (max 3 iterations):
     iteration++
     Continue loop (re-audit)
 
-  ELSE:
-    ESCALATE TO USER with violations from audit_report_v3.json
-    EXIT pipeline
+ELSE:
+ESCALATE TO USER with violations from audit_report_v3.json
+EXIT pipeline
 </stage_4b_iteration>
 
 After Stage 4 completion (design_specs_final.json created), proceed to Stage 5.
@@ -359,23 +357,23 @@ Use Task tool to invoke implementation-engineer:
 subagent_type: implementation-engineer
 description: Generate production HTML/CSS for 3 variants
 prompt: |
-  Generate production-quality HTML files implementing the approved design specifications.
+Generate production-quality HTML files implementing the approved design specifications.
 
-  MODE: INITIAL GENERATION
+MODE: INITIAL GENERATION
 
-  Read from: design_specs_final.json (in current working directory)
+Read from: design_specs_final.json (in current working directory)
 
-  Your tasks:
+Your tasks:
 
-  1. For each of 3 variants, generate 2 HTML files (main page + detail page)
-  2. Implement responsive layouts matching specs exactly
-  3. Use semantic HTML5
-  4. Inline CSS in <style> tag with CSS custom properties
-  5. Apply typography, colors, spacing from design specs
-  6. NO placeholder Lorem Ipsum unless clearly demo context
-  7. Create implementation_manifest.json
+1. For each of 3 variants, generate 2 HTML files (main page + detail page)
+2. Implement responsive layouts matching specs exactly
+3. Use semantic HTML5
+4. Inline CSS in <style> tag with CSS custom properties
+5. Apply typography, colors, spacing from design specs
+6. NO placeholder Lorem Ipsum unless clearly demo context
+7. Create implementation_manifest.json
 
-  Write to current working directory:
+Write to current working directory:
 
 - main_1.html (Variant 1, main page)
 - detail_1.html (Variant 1, detail page)
@@ -405,12 +403,12 @@ Invoke code-auditor to validate HTML/CSS implementation.
 iteration = 1
 
 LOOP (max 3 iterations):
-  Use Task tool to invoke code-auditor:
+Use Task tool to invoke code-auditor:
 
-  subagent_type: code-auditor
-  description: Audit HTML/CSS code iteration {iteration}
-  prompt: |
-    Audit actual HTML/CSS code against quality checklist with binary pass/fail validation.
+subagent_type: code-auditor
+description: Audit HTML/CSS code iteration {iteration}
+prompt: |
+Audit actual HTML/CSS code against quality checklist with binary pass/fail validation.
 
     Read from (current working directory):
     - main_1.html, detail_1.html, main_2.html, detail_2.html, main_3.html, detail_3.html
@@ -457,17 +455,16 @@ LOOP (max 3 iterations):
       "summary": "X files passed, Y files failed, Z total violations"
     }
 
-  Wait for code-auditor to complete and write code_audit_report_v{iteration}.json.
+Wait for code-auditor to complete and write code_audit_report_v{iteration}.json.
 
-  Read code_audit_report_v{iteration}.json to check overall_decision.
+Read code_audit_report_v{iteration}.json to check overall_decision.
 
-  IF overall_decision == "PROCEED":
-    BREAK loop
-    Proceed to Stage 6
+IF overall_decision == "PROCEED":
+BREAK loop
+Proceed to Stage 6
 
-  ELSE IF iteration < 3:
-    ### Stage 5C: Code Revision
-    Use Task tool to invoke implementation-engineer:
+ELSE IF iteration < 3: ### Stage 5C: Code Revision
+Use Task tool to invoke implementation-engineer:
 
     subagent_type: implementation-engineer
     description: Fix HTML/CSS violations from audit
@@ -504,9 +501,9 @@ LOOP (max 3 iterations):
     iteration++
     Continue loop (re-audit)
 
-  ELSE:
-    ESCALATE TO USER with violations from code_audit_report_v3.json
-    EXIT pipeline
+ELSE:
+ESCALATE TO USER with violations from code_audit_report_v3.json
+EXIT pipeline
 </stage_5b_iteration>
 
 After Stage 5 completion (all HTML files pass audit), proceed to Stage 6.
@@ -523,15 +520,14 @@ Use Task tool to invoke documentation-specialist:
 subagent_type: documentation-specialist
 description: Create design system documentation for all variants
 prompt: |
-  Create comprehensive design system documentation for each of the 3 approved design variants.
+Create comprehensive design system documentation for each of the 3 approved design variants.
 
-  Read from (current working directory):
+Read from (current working directory):
 
 - design_specs_final.json
 - main_1.html through detail_3.html (approved implementation)
 
   Your tasks:
-
   1. For EACH variant, create comprehensive design system documentation
   2. Document all design tokens (colors, typography, spacing)
   3. Explain design rationale and differentiation
@@ -573,8 +569,8 @@ All deliverables ready:
 - design_research.json
 - quality_checklist.json
 - design_specs_final.json
-- audit_report_v*.json files
-- code_audit_report_v*.json files
+- audit_report_v\*.json files
+- code_audit_report_v\*.json files
 - implementation_manifest.json
 
 **Final Deliverables**:
