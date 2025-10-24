@@ -938,6 +938,7 @@ Verify agent deliverable against requirements:
 **Task 3.1.2: Handle validation failures**
 
 If validation fails:
+
 - Identify specific failures
 - Re-invoke agent with corrective instructions
 - Do NOT proceed until validation passes
@@ -1021,6 +1022,7 @@ Confirm file created and readable.
 Think through error scenarios systematically:
 
 **Agent Returns Incomplete Validation**:
+
 ```
 If missing required validations:
   - Report: "Scope validation incomplete - missing {requirement/tech/task validations}"
@@ -1029,6 +1031,7 @@ If missing required validations:
 ```
 
 **Agent Flags Everything as Must-Have**:
+
 ```
 If >80% of requirements are must-have:
   - Report: "MVP definition not ruthless enough - too many must-haves"
@@ -1037,6 +1040,7 @@ If >80% of requirements are must-have:
 ```
 
 **Missing Prerequisites**:
+
 ```
 If requirements-{feature}.md not found:
   - Cannot validate scope without requirements
@@ -1045,6 +1049,7 @@ If requirements-{feature}.md not found:
 ```
 
 **Agent Doesn't Apply Litmus Test**:
+
 ```
 If validation blocks missing mvp_litmus_test:
   - Re-invoke agent: "Apply MVP litmus test to ALL requirements and tasks"
@@ -1052,6 +1057,7 @@ If validation blocks missing mvp_litmus_test:
 ```
 
 **Validation Fails**:
+
 ```
 If orchestrator validation checklist fails:
   - Identify specific failures

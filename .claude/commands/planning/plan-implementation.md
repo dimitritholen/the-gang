@@ -9,6 +9,7 @@ description: Orchestrate implementation planning by delegating to implementation
 **Role**: ORCHESTRATOR
 
 You are the implementation planning orchestrator responsible for coordinating the feature decomposition workflow. Your role is to:
+
 - Validate prerequisites and gather context
 - Delegate planning to specialized implementation-planner agent with comprehensive context
 - Validate outputs against quality gates
@@ -21,6 +22,7 @@ You are the implementation planning orchestrator responsible for coordinating th
 **Feature slug**: $ARGUMENTS
 
 **Pipeline Status Tracking**:
+
 - READY: Can proceed to next phase
 - BLOCKED: Missing prerequisites, cannot proceed
 - IN_PROGRESS: Currently executing phase
@@ -30,6 +32,7 @@ You are the implementation planning orchestrator responsible for coordinating th
 ## Objective
 
 Orchestrate implementation planning workflow by:
+
 1. Validating prerequisites with explicit gates
 2. Assembling comprehensive context from existing artifacts
 3. Delegating to implementation-planner agent with structured handoff
@@ -90,6 +93,7 @@ Given this is a {challenge_type} implementation with {key boundaries}, I should 
 ```
 
 **Phase 0 Exit Gate**:
+
 - [ ] Implementation context understood
 - [ ] Challenge type identified
 - [ ] Integration boundaries mapped
@@ -109,6 +113,7 @@ code-tools read_file --path .claude/memory/requirements-$ARGUMENTS.md 2>/dev/nul
 ```
 
 **Gate Decision**:
+
 - PASS: Requirements document loaded successfully → Continue
 - FAIL: Document not found → Status: BLOCKED, recommend `/gather-requirements $ARGUMENTS`
 
@@ -120,6 +125,7 @@ code-tools read_file --path .claude/memory/tech-analysis-$ARGUMENTS.md 2>/dev/nu
 ```
 
 **Gate Decision**:
+
 - PASS: Tech analysis document loaded → Continue
 - FAIL: Document not found → Status: BLOCKED, recommend `/research-tech $ARGUMENTS`
 
@@ -140,6 +146,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar featur
 ```
 
 **Gate Decision**:
+
 - PASS: Context loaded (even if some optional files missing) → Continue
 - INFO: Note which context files are missing in handoff to agent
 
@@ -190,6 +197,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar featur
 ```
 
 **Phase 1 Exit Gate**:
+
 - [ ] Requirements document: PASS
 - [ ] Tech analysis document: PASS
 - [ ] Context package assembled: COMPLETE
@@ -870,6 +878,7 @@ Return final implementation plan document content ready to write to file.
 ````
 
 **Phase 2 Exit Gate**:
+
 - [ ] Agent invocation completed
 - [ ] Agent returned implementation plan
 - **Decision**: READY to Phase 3 (validation) | FAILED (agent did not produce output)
@@ -957,6 +966,7 @@ After agent completes implementation planning, validate outputs:
 ```
 
 **Validation Decision Matrix**:
+
 - All gates PASS → Status: READY to write artifact
 - Any gate FAIL → Status: FAILED, return to agent with specific corrections needed
 - Critical gates (V-2, V-6) FAIL → BLOCKED, cannot proceed without fixes
@@ -974,6 +984,7 @@ EOF
 ```
 
 **Phase 3 Exit Gate**:
+
 - [ ] All validation gates: PASS
 - [ ] Implementation plan written to memory: COMPLETE
 - **Decision**: READY to Phase 4 | FAILED (validation failed, corrections needed)
@@ -1072,6 +1083,7 @@ Before considering planning complete, verify final quality:
 - [ ] File saved to .claude/memory/implementation-plan-{slug}.md
 
 **Phase 4 Exit Gate**:
+
 - [ ] All quality gates: PASS
 - **Final Status**: COMPLETE | FAILED (specify gate failures)
 
@@ -1149,6 +1161,7 @@ Before considering planning complete, verify final quality:
 **Rollback Procedures**:
 
 If agent output is unusable after 3 correction attempts:
+
 1. Status: FAILED
 2. Preserve original context package
 3. Report specific validation failures to user
@@ -1162,6 +1175,7 @@ Implementation planning is successful when:
 **Final Status: COMPLETE**
 
 Required conditions:
+
 - All tasks granular (2-8 hours each)
 - Dependencies clearly mapped with explicit reasoning
 - Critical path identified and visualized

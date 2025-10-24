@@ -6,7 +6,7 @@ description: Clean up temporary handoff files from .claude/memory/
 
 # Memory Cleanup Utility
 
-Clean up temporary handoff files (.tmp-*) from `.claude/memory/` directory using a verified, safety-first approach.
+Clean up temporary handoff files (.tmp-\*) from `.claude/memory/` directory using a verified, safety-first approach.
 
 ## Purpose
 
@@ -45,7 +45,8 @@ echo ""
 ```
 
 **Verification checkpoint:**
-- Confirm: Are we only looking at .tmp-* pattern?
+
+- Confirm: Are we only looking at .tmp-\* pattern?
 - Confirm: Is search limited to .claude/memory/ directory?
 - Risk check: Could this accidentally match permanent files?
 
@@ -80,6 +81,7 @@ fi
 ```
 
 **Verification checkpoint:**
+
 - Confirm: Does the filter pattern correctly match feature naming?
 - Confirm: Are we providing clear user feedback about scope?
 - Edge case check: What if FEATURE_SLUG contains special characters?
@@ -126,6 +128,7 @@ fi
 ```
 
 **Verification checkpoint:**
+
 - Confirm: Does preview show enough info to verify these are temp files?
 - Confirm: Are we handling both Linux/Mac stat command differences?
 - Safety check: Are we definitely NOT matching permanent artifacts?
@@ -138,14 +141,14 @@ Validate deletion safety before proceeding.
 
 Check each concern:
 
-1. **Pattern safety**: Are we ONLY matching .tmp-* pattern?
+1. **Pattern safety**: Are we ONLY matching .tmp-\* pattern?
    - Yes: Pattern is explicit and restrictive
    - No permanent files match this pattern
 
 2. **Scope correctness**: Have we correctly identified the target files?
    - Review the file list from Task 3
    - Confirm all files shown are temporary handoffs
-   - Verify no requirements-*.md or other artifacts listed
+   - Verify no requirements-\*.md or other artifacts listed
 
 3. **User awareness**: Does user understand what will be deleted?
    - Present clear file list
@@ -227,6 +230,7 @@ fi
 ```
 
 **Verification checkpoint:**
+
 - Confirm: Are we tracking both successes and failures?
 - Confirm: Are errors being caught and reported?
 - Recovery check: Can user retry if some deletions fail?
@@ -289,21 +293,25 @@ ls -lh .claude/memory/*.md 2>/dev/null | grep -v ".tmp-" || echo "None found"
 ## Safety Features
 
 **Pattern Protection:**
+
 - ONLY deletes files matching `.tmp-*` pattern
 - Pattern is explicit, not glob-based matching of permanent files
 
 **Scope Validation:**
+
 - Shows file previews before deletion
 - Requires explicit user confirmation
 - Tracks and reports failures
 
 **Protected Files:**
-- Never matches requirements-*.md
-- Never matches tech-analysis-*.md
-- Never matches implementation-plan-*.md
+
+- Never matches requirements-\*.md
+- Never matches tech-analysis-\*.md
+- Never matches implementation-plan-\*.md
 - Only targets temporary handoff files
 
 **Error Handling:**
+
 - Catches deletion failures
 - Reports partial success
 - Allows retry after investigation

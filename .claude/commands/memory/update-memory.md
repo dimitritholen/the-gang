@@ -109,6 +109,7 @@ Delegate to codebase-archeologist agent with focused scope based on aspect type.
 **Sub-task 3.1: Determine analysis scope**
 
 For each aspect, define:
+
 - **Analysis focus**: What to re-analyze (files, patterns, structure)
 - **Preservation target**: What to keep unchanged (high-confidence items)
 - **Expected changes**: What evidence to look for (dependency additions, refactorings)
@@ -458,10 +459,10 @@ For each section:
 
 ## Update History
 
-| Date       | Aspect   | Magnitude | Changes                                   |
-| ---------- | -------- | --------- | ----------------------------------------- |
-| 2025-10-24 | {aspect} | {M/M/M}   | Mod:{n}, Add:{n}, Rem:{n}                 |
-| {prev}     | {aspect} | ...       | ...                                       |
+| Date       | Aspect   | Magnitude | Changes                   |
+| ---------- | -------- | --------- | ------------------------- |
+| 2025-10-24 | {aspect} | {M/M/M}   | Mod:{n}, Add:{n}, Rem:{n} |
+| {prev}     | {aspect} | ...       | ...                       |
 ```
 
 **Sub-task 5.3: Write updated artifact**
@@ -531,6 +532,7 @@ Before finalizing, systematically verify the update:
 **Corrective Actions**:
 
 If any verification fails:
+
 1. Identify root cause (parsing error, hallucination, scope drift)
 2. Revert problematic changes
 3. Re-run affected sub-task with corrected approach
@@ -573,30 +575,33 @@ If >3 HIGH-confidence conflicts detected:
 
 ### Preservation vs Overwrite Decision Matrix
 
-| Scenario                                                          | Action       | Rationale                                 |
-| ----------------------------------------------------------------- | ------------ | ----------------------------------------- |
-| Section content identical (hash match)                            | PRESERVE     | No change detected                        |
-| Old HIGH confidence, new MEDIUM/LOW contradicts                   | FLAG         | Requires manual review                    |
-| Section out of scope for current aspect                           | PRESERVE     | Prevent scope creep                       |
-| Section changed with equal/higher confidence                      | OVERWRITE    | New evidence supersedes                   |
-| Evidence shows clear change (e.g., dependency in package.json)    | OVERWRITE    | Verifiable change                         |
-| List section with items added/removed                             | MERGE        | Combine old + new                         |
-| HIGH confidence old vs HIGH confidence new (different conclusion) | FLAG         | Conflict requires resolution              |
-| Significant change (>50% of section modified)                     | FLAG         | Review before overwriting                 |
+| Scenario                                                          | Action    | Rationale                    |
+| ----------------------------------------------------------------- | --------- | ---------------------------- |
+| Section content identical (hash match)                            | PRESERVE  | No change detected           |
+| Old HIGH confidence, new MEDIUM/LOW contradicts                   | FLAG      | Requires manual review       |
+| Section out of scope for current aspect                           | PRESERVE  | Prevent scope creep          |
+| Section changed with equal/higher confidence                      | OVERWRITE | New evidence supersedes      |
+| Evidence shows clear change (e.g., dependency in package.json)    | OVERWRITE | Verifiable change            |
+| List section with items added/removed                             | MERGE     | Combine old + new            |
+| HIGH confidence old vs HIGH confidence new (different conclusion) | FLAG      | Conflict requires resolution |
+| Significant change (>50% of section modified)                     | FLAG      | Review before overwriting    |
 
 ### Confidence Level Guidelines
 
 **HIGH Confidence** (evidence-based, verifiable):
+
 - Extracted from file contents (package.json, README.md, source code)
 - Direct observation (file exists, function defined, import present)
 - Quantitative data (X% conformance from pattern mining)
 
 **MEDIUM Confidence** (inferred, likely):
+
 - Pattern dominance from code samples (not exhaustive)
 - Inferred architecture from structure (not documented)
 - Naming conventions from file analysis (not style guide)
 
 **LOW Confidence** (speculative, uncertain):
+
 - Inferred purpose from context
 - Guessed rationale for decisions
 - Uncertain pattern classification

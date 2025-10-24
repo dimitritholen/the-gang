@@ -36,10 +36,12 @@ Automatically identify dominant code patterns in specific areas (error handling,
 **Sub-tasks**:
 
 1.1. Extract pattern type from arguments
+
 - Strip `--type` prefix and any extra whitespace
 - Store in PATTERN_TYPE variable
 
-1.2. Validate against supported pattern types
+  1.2. Validate against supported pattern types
+
 - Check against allowlist: error-handling, state-management, api-design, testing-patterns, import-style, export-style, naming-conventions, styling-patterns
 - Exit with error message if invalid
 - Display list of supported types on error
@@ -77,16 +79,19 @@ esac
 **Sub-tasks**:
 
 2.1. Load pattern-specific detection patterns
+
 - Map pattern type to search patterns
 - Define regex patterns for each category
 - Specify file paths and extensions to scan
 
-2.2. Configure category definitions
+  2.2. Configure category definitions
+
 - Define mutually exclusive pattern categories
 - Set category descriptions and metadata
 - Specify detection regex for each category
 
-2.3. Set scope and exclusions
+  2.3. Set scope and exclusions
+
 - Include directories: src, lib, api, components, services
 - Exclude directories: node_modules, dist, build, coverage, .git
 - Filter by file types relevant to pattern
@@ -96,6 +101,7 @@ esac
 #### Error Handling (error-handling)
 
 **Detection Patterns**:
+
 ```bash
 # Find catch blocks
 code-tools grep_code --pattern "catch\s*\(" --output-mode content -n --paths "src,lib"
@@ -114,6 +120,7 @@ code-tools grep_code --pattern "logger\.|log\.error|logError" --output-mode cont
 ```
 
 **Categories**:
+
 - toast-notification: User-facing error notifications (toast, modal, alert)
 - console-error: Browser console logging
 - throw-to-caller: Throw exception to calling function
@@ -124,6 +131,7 @@ code-tools grep_code --pattern "logger\.|log\.error|logError" --output-mode cont
 #### State Management (state-management)
 
 **Detection Patterns**:
+
 ```bash
 # Find useState hooks
 code-tools grep_code --pattern "useState\(" --output-mode content -n --paths "src"
@@ -142,6 +150,7 @@ code-tools grep_code --pattern "useRecoilState\(|atom\(" --output-mode content -
 ```
 
 **Categories**:
+
 - local-useState: Component-local state via useState (scope: local)
 - context-api: Global state via React Context (scope: global)
 - redux: Redux/Redux Toolkit (scope: global)
@@ -151,6 +160,7 @@ code-tools grep_code --pattern "useRecoilState\(|atom\(" --output-mode content -
 #### API Design (api-design)
 
 **Detection Patterns**:
+
 ```bash
 # Find API endpoints/routes
 code-tools grep_code --pattern "app\.(get|post|put|patch|delete|use)\(|router\.(get|post|put|patch|delete)" --output-mode content -n --paths "src,api"
@@ -163,6 +173,7 @@ code-tools grep_code --pattern "validate\(|schema\.|z\." --output-mode content -
 ```
 
 **Categories**:
+
 - rest-versioned: Versioned REST endpoints (/api/v1/resource)
 - rest-unversioned: Unversioned REST endpoints (/api/resource)
 - graphql: GraphQL API
@@ -172,6 +183,7 @@ code-tools grep_code --pattern "validate\(|schema\.|z\." --output-mode content -
 #### Testing Patterns (testing-patterns)
 
 **Detection Patterns**:
+
 ```bash
 # Find test files
 code-tools search_file --glob "**/*.test.{ts,tsx,js,jsx}" --limit 100
@@ -185,12 +197,13 @@ code-tools grep_code --pattern "jest\.mock\(|vi\.mock\(|mock\(|spy\(" --output-m
 ```
 
 **Categories**:
+
 - jest: Jest testing framework
 - vitest: Vitest testing framework
 - describe-it: Describe/it test structure
 - test-only: Test() only (no describe)
 - file-colocated: Tests colocated with source files
-- file-separate: Tests in separate __tests__ directory
+- file-separate: Tests in separate **tests** directory
 
 **Output**: Detection strategy configured, ready for execution
 
@@ -203,16 +216,19 @@ code-tools grep_code --pattern "jest\.mock\(|vi\.mock\(|mock\(|spy\(" --output-m
 **Sub-tasks**:
 
 3.1. Execute search commands
+
 - Run all grep patterns for the selected pattern type
 - Capture output to temporary files for processing
 - Handle command failures gracefully
 
-3.2. Collect file and line references
+  3.2. Collect file and line references
+
 - Parse grep output for file:line:content tuples
 - Store in structured format for analysis
 - Track context (surrounding lines) for each instance
 
-3.3. Initial instance count
+  3.3. Initial instance count
+
 - Count total instances found across all searches
 - Verify non-zero results (handle edge case of no instances)
 - Log detection summary for verification
@@ -233,6 +249,7 @@ fi
 ```
 
 **Verification Questions**:
+
 - Did all grep commands execute successfully?
 - Are temporary files created and readable?
 - Is the instance count non-zero for at least one category?
@@ -248,21 +265,25 @@ fi
 **Sub-tasks**:
 
 4.1. Classify instances by category
+
 - For each detected instance, determine which category it belongs to
 - Handle hybrid patterns (instances matching multiple categories)
 - Resolve ambiguous cases by primary intent
 
-4.2. Count instances per category
+  4.2. Count instances per category
+
 - Aggregate counts for each pattern category
 - Calculate percentages relative to total instances
 - Identify top patterns by frequency
 
-4.3. Rank patterns by prevalence
+  4.3. Rank patterns by prevalence
+
 - Sort categories by instance count (descending)
 - Assign ranks: 1 = most common, N = least common
 - Flag categories with zero instances
 
-4.4. Determine dominance status
+  4.4. Determine dominance status
+
 - Calculate dominant pattern (highest count)
 - Determine dominance strength:
   - STRONG: >80% conformance
@@ -307,6 +328,7 @@ fi
 ```
 
 **Verification Questions**:
+
 - Are all instances classified (no orphans)?
 - Do category percentages sum to ~100%?
 - Is the dominant pattern calculation correct?
@@ -322,21 +344,25 @@ fi
 **Sub-tasks**:
 
 5.1. Define deviation criteria
+
 - Deviation = instance NOT matching dominant pattern
 - If multiple acceptable patterns exist, only flag true outliers
 - Consider module-specific conventions (may be acceptable deviations)
 
-5.2. Extract deviation instances
+  5.2. Extract deviation instances
+
 - List all file:line references for non-dominant patterns
 - Group by pattern variant for bulk refactoring
 - Include code context for each deviation
 
-5.3. Calculate deviation metrics
+  5.3. Calculate deviation metrics
+
 - Total deviation count = total - dominant_count
-- Deviation percentage = (deviations / total) * 100
+- Deviation percentage = (deviations / total) \* 100
 - Refactoring effort estimate based on count
 
-5.4. Prioritize deviations
+  5.4. Prioritize deviations
+
 - High priority: Critical paths, frequently-called code
 - Medium priority: Core business logic
 - Low priority: Test code, utilities, legacy modules
@@ -358,6 +384,7 @@ done
 ```
 
 **Verification Questions**:
+
 - Are deviations accurately counted?
 - Have I excluded intentional local conventions?
 - Is prioritization justified by code criticality?
@@ -373,16 +400,19 @@ done
 **Sub-tasks**:
 
 6.1. Group instances by module
+
 - Extract directory path from file:line references
 - Group by top-level module (src/services, src/components, etc.)
 - Count instances per module per pattern
 
-6.2. Calculate per-module dominance
+  6.2. Calculate per-module dominance
+
 - For each module, determine local dominant pattern
 - Calculate module-specific conformance percentage
 - Compare to global dominant pattern
 
-6.3. Identify module-specific conventions
+  6.3. Identify module-specific conventions
+
 - Flag modules where local pattern differs from global
 - Assess if local variation is justified (legacy code, different team, etc.)
 - Note in report as acceptable exception or deviation
@@ -398,37 +428,44 @@ done
 **Sub-tasks**:
 
 7.1. Coverage verification
+
 - Did I scan ALL relevant files or miss some?
 - Re-run with broader glob to verify coverage
 - Check if any file extensions were excluded
 
-7.2. Categorization verification
+  7.2. Categorization verification
+
 - Are pattern categories mutually exclusive?
 - Verify no instance counted in multiple categories
 - Resolve hybrid patterns by primary intent
 
-7.3. Calculation verification
-- Verify: dominant_percentage = (dominant_count / total) * 100
+  7.3. Calculation verification
+
+- Verify: dominant_percentage = (dominant_count / total) \* 100
 - Ensure percentages sum to ~100% (accounting for rounding)
 - Check arithmetic in all frequency calculations
 
-7.4. Deviation accuracy verification
+  7.4. Deviation accuracy verification
+
 - Deviation = total - dominant_count (if single acceptable pattern)
 - If multiple acceptable patterns, only flag true outliers
 - Verify deviation list matches calculated count
 
-7.5. Scope verification
+  7.5. Scope verification
+
 - Excluded test files for production pattern analysis (unless testing-patterns)
 - Excluded node_modules, build directories
 - Included all relevant source directories
 
-7.6. Example representativeness verification
+  7.6. Example representativeness verification
+
 - Include both typical and edge-case instances
 - Provide context (surrounding code) for clarity
 - File:line references are accurate and resolvable
 
-7.7. Recommendation justification verification
-- >80% conformance → ENFORCE recommendation
+  7.7. Recommendation justification verification
+
+- > 80% conformance → ENFORCE recommendation
 - 50-80% conformance → STANDARDIZE recommendation
 - <50% conformance → DOCUMENT_MULTIPLE recommendation
 - Verify recommendation aligns with data
@@ -481,6 +518,7 @@ done
 ```
 
 **Self-Correction Protocol**:
+
 - If any verification fails, revise analysis before proceeding
 - Document corrections made during verification
 - Re-run calculations if arithmetic errors found
@@ -496,19 +534,22 @@ done
 **Sub-tasks**:
 
 8.1. Generate report metadata
+
 - Pattern type analyzed
 - Analysis date
 - Codebase scope (directories, file types)
 - Exclusions applied
 
-8.2. Create analysis summary section
+  8.2. Create analysis summary section
+
 - Total instances found
 - Total files analyzed
 - Patterns detected (count)
 - Dominant pattern and dominance strength
 - Overall conformance rate
 
-8.3. Document pattern distribution
+  8.3. Document pattern distribution
+
 - For each pattern (ranked by frequency):
   - Name and description
   - Instance count and percentage
@@ -516,32 +557,36 @@ done
   - 2-3 representative code examples with file:line
   - Usage by module/directory
 
-8.4. Generate dominance analysis
+  8.4. Generate dominance analysis
+
 - Assessment of dominance strength
 - Recommendation (ENFORCE, STANDARDIZE, DOCUMENT_MULTIPLE, NO_ACTION)
 - Rationale for recommendation
 - Proposed convention text for coding-conventions.md
 
-8.5. Document deviations
+  8.5. Document deviations
+
 - Summary: total count, percentage of codebase
 - Deviations by pattern variant
 - File:line references for all deviations
 - Refactor-to suggestions for each
 - Bulk refactoring opportunities
 
-8.6. Add geographic insights
+  8.6. Add geographic insights
+
 - Module-specific pattern preferences
 - Local conventions vs global dominant
 - Notes on acceptable local variations
 
-8.7. Include evolution analysis (if git available)
+  8.7. Include evolution analysis (if git available)
+
 - Pattern trends (increasing/decreasing usage)
 - Newer files vs older files comparison
 - Suggestions for evolving conventions
 
 **Report Template**:
 
-```markdown
+````markdown
 # Pattern Mining Report: {pattern_type}
 
 **Analysis Date**: {date}
@@ -580,8 +625,10 @@ done
 // File: src/components/form.tsx:128
 {3-5 lines of code showing pattern usage}
 ```
+````
 
 **Usage by Module**:
+
 - src/services: {X} instances ({Y}%)
 - src/components: {X} instances ({Y}%)
 - src/utils: {X} instances ({Y}%)
@@ -605,12 +652,14 @@ done
 ```
 
 **Migration Strategy**:
+
 - Refactor {deviation_count} instances ({deviation_percentage}%) to use {dominant_pattern}
 - Effort Estimate: {Low | Medium | High} - {reasoning}
 
 ## Deviations
 
 **Summary**:
+
 - Total Deviations: {count} ({X}% of codebase)
 - Refactoring Priority: HIGH | MEDIUM | LOW
 
@@ -621,6 +670,7 @@ done
 **Count**: {instances}
 
 **Instances**:
+
 ```
 src/utils/parser.ts:78
   {code snippet}
@@ -634,6 +684,7 @@ src/components/modal.tsx:203
 {List all deviations, up to 100, then summarize remaining}
 
 **Bulk Refactoring Opportunity**:
+
 - Pattern From: {Current pattern}
 - Pattern To: {Dominant pattern}
 - Files Affected: {count}
@@ -642,11 +693,13 @@ src/components/modal.tsx:203
 ## Geographic Insights
 
 ### src/services
+
 - Dominant Pattern: {pattern_id}
 - Conformance: {X}%
 - Note: {If different from global, explain why}
 
 ### src/components
+
 - Dominant Pattern: {pattern_id}
 - Conformance: {X}%
 - Note: {If different from global, explain why}
@@ -662,7 +715,8 @@ src/components/modal.tsx:203
 ---
 
 **Report Generated**: {timestamp}
-```
+
+````
 
 **Output**: Comprehensive markdown report saved to `.claude/memory/pattern-analysis-{type}.md`
 
@@ -717,13 +771,14 @@ src/components/modal.tsx:203
 
 // INCORRECT (deviation)
 {code example of outlier pattern}
-```
+````
 
 **Rationale**: {Why this pattern is preferred - based on analysis}
 
 **Exceptions**: {Any acceptable deviations and when justified}
 
 **Migration Status**: {X} deviations remain (see pattern-analysis-{type}.md)
+
 ```
 
 **Output**: Updated coding-conventions.md (if >80% dominance), otherwise skip this task
@@ -808,6 +863,7 @@ If `.claude/memory/coding-conventions.md` not found:
 **Final Output Message**:
 
 ```
+
 SUCCESS: Pattern mining complete
 
 Pattern Type: {pattern_type}
@@ -819,4 +875,7 @@ Report: .claude/memory/pattern-analysis-{type}.md
 {If updated: Conventions: .claude/memory/coding-conventions.md (updated)}
 
 Recommendation: {ENFORCE | STANDARDIZE | DOCUMENT_MULTIPLE | NO_ACTION}
+
+```
+
 ```

@@ -95,6 +95,7 @@ grep -E "file.*naming|directory.*structure" .claude/memory/coding-conventions.md
 ```
 
 **Validation questions**:
+
 - Does file naming match dominant pattern (camelCase, kebab-case, PascalCase)?
 - Does directory structure follow feature-based or layer-based organization?
 - Are files placed in correct directories per convention?
@@ -111,6 +112,7 @@ grep -E "ADR-|decision|pattern" .claude/memory/architecture-decisions.md
 ```
 
 **Validation questions**:
+
 - Do planned components follow established architectural layers?
 - Are separation of concerns principles maintained?
 - Does data flow match architectural diagrams?
@@ -128,6 +130,7 @@ grep -E "approved|prohibited|dependency" .claude/memory/tech-stack-baseline.md
 ```
 
 **Validation questions**:
+
 - Are all libraries in tech-stack-baseline approved list?
 - Are new dependencies justified and vetted?
 - Do version constraints match baseline?
@@ -145,6 +148,7 @@ grep -E "error.*pattern|exception.*handling" .claude/memory/coding-conventions.m
 ```
 
 **Validation questions**:
+
 - Does error handling use dominant pattern (throw vs return, toast vs log)?
 - Are error types consistent with convention?
 - Is error propagation strategy aligned?
@@ -161,6 +165,7 @@ grep -E "test.*strategy|coverage|pyramid" .claude/memory/coding-conventions.md
 ```
 
 **Validation questions**:
+
 - Does testing match pyramid (unit > integration > E2E)?
 - Are test locations following convention?
 - Is coverage target met (per convention)?
@@ -177,6 +182,7 @@ grep -E "api.*design|endpoint.*pattern|rest" .claude/memory/coding-conventions.m
 ```
 
 **Validation questions**:
+
 - Do endpoints follow RESTful conventions?
 - Is versioning strategy consistent?
 - Are authentication/authorization patterns aligned?
@@ -193,6 +199,7 @@ grep -E "state.*management|store|context" .claude/memory/coding-conventions.md
 ```
 
 **Validation questions**:
+
 - Does state management use established library?
 - Are state patterns consistent with convention?
 - Is global vs local state decision aligned?

@@ -12,21 +12,25 @@ You are helping the user mark a task as completed.
 Before executing completion, reason through:
 
 **Step 1: Input Validation**
+
 - Is TASK_ID format valid?
 - Does feature directory exist?
 - Can task file be located?
 
 **Step 2: Current State Analysis**
+
 - What is the current task status?
 - Are there blocking dependencies?
 - Is this task in a valid state for completion?
 
 **Step 3: Acceptance Criteria Evaluation**
+
 - Extract all criteria from task XML
 - Present each criterion for user verification
 - Determine if ALL criteria can be met
 
 **Step 4: Completion Impact Assessment**
+
 - What is the current feature progress?
 - How does completing this task affect the feature state?
 - Are there dependent tasks that become unblocked?
@@ -310,6 +314,7 @@ code-tools update_task_status \
 ```
 
 The task manager handles:
+
 - Atomic status transitions
 - Manifest synchronization (task + root)
 - XML file modifications
@@ -320,14 +325,14 @@ The task manager handles:
 
 ## Error Handling
 
-| Error | Message | Exit Code |
-|-------|---------|-----------|
-| Invalid task ID | "Task {ID} not found in feature {FEATURE}" | 1 |
-| Invalid feature | "Feature {FEATURE} not found" | 1 |
-| No manifest | "Task manifest missing" | 1 |
-| File corruption | "Task XML file corrupted" | 1 |
-| Invalid state transition | "Cannot complete task from {STATE}" | 1 |
-| Tool execution failure | "Task manager error: {details}" | 1 |
+| Error                    | Message                                    | Exit Code |
+| ------------------------ | ------------------------------------------ | --------- |
+| Invalid task ID          | "Task {ID} not found in feature {FEATURE}" | 1         |
+| Invalid feature          | "Feature {FEATURE} not found"              | 1         |
+| No manifest              | "Task manifest missing"                    | 1         |
+| File corruption          | "Task XML file corrupted"                  | 1         |
+| Invalid state transition | "Cannot complete task from {STATE}"        | 1         |
+| Tool execution failure   | "Task manager error: {details}"            | 1         |
 
 ## Verification Checklist
 

@@ -20,14 +20,16 @@ Example: `/task-unblock T02 01-user-authentication "API credentials obtained fro
 Before delegating to @task-manager, verify blocker resolution through targeted questions:
 
 <verification_checklist>
+
 1. Root cause addressed: Has the underlying issue been resolved, not just symptoms?
 2. Dependencies cleared: Are there remaining dependencies that could re-block this task?
 3. Documentation adequate: Is the resolution sufficiently documented for context and audit?
 4. Resume readiness: Can work immediately resume or are additional preparation steps needed?
 5. Verification timing: Has sufficient time passed to confirm resolution (e.g., external resource availability)?
-</verification_checklist>
+   </verification_checklist>
 
 Decision gate:
+
 - If ANY verification question reveals unresolved issues → HALT and inform user
 - If ALL verifications pass → PROCEED to Phase 2
 
@@ -37,6 +39,7 @@ Role handoff to @task-manager (Task State Manager):
 
 <delegation_contract>
 Input to @task-manager:
+
 - operation: UNBLOCK_TASK
 - taskId: {TASK_ID}
 - featureId: {FEATURE_ID}-{SLUG}
@@ -45,13 +48,15 @@ Input to @task-manager:
 - verificationDetails: {summary of Phase 1 checks}
 
 Expected output from @task-manager:
+
 - statusChange: BLOCKED -> IN_PROGRESS
 - blockerCleared: {original blocker reason}
 - manifestsUpdated: [task manifest, root manifest]
 - timestamps: {blocked duration, resume time}
-</delegation_contract>
+  </delegation_contract>
 
 @task-manager responsibilities:
+
 1. Verify current task status = BLOCKED
 2. Update task XML: status="IN_PROGRESS", clear blocker element, add resolution notes
 3. Update task manifest: task status = IN_PROGRESS, remove from blockedBy array
@@ -64,14 +69,16 @@ Expected output from @task-manager:
 After @task-manager completes, verify state changes:
 
 <post_execution_verification>
+
 1. Status transition confirmed: Task status changed from BLOCKED to IN_PROGRESS?
 2. Blocker cleared: Original blocker removed from task XML?
 3. Manifests updated: Both task and root manifests reflect unblocked state?
 4. Timestamps recorded: Block duration and resume time logged correctly?
 5. Feature blockers updated: If last blocked task, removed from feature-level blockers?
-</post_execution_verification>
+   </post_execution_verification>
 
 Decision:
+
 - If ANY verification fails → Report error with details, recommend manual inspection
 - If ALL pass → Proceed to output display
 
@@ -165,16 +172,19 @@ Verification FAILED. Task remains BLOCKED until issues resolved.
 ## Error Handling
 
 Pre-verification errors:
+
 - **Incomplete resolution**: "Cannot unblock {TASK_ID} - blocker resolution incomplete: {details}"
 - **Remaining dependencies**: "Cannot unblock {TASK_ID} - dependencies still blocking: {list}"
 - **Premature unblock**: "Verification failed - blocker may not be fully resolved: {concerns}"
 
 Execution errors (from @task-manager):
+
 - **Invalid state**: "Cannot unblock {TASK_ID} - task is {status}, not BLOCKED"
 - **Task not found**: "Task {ID} not found in feature {FEATURE}"
 - **Feature not found**: "Feature {FEATURE} not found"
 
 Post-verification errors:
+
 - **State change failed**: "Unblock executed but status not updated - manual inspection required"
 - **Manifest sync failed**: "Task unblocked but manifests not updated - check {manifest paths}"
 

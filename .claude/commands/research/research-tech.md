@@ -22,6 +22,7 @@ Execute comprehensive technology research through iterative Thought-Action-Obser
 **Thought 1**: Before evaluating specific technologies, I need architectural context to constrain research scope and identify relevant patterns.
 
 **Action 1**: Execute context gathering
+
 ```bash
 # System date
 date +%Y-%m-%d
@@ -51,6 +52,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology sta
 **Thought 2**: Based on requirements and existing stack, I can identify the architectural pattern and key technical challenges that will guide technology selection.
 
 **Action 2**: Analyze requirements to extract:
+
 - Fundamental architectural pattern (monolithic, microservices, serverless, event-driven, JAMstack, modular monolith, SOA)
 - Key technical challenges (performance, scale, complexity, integration, security, reliability)
 - Scale and performance requirements (concurrent users, throughput, latency targets, availability SLA)
@@ -59,6 +61,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology sta
 **Observation 2**: [Document architectural pattern, challenges, scale requirements, industry standards]
 
 **Verification Checkpoint 1**: Before proceeding to technology research, verify:
+
 ```xml
 <verification_checkpoint_1>
 <question>Do I have sufficient requirements to guide technology selection?</question>
@@ -81,6 +84,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology sta
 ```
 
 **Action 3**: Present architectural context summary to user:
+
 ```
 Based on analysis of requirements and existing codebase:
 
@@ -117,6 +121,7 @@ Does this architectural understanding accurately represent the feature requireme
 **Thought 4**: Given the architectural pattern and challenges, I need to identify which technology categories require research.
 
 **Action 4**: Map architectural pattern and challenges to technology categories:
+
 ```
 Pattern: {monolithic|microservices|serverless|event-driven|JAMstack|modular monolith|SOA}
 → Categories: {Frontend, Backend, Database, Caching, Messaging, Infrastructure, Testing, etc.}
@@ -129,6 +134,7 @@ Challenges:
 **Observation 4**: [List of technology categories requiring research: Frontend, Backend, Database, Caching, Messaging, Infrastructure, Testing, etc.]
 
 **Verification Checkpoint 2**: Validate research scope:
+
 ```xml
 <verification_checkpoint_2>
 <question>Have I identified all relevant technology categories?</question>
@@ -823,10 +829,12 @@ Return final technology analysis document content ready to write to file.
 **Thought 8**: Based on validation results, I need to determine if analysis is acceptable or requires agent to revise.
 
 **Decision Branch**:
+
 - **IF all validations PASS**: Proceed to Phase 4 (write artifact)
 - **IF any validation FAILS**: Execute corrective action
 
 **Action 8a** [If FAIL]: Re-invoke agent with corrective instructions
+
 ```
 Your technology analysis has validation issues that must be corrected:
 
@@ -850,6 +858,7 @@ Please revise the analysis to address these issues and resubmit.
 **Thought 9**: Validation complete. I'll write the technology analysis to memory for use in implementation planning.
 
 **Action 9**: Write artifact to memory
+
 ```bash
 code-tools create_file \
   --file .claude/memory/tech-analysis-$ARGUMENTS.md \
@@ -864,6 +873,7 @@ EOF
 **Thought 10**: Artifact created. I'll perform final completeness check before reporting success.
 
 **Action 10**: Final quality gate verification
+
 ```xml
 <final_quality_gates>
 <completeness_check>
@@ -907,6 +917,7 @@ EOF
 **Thought 11**: All quality gates passed. Technology research is complete and artifact is ready for next phase.
 
 **Action 11**: Report success to user
+
 ```
 ✓ TECHNOLOGY RESEARCH COMPLETE
 
@@ -938,6 +949,7 @@ Run /plan-implementation {feature-slug} to create detailed implementation plan b
 
 **Thought**: Cannot research without requirements.
 **Action**: Report error and recommend prerequisite command.
+
 ```
 ERROR: Requirements not found for feature: {slug}
 
@@ -958,6 +970,7 @@ After requirements are gathered, re-run: /research-tech {slug}
 
 **Thought**: Analysis missing required sections violates quality gates.
 **Action**: Identify gaps and re-invoke agent with specific completion instructions.
+
 ```
 Analysis incomplete. Missing: {list of missing sections/categories}
 
@@ -970,6 +983,7 @@ Do NOT accept incomplete output.
 
 **Thought**: Ungrounded claims violate evidence-based methodology and risk hallucination.
 **Action**: Identify unsourced claims and demand source citations.
+
 ```
 Validation failed: Found {count} ungrounded claims:
 - {Claim 1} - No source cited
@@ -986,6 +1000,7 @@ Do NOT accept ungrounded analysis.
 
 **Thought**: Lack of clarity on constraints creates risk but shouldn't block research.
 **Action**: Document as open questions, proceed with general best practices, note assumptions.
+
 ```
 User unable to clarify: {constraint type}
 
@@ -1004,6 +1019,7 @@ Note: Recommendations may need revision once constraints clarified.
 
 **Thought**: Validation failure indicates quality issues that could impact downstream implementation planning.
 **Action**: Identify specific failures, provide corrective guidance, re-invoke agent.
+
 ```
 Orchestrator validation failed on {count} checks:
 
@@ -1024,6 +1040,7 @@ Do NOT write to memory until all validations pass.
 
 **Thought**: If research doesn't yield clear recommendations, multiple paths may be viable.
 **Action**: Present multiple viable options with equal weight, defer decision to user.
+
 ```
 Research inconclusive - multiple technologies have similar fitness scores:
 

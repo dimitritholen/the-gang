@@ -12,6 +12,7 @@ Date assertion: Before starting ANY task/action, get the current system date to 
 ## Purpose
 
 Generate 5 memory artifacts documenting:
+
 1. Project context (high-level overview)
 2. Technology stack (with rationale)
 3. Coding conventions (patterns to follow)
@@ -21,10 +22,12 @@ Generate 5 memory artifacts documenting:
 ## Prerequisites
 
 **Required**:
+
 - Existing codebase with code to analyze
 - Read/write access to `.claude/memory/` directory
 
 **Optional**:
+
 - Git repository (for commit history analysis)
 - Package manifests (package.json, requirements.txt, etc.)
 - Configuration files (tsconfig, eslint, etc.)
@@ -38,12 +41,14 @@ Generate 5 memory artifacts documenting:
 This command uses two complementary techniques:
 
 **Task Decomposition**: Complex memory generation broken into hierarchical sub-tasks:
+
 - Level 1: Parse arguments and detect scope
 - Level 2: Multi-phase analysis with validation
 - Level 3: Artifact generation
 - Level 4: Validation and summary
 
 **Chain of Command**: Specialized agent delegation with structured handoffs:
+
 - Orchestrator (this command) → codebase-archeologist agent
 - Agent completes phase → returns to orchestrator
 - Orchestrator validates → passes to next phase
@@ -84,6 +89,7 @@ fi
 **Sub-task 1.2: Detect Codebase Type**
 
 Use Glob and Grep to:
+
 - Check if monorepo (pnpm-workspace.yaml, lerna.json, nx.json)
 - Check if microservices (multiple service directories)
 - Detect primary language (count file extensions)
@@ -103,6 +109,7 @@ glob pattern="**/*.java" path="."
 **Sub-task 1.3: Present Scope Summary**
 
 Output:
+
 ```markdown
 ## Codebase Scope Detected
 
@@ -129,6 +136,7 @@ This level delegates to specialized agent in 4 sequential passes with 3 validati
 **Delegate to**: codebase-archeologist agent
 **Mode**: analyze_phase1
 **Agent Tasks**:
+
 - Scan directory structure
 - Parse configuration files
 - Identify tech stack and architecture
@@ -136,6 +144,7 @@ This level delegates to specialized agent in 4 sequential passes with 3 validati
 - Document usage patterns
 
 **Agent Input Contract**:
+
 ```json
 {
   "mode": "analyze_phase1",
@@ -151,6 +160,7 @@ This level delegates to specialized agent in 4 sequential passes with 3 validati
 ```
 
 **Agent Output Contract**:
+
 ```json
 {
   "status": "complete",
@@ -166,6 +176,7 @@ This level delegates to specialized agent in 4 sequential passes with 3 validati
 ```
 
 **Quality Requirements**:
+
 - All claims cite source files (file:line format)
 - All inferences have confidence levels (High/Medium/Low)
 - No invented features or patterns
@@ -173,6 +184,7 @@ This level delegates to specialized agent in 4 sequential passes with 3 validati
 - Use "Unknown" instead of guessing
 
 **Invoke Agent**:
+
 ```bash
 Task(
   subagent_type="codebase-archeologist",
@@ -184,6 +196,7 @@ Task(
 #### Checkpoint 1: Validate Initial Findings (Orchestrator Responsibility)
 
 **Sub-task 2.1.1: Read Agent Output**
+
 ```bash
 FINDINGS_FILE=".claude/memory/.tmp-findings-initial.md"
 if [ ! -f "$FINDINGS_FILE" ]; then
@@ -196,6 +209,7 @@ cat "$FINDINGS_FILE"
 **Sub-task 2.1.2: User Validation**
 
 Present structured questions:
+
 1. "Tech Stack Detection: Does the identified technology stack match your project?"
 2. "Architecture Assessment: Is the detected architecture accurate?"
 3. "Deployment Model: Does the identified deployment model match reality?"
@@ -203,6 +217,7 @@ Present structured questions:
 5. "Corrections Needed: Any other inaccuracies or missing information?"
 
 **Sub-task 2.1.3: Write Corrections**
+
 ```bash
 cat > .claude/memory/.tmp-corrections-initial.md <<EOF
 # Corrections for Initial Analysis
@@ -231,6 +246,7 @@ EOF
 ```
 
 **Sub-task 2.1.4: Cleanup Temporary Files**
+
 ```bash
 rm .claude/memory/.tmp-findings-initial.md
 echo "Cleaned up temporary findings file"
@@ -243,6 +259,7 @@ echo "Cleaned up temporary findings file"
 **Delegate to**: codebase-archeologist agent
 **Mode**: analyze_phase2
 **Agent Tasks**:
+
 - Read corrections from Checkpoint 1
 - Mine naming conventions
 - Extract code organization patterns
@@ -251,6 +268,7 @@ echo "Cleaned up temporary findings file"
 - Determine testing strategy
 
 **Agent Input Contract**:
+
 ```json
 {
   "mode": "analyze_phase2",
@@ -261,6 +279,7 @@ echo "Cleaned up temporary findings file"
 ```
 
 **Agent Output Contract**:
+
 ```json
 {
   "status": "complete",
@@ -274,6 +293,7 @@ echo "Cleaned up temporary findings file"
 ```
 
 **Invoke Agent**:
+
 ```bash
 Task(
   subagent_type="codebase-archeologist",
@@ -285,6 +305,7 @@ Task(
 #### Checkpoint 2: Validate Convention Findings (Orchestrator Responsibility)
 
 **Sub-task 2.2.1: Read Agent Output**
+
 ```bash
 FINDINGS_FILE=".claude/memory/.tmp-findings-conventions.md"
 cat "$FINDINGS_FILE"
@@ -293,6 +314,7 @@ cat "$FINDINGS_FILE"
 **Sub-task 2.2.2: User Validation**
 
 Present questions:
+
 1. "Naming Conventions: Do the identified patterns match your standards?"
 2. "Code Organization: Is the detected organization pattern accurate?"
 3. "Error Handling: Does the identified approach match your practices?"
@@ -301,6 +323,7 @@ Present questions:
 6. "Pattern Conformance: Do conformance percentages seem accurate?"
 
 **Sub-task 2.2.3: Write Corrections**
+
 ```bash
 cat > .claude/memory/.tmp-corrections-conventions.md <<EOF
 # Corrections for Convention Analysis
@@ -309,6 +332,7 @@ EOF
 ```
 
 **Sub-task 2.2.4: Cleanup**
+
 ```bash
 rm .claude/memory/.tmp-findings-conventions.md
 ```
@@ -320,6 +344,7 @@ rm .claude/memory/.tmp-findings-conventions.md
 **Delegate to**: codebase-archeologist agent
 **Mode**: analyze_phase3
 **Agent Tasks**:
+
 - Read all previous corrections
 - Map backend endpoints to features
 - Map frontend routes to features
@@ -329,6 +354,7 @@ rm .claude/memory/.tmp-findings-conventions.md
 - Assign confidence levels to ADRs
 
 **Agent Input Contract**:
+
 ```json
 {
   "mode": "analyze_phase3",
@@ -338,6 +364,7 @@ rm .claude/memory/.tmp-findings-conventions.md
 ```
 
 **Agent Output Contract**:
+
 ```json
 {
   "status": "complete",
@@ -355,6 +382,7 @@ rm .claude/memory/.tmp-findings-conventions.md
 ```
 
 **Invoke Agent**:
+
 ```bash
 Task(
   subagent_type="codebase-archeologist",
@@ -366,6 +394,7 @@ Task(
 #### Checkpoint 3: Validate Final Findings (Orchestrator Responsibility)
 
 **Sub-task 2.3.1: Read Agent Output**
+
 ```bash
 FINDINGS_FILE=".claude/memory/.tmp-findings-final.md"
 cat "$FINDINGS_FILE"
@@ -374,6 +403,7 @@ cat "$FINDINGS_FILE"
 **Sub-task 2.3.2: User Validation**
 
 Questions:
+
 1. "Feature Inventory: Are all identified features accurate and complete?"
 2. "Feature Completeness: Do completeness percentages match reality?"
 3. "Architecture Decisions: Do inferred ADRs reflect actual decisions?"
@@ -381,6 +411,7 @@ Questions:
 5. "Missing Features: Any features not identified?"
 
 **Sub-task 2.3.3: Write Corrections**
+
 ```bash
 cat > .claude/memory/.tmp-corrections-final.md <<EOF
 # Corrections for Final Analysis
@@ -389,6 +420,7 @@ EOF
 ```
 
 **Sub-task 2.3.4: Cleanup**
+
 ```bash
 rm .claude/memory/.tmp-findings-final.md
 ```
@@ -400,6 +432,7 @@ rm .claude/memory/.tmp-findings-final.md
 **Delegate to**: codebase-archeologist agent
 **Mode**: generate_artifacts
 **Agent Tasks**:
+
 - Read ALL correction files from 3 checkpoints
 - Generate 5 memory artifacts in `.claude/memory/`:
   1. project-context.md
@@ -411,6 +444,7 @@ rm .claude/memory/.tmp-findings-final.md
 - Ensure cross-references are valid
 
 **Agent Input Contract**:
+
 ```json
 {
   "mode": "generate_artifacts",
@@ -423,6 +457,7 @@ rm .claude/memory/.tmp-findings-final.md
 ```
 
 **Agent Output Contract**:
+
 ```json
 {
   "status": "complete",
@@ -443,6 +478,7 @@ rm .claude/memory/.tmp-findings-final.md
 ```
 
 **Quality Requirements**:
+
 - All user corrections applied
 - All claims cite source files (file:line)
 - All inferences have confidence levels
@@ -450,6 +486,7 @@ rm .claude/memory/.tmp-findings-final.md
 - Cross-references between artifacts valid
 
 **Invoke Agent**:
+
 ```bash
 Task(
   subagent_type="codebase-archeologist",
@@ -459,6 +496,7 @@ Task(
 ```
 
 **Sub-task 3.1: Cleanup All Temporary Files**
+
 ```bash
 rm .claude/memory/.tmp-corrections-initial.md
 rm .claude/memory/.tmp-corrections-conventions.md
@@ -473,6 +511,7 @@ echo "Cleaned up all temporary correction files"
 #### Sub-task 4.1: Verify Final Artifacts
 
 **Sub-task 4.1.1: Check All Files Exist**
+
 ```bash
 REQUIRED_FILES=(
   ".claude/memory/project-context.md"
@@ -499,6 +538,7 @@ fi
 ```
 
 **Sub-task 4.1.2: Content Quality Validation**
+
 ```bash
 # Check for evidence citations
 grep -c "According to" .claude/memory/*.md
@@ -545,7 +585,7 @@ Present comprehensive summary:
 
 4. **architecture-decisions.md** ([X] KB)
    - [N] ADRs generated
-   - [X] High confidence, [X] Medium, [X] Low
+   - [x] High confidence, [X] Medium, [X] Low
    - Evidence cited for all decisions
 
 5. **feature-inventory.md** ([X] KB)
@@ -569,21 +609,25 @@ Present comprehensive summary:
 ### Next Steps
 
 **For New Feature Development**:
+
 1. All agents now load these memory artifacts automatically
 2. New code follows existing conventions
 3. New features integrate with existing architecture
 
 **To Keep Memory Updated**:
+
 - After major refactors: `/update-memory "architecture"`
 - After dependency changes: `/update-memory "tech-stack"`
 - After establishing new patterns: `/mine-patterns --type "[pattern]"`
 
 **To Validate New Features**:
+
 - Before implementation: `/validate-consistency "[feature]"`
 
 ### Files Ready for Use
 
 All agents will now reference:
+
 - `project-context.md` for high-level context
 - `tech-stack-baseline.md` for technology decisions
 - `coding-conventions.md` for style and patterns
@@ -602,6 +646,7 @@ All agents will now reference:
 ### Phase Execution Timeline
 
 **Phase 2.1: Initial Analysis + Checkpoint 1** (~10-15 min)
+
 - Agent analyzes structure, config, tech stack
 - Agent writes `.tmp-findings-initial.md`
 - Orchestrator validates with user
@@ -609,6 +654,7 @@ All agents will now reference:
 - Cleanup: Delete `.tmp-findings-initial.md`
 
 **Phase 2.2: Convention Analysis + Checkpoint 2** (~15-20 min)
+
 - Agent reads Checkpoint 1 corrections
 - Agent mines conventions, patterns
 - Agent writes `.tmp-findings-conventions.md`
@@ -617,6 +663,7 @@ All agents will now reference:
 - Cleanup: Delete `.tmp-findings-conventions.md`
 
 **Phase 2.3: Final Analysis + Checkpoint 3** (~15-20 min)
+
 - Agent reads Checkpoints 1-2 corrections
 - Agent maps features, generates ADRs
 - Agent writes `.tmp-findings-final.md`
@@ -625,6 +672,7 @@ All agents will now reference:
 - Cleanup: Delete `.tmp-findings-final.md`
 
 **Phase 2.4: Artifact Generation** (~10-15 min)
+
 - Agent reads ALL corrections from 3 checkpoints
 - Agent generates 5 final memory artifacts
 - Agent incorporates all user corrections
@@ -649,30 +697,36 @@ All agents will now reference:
 ## Error Scenarios and Resolution
 
 ### Error 1: No Code Files Found
+
 ```markdown
 ERROR: No source files found in scope "[SCOPE]"
 
 **Possible causes**:
+
 - Incorrect path specified
 - Empty repository
 - All code is gitignored
 
 **Solution**:
+
 - Check scope path: `/generate-memory --scope "src"`
 - Verify code exists: `ls -R [SCOPE]`
 ```
 
 ### Error 2: Insufficient Permissions
+
 ```markdown
 ERROR: Cannot write to .claude/memory/
 
 **Solution**:
+
 - Check directory permissions
 - Create directory: `mkdir -p .claude/memory`
 - Verify write access: `touch .claude/memory/test`
 ```
 
 ### Error 3: Binary Files Only
+
 ```markdown
 WARNING: Only binary files detected, no source code
 
@@ -680,12 +734,14 @@ WARNING: Only binary files detected, no source code
 **Missing**: src/, lib/, app/
 
 **Solution**:
+
 - Ensure in project root
 - Check if source in subdirectory
 - Specify correct scope: `/generate-memory --scope "packages/app/src"`
 ```
 
 ### Error 4: Checkpoint Interrupted
+
 ```markdown
 **Checkpoint Interrupted**
 
@@ -695,14 +751,17 @@ WARNING: Only binary files detected, no source code
 ```
 
 ### Error 5: Git History Unavailable
+
 ```markdown
 WARNING: No git repository detected
 
 **Impact**:
+
 - Cannot generate ADR timeline
 - Cannot attribute technology adoption
 
 **Workaround**:
+
 - ADRs generated without dates
 - Technology choices inferred from current state
 - Confidence levels may be lower
@@ -715,12 +774,14 @@ WARNING: No git repository detected
 ## Command Usage Best Practices
 
 ### First-Time Analysis
+
 ```bash
 # Full deep analysis (recommended)
 /generate-memory
 ```
 
 ### Targeted Analysis
+
 ```bash
 # Analyze only frontend
 /generate-memory --scope "src/frontend"
@@ -733,6 +794,7 @@ WARNING: No git repository detected
 ```
 
 ### Monorepo Analysis
+
 ```bash
 # Analyze each package separately
 /generate-memory --scope "packages/app1"
@@ -743,6 +805,7 @@ WARNING: No git repository detected
 ```
 
 ### After Major Changes
+
 ```bash
 # Regenerate specific aspects
 /update-memory "tech-stack"

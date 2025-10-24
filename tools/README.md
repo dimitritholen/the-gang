@@ -12,7 +12,7 @@ Install
 Usage examples
 
 - List: code-tools list_dir --path . --depth 1
-- Search files: code-tools search*file --glob "src/\**/\_.py"
+- Search files: code-tools search\*file --glob "src/\*\*/\_.py"
 - Grep: code-tools grep_code --pattern "def main" --paths "src,lib"
 - Read: code-tools read_file --path docs/code-assistant.md --start 1 --end 200
 - Fetch: code-tools fetch_content --url <https://example.com>
