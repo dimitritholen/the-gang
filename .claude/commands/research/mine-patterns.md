@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit
+allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch
 argument-hint: --type [pattern-type]
 description: Extract and analyze recurring code patterns from codebase to document conventions and identify deviations
 ---

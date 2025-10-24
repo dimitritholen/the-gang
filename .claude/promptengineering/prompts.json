@@ -1,0 +1,184 @@
+[
+  {
+    "id": 1,
+    "technique": "Chain of Thought",
+    "description": "Step-by-step reasoning through complex problems by breaking them into explicit sequential steps before providing solutions.",
+    "whenToUse": [
+      "Complex problems needing step-by-step reasoning",
+      "Debugging and troubleshooting issues",
+      "Optimization requiring analytical reasoning",
+      "Design decisions with multiple considerations"
+    ],
+    "canCombineWith": [2, 3, 5, 6],
+    "exampleFile": ".claude/promptengineering/chain-of-thought.md"
+  },
+  {
+    "id": 2,
+    "technique": "Chain of Verification",
+    "description": "Generate solution, verify through targeted questions, revise based on verification, then produce validated output.",
+    "whenToUse": [
+      "Solutions need validation and self-correction",
+      "Security reviews and audits",
+      "Critical implementations with high risk",
+      "When accuracy is paramount"
+    ],
+    "canCombineWith": [1, 3, 4, 7],
+    "exampleFile": ".claude/promptengineering/chain-of-verification.md"
+  },
+  {
+    "id": 3,
+    "technique": "Chain of Command",
+    "description": "Multi-stage workflows with specialized agents, each handling specific tasks and passing results to the next agent.",
+    "whenToUse": [
+      "Complex pipelines requiring specialized expertise",
+      "Code review processes with multiple perspectives",
+      "Sequential delegation of tasks",
+      "When different skills needed at different stages"
+    ],
+    "canCombineWith": [1, 2, 4, 10],
+    "exampleFile": ".claude/promptengineering/chain-of-command.md"
+  },
+  {
+    "id": 4,
+    "technique": "Self-Consistency",
+    "description": "Generate multiple independent solutions using different approaches, then identify consensus across solutions.",
+    "whenToUse": [
+      "Critical decisions needing multiple perspectives",
+      "When robustness is important",
+      "Architectural decisions with trade-offs",
+      "High-stakes choices requiring validation"
+    ],
+    "canCombineWith": [1, 2, 3, 6],
+    "exampleFile": ".claude/promptengineering/self-consistency.md"
+  },
+  {
+    "id": 5,
+    "technique": "Multi-Objective Directional Prompting",
+    "description": "Optimize for multiple competing objectives with explicit prioritization and trade-off directions.",
+    "whenToUse": [
+      "Multiple constraints requiring balance",
+      "Stakeholder needs with competing priorities",
+      "Complex decisions with trade-offs",
+      "Need to optimize multiple dimensions simultaneously"
+    ],
+    "canCombineWith": [1, 4, 6, 8],
+    "exampleFile": ".claude/promptengineering/multi-objective-directional-prompting.md"
+  },
+  {
+    "id": 6,
+    "technique": "Chain of Draft",
+    "description": "Iterative refinement through multiple drafts, each incorporating critiques from previous versions.",
+    "whenToUse": [
+      "Output needs iterative refinement",
+      "Writing tasks requiring polish",
+      "API or component design needing evolution",
+      "Documentation and messaging work"
+    ],
+    "canCombineWith": [1, 2, 4, 5],
+    "exampleFile": ".claude/promptengineering/chain-of-draft.md"
+  },
+  {
+    "id": 7,
+    "technique": "Role-Based Prompting",
+    "description": "Assign specific expert roles (e.g., senior engineer, security expert) to guide response style and depth.",
+    "whenToUse": [
+      "Need expertise from specific domain",
+      "Different perspectives on same problem",
+      "Mentoring or educational contexts",
+      "When role affects how task is approached"
+    ],
+    "canCombineWith": [1, 2, 3, 8, 9, 10],
+    "exampleFile": ".claude/promptengineering/role-based.md"
+  },
+  {
+    "id": 8,
+    "technique": "Reflexion",
+    "description": "Generate output, reflect on quality and issues, iteratively improve through self-critique cycles.",
+    "whenToUse": [
+      "Need self-correction and improvement",
+      "Quality refinement through introspection",
+      "Learning from mistakes in approach",
+      "When multiple rounds of improvement needed"
+    ],
+    "canCombineWith": [1, 2, 5, 6, 10],
+    "exampleFile": ".claude/promptengineering/reflexion.md"
+  },
+  {
+    "id": 9,
+    "technique": "Active Prompting",
+    "description": "Dynamically adapt follow-up questions and prompts based on uncertainty, context, and feedback.",
+    "whenToUse": [
+      "Requirements unclear or evolving",
+      "Need to gather context iteratively",
+      "Uncertainty about approach or constraints",
+      "Interactive problem-solving required"
+    ],
+    "canCombineWith": [1, 2, 7, 10, 14],
+    "exampleFile": ".claude/promptengineering/active-prompting.md"
+  },
+  {
+    "id": 10,
+    "technique": "Iterative Refinement",
+    "description": "Progressive improvement through multiple rounds of feedback, analysis, and prompt adjustment.",
+    "whenToUse": [
+      "Converging on optimal solution incrementally",
+      "Quality improvement through iteration",
+      "Balancing multiple constraints over rounds",
+      "When stopping criteria define completion"
+    ],
+    "canCombineWith": [1, 2, 6, 8, 11],
+    "exampleFile": ".claude/promptengineering/iterative-refinement.md"
+  },
+  {
+    "id": 11,
+    "technique": "Recursive Self-Improvement",
+    "description": "AI critiques its own output from multiple perspectives and recursively revises until quality thresholds met.",
+    "whenToUse": [
+      "Multiple evaluation criteria needed",
+      "Quality must meet specific thresholds",
+      "Need diverse perspectives on output",
+      "Recursive improvement until convergence"
+    ],
+    "canCombineWith": [1, 2, 6, 8, 10],
+    "exampleFile": ".claude/promptengineering/recursive-self-improvement.md"
+  },
+  {
+    "id": 12,
+    "technique": "Task Decomposition",
+    "description": "Break complex problems into simpler, manageable sub-tasks that can be solved independently and composed.",
+    "whenToUse": [
+      "Complex multi-step problems",
+      "Large features needing breakdown",
+      "When subtasks can be parallelized",
+      "Hierarchical problem structure"
+    ],
+    "canCombineWith": [1, 3, 13, 14],
+    "exampleFile": ".claude/promptengineering/task-decomposition.md"
+  },
+  {
+    "id": 13,
+    "technique": "ReAct (Reasoning + Acting)",
+    "description": "Interleave reasoning traces with task-specific actions in cycles: Thought → Action → Observation → repeat.",
+    "whenToUse": [
+      "Need to gather information iteratively",
+      "Actions depend on observations",
+      "Debugging and investigation workflows",
+      "When reasoning must adapt to findings"
+    ],
+    "canCombineWith": [1, 9, 12],
+    "exampleFile": ".claude/promptengineering/react.md"
+  },
+  {
+    "id": 14,
+    "technique": "Agile/Scrum Prompts",
+    "description": "Specialized prompts for Agile ceremonies including sprint planning, standups, retrospectives, and backlog refinement.",
+    "whenToUse": [
+      "Sprint planning and estimation",
+      "Backlog refinement and story writing",
+      "Daily standup preparation",
+      "Retrospective facilitation"
+    ],
+    "canCombineWith": [7, 9, 12],
+    "exampleFile": ".claude/promptengineering/prompts-for-scrum.md"
+  }
+]
