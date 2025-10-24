@@ -42,16 +42,16 @@ ls .tasks/01-*/
 
 ### Common Commands
 
-| Command | Purpose |
-|---------|---------|
-| `/analyze-feature [description]` | Full SDLC: requirements -> research -> planning -> validation |
-| `/gather-requirements [description]` | Elicit requirements through structured questions |
-| `/research-tech [feature-slug]` | Technology stack analysis and recommendations |
-| `/plan-implementation [feature-slug]` | Generate task manifests from requirements |
-| `/task-next [feature-slug]` | Get next available task (dependency-aware) |
-| `/task-start [task-id] [feature-slug]` | Begin task implementation |
-| `/task-complete [task-id] [feature-slug]` | Mark task complete + sync manifests |
-| `/review-code [feature-slug]` | Pre-merge code review |
+| Command                                   | Purpose                                                       |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| `/analyze-feature [description]`          | Full SDLC: requirements -> research -> planning -> validation |
+| `/gather-requirements [description]`      | Elicit requirements through structured questions              |
+| `/research-tech [feature-slug]`           | Technology stack analysis and recommendations                 |
+| `/plan-implementation [feature-slug]`     | Generate task manifests from requirements                     |
+| `/task-next [feature-slug]`               | Get next available task (dependency-aware)                    |
+| `/task-start [task-id] [feature-slug]`    | Begin task implementation                                     |
+| `/task-complete [task-id] [feature-slug]` | Mark task complete + sync manifests                           |
+| `/review-code [feature-slug]`             | Pre-merge code review                                         |
 
 ---
 
@@ -318,9 +318,11 @@ graph LR
 ### Workflow Commands
 
 #### `/analyze-feature [description]`
+
 **Purpose**: Complete feature analysis workflow - orchestrates requirements, tech research, planning, and validation
 
 **Phases Executed**:
+
 1. Requirements gathering (requirements-analyst)
 2. Technology research (tech-researcher)
 3. Implementation planning (implementation-planner)
@@ -328,6 +330,7 @@ graph LR
 5. Synthesis and feature brief generation
 
 **Artifacts Created**:
+
 - `.claude/memory/requirements-{slug}.md`
 - `.claude/memory/tech-analysis-{slug}.md`
 - `.claude/memory/{slug}.jsonl` (knowledge graph)
@@ -335,6 +338,7 @@ graph LR
 - `.tasks/{NN}-{slug}/T01-{task}.xml` (multiple tasks)
 
 **Example**:
+
 ```bash
 /analyze-feature "Real-time chat with WebSocket support"
 ```
@@ -342,11 +346,13 @@ graph LR
 ---
 
 #### `/implement-feature [feature-slug]`
+
 **Purpose**: Orchestrate feature implementation using CoT, CoVe, and anti-hallucination techniques
 
 **Prerequisites**: All planning artifacts must exist (requirements, tech analysis, implementation plan, scope validation)
 
 **Workflow**:
+
 1. Load implementation context
 2. Build dependency graph
 3. Execute tasks in dependency order
@@ -354,6 +360,7 @@ graph LR
 5. Generate implementation summary
 
 **Quality Gates**:
+
 - Code standards compliance
 - Test coverage
 - Security review
@@ -361,6 +368,7 @@ graph LR
 - Anti-hallucination checks
 
 **Example**:
+
 ```bash
 /implement-feature user-authentication
 ```
@@ -370,24 +378,29 @@ graph LR
 ### Requirements Commands
 
 #### `/gather-requirements [description]`
+
 **Purpose**: Two-pass requirements elicitation - generates questions then processes answers
 
 **Mode 1: Generate Questions**
+
 - Analyzes context
 - Generates 5-level structured questions (Purpose, Functional, NFR, Constraints, Acceptance)
 - Outputs `.claude/memory/.tmp-questions-{slug}.md`
 
 **Mode 2: Generate Requirements**
+
 - Reads user answers from `.claude/memory/.tmp-answers-{slug}.md`
 - Creates requirements document with confidence levels
 - Assigns feature ID and creates directory structure
 
 **Output**:
+
 - `.tasks/{NN}-{slug}/feature-brief.md`
 - `.tasks/{NN}-{slug}/requirements-{slug}.md`
 - Updated `.tasks/manifest.json`
 
 **Example**:
+
 ```bash
 /gather-requirements "OAuth authentication for API"
 ```
@@ -397,18 +410,22 @@ graph LR
 ### Research Commands
 
 #### `/research-tech [feature-slug]`
+
 **Purpose**: Technology stack research and recommendation with grounded analysis
 
 **Capabilities**:
+
 - Library/framework evaluation
 - Architecture pattern recommendations
 - Security/performance trade-off analysis
 - Grounded in official documentation (uses WebFetch)
 
 **Output**:
+
 - `.claude/memory/tech-analysis-{slug}.md`
 
 **Example**:
+
 ```bash
 /research-tech user-authentication
 ```
@@ -416,9 +433,11 @@ graph LR
 ---
 
 #### `/mine-patterns [--type pattern-type]`
+
 **Purpose**: Extract and analyze recurring code patterns from codebase
 
 **Pattern Types**:
+
 - Naming conventions
 - Structural patterns
 - API design patterns
@@ -427,6 +446,7 @@ graph LR
 **Output**: Pattern documentation with conformance metrics
 
 **Example**:
+
 ```bash
 /mine-patterns --type naming
 ```
@@ -436,19 +456,23 @@ graph LR
 ### Planning Commands
 
 #### `/plan-implementation [feature-slug]`
+
 **Purpose**: Generate task manifests (XML + JSON) from requirements
 
 **Prerequisites**:
+
 - Requirements document
 - Tech analysis document
 
 **Outputs**:
+
 - Task breakdown into phases
 - XML task files (`.tasks/{NN}-{slug}/T{NN}-{task}.xml`)
 - Task manifest (`.tasks/{NN}-{slug}/manifest.json`)
 - Dependency graph
 
 **Example**:
+
 ```bash
 /plan-implementation user-authentication
 ```
@@ -458,9 +482,11 @@ graph LR
 ### Quality Commands
 
 #### `/validate-scope [feature-slug]`
+
 **Purpose**: Scope creep detection and feature drift prevention
 
 **Checks**:
+
 - Planned features vs implemented features
 - Requirements coverage
 - Deferred features validation
@@ -468,6 +494,7 @@ graph LR
 **Output**: Scope validation report with flagged issues
 
 **Example**:
+
 ```bash
 /validate-scope user-authentication
 ```
@@ -475,15 +502,18 @@ graph LR
 ---
 
 #### `/validate-consistency [feature-slug]`
+
 **Purpose**: Validate new feature plan against existing codebase conventions
 
 **Checks**:
+
 - Naming convention alignment
 - Architectural pattern consistency
 - Technology stack compatibility
 - Code structure conformance
 
 **Example**:
+
 ```bash
 /validate-consistency user-authentication
 ```
@@ -491,15 +521,18 @@ graph LR
 ---
 
 #### `/validate-manifests`
+
 **Purpose**: Validate task and root manifest consistency
 
 **Checks**:
+
 - Task counts match between manifests
 - Status synchronization
 - Dependency validity
 - Blocker consistency
 
 **Example**:
+
 ```bash
 /validate-manifests
 ```
@@ -507,9 +540,11 @@ graph LR
 ---
 
 #### `/review-code [feature-slug]`
+
 **Purpose**: Pre-merge code review using worktree branch analysis
 
 **Review Areas**:
+
 - Code quality and standards
 - Security vulnerabilities
 - Performance issues
@@ -517,6 +552,7 @@ graph LR
 - Documentation completeness
 
 **Example**:
+
 ```bash
 /review-code user-authentication
 ```
@@ -526,14 +562,17 @@ graph LR
 ### Task Commands
 
 #### `/task-start [task-id] [feature-slug]`
+
 **Purpose**: Start task implementation (validates dependencies)
 
 **Validations**:
+
 - Dependency completion check
 - Status transition validation (NOT_STARTED -> IN_PROGRESS)
 - Manifest consistency
 
 **Example**:
+
 ```bash
 /task-start T01 user-authentication
 ```
@@ -541,15 +580,18 @@ graph LR
 ---
 
 #### `/task-complete [task-id] [feature-slug]`
+
 **Purpose**: Mark task complete and sync manifests
 
 **Actions**:
+
 - Status update (IN_PROGRESS -> COMPLETED)
 - Root manifest sync
 - Dependency chain update
 - Completion timestamp
 
 **Example**:
+
 ```bash
 /task-complete T01 user-authentication
 ```
@@ -557,15 +599,18 @@ graph LR
 ---
 
 #### `/task-status [feature-slug]`
+
 **Purpose**: Check task progress and feature status
 
 **Output**:
+
 - Task counts (total, completed, in progress, blocked)
 - Progress percentage
 - Blocker list
 - Next available tasks
 
 **Example**:
+
 ```bash
 /task-status user-authentication
 ```
@@ -573,14 +618,17 @@ graph LR
 ---
 
 #### `/task-next [feature-slug]`
+
 **Purpose**: Get next available task (dependency-aware)
 
 **Logic**:
+
 - Finds tasks with status NOT_STARTED
 - Validates all dependencies are COMPLETED
 - Returns highest priority unblocked task
 
 **Example**:
+
 ```bash
 /task-next user-authentication
 ```
@@ -588,14 +636,17 @@ graph LR
 ---
 
 #### `/task-block [task-id] [feature-slug] [reason]`
+
 **Purpose**: Mark task as blocked by an issue
 
 **Actions**:
+
 - Status update (IN_PROGRESS -> BLOCKED)
 - Record blocker reason
 - Sync manifests
 
 **Example**:
+
 ```bash
 /task-block T03 user-authentication "Waiting for API key from ops"
 ```
@@ -603,14 +654,17 @@ graph LR
 ---
 
 #### `/task-unblock [task-id] [feature-slug]`
+
 **Purpose**: Unblock task and resume work
 
 **Actions**:
+
 - Status update (BLOCKED -> IN_PROGRESS)
 - Clear blocker
 - Sync manifests
 
 **Example**:
+
 ```bash
 /task-unblock T03 user-authentication
 ```
@@ -620,9 +674,11 @@ graph LR
 ### Memory Commands
 
 #### `/generate-memory [--scope path] [--focus aspect] [--depth level]`
+
 **Purpose**: Generate memory artifacts from existing codebase
 
 **Parameters**:
+
 - `--scope`: Specific directory or file path
 - `--focus`: Aspect to focus on (architecture, patterns, conventions, dependencies)
 - `--depth`: Analysis depth (quick, standard, comprehensive)
@@ -630,6 +686,7 @@ graph LR
 **Output**: JSONL knowledge graphs and markdown documentation
 
 **Example**:
+
 ```bash
 /generate-memory --scope src/auth --focus security --depth comprehensive
 ```
@@ -637,15 +694,18 @@ graph LR
 ---
 
 #### `/update-memory [aspect]`
+
 **Purpose**: Incremental memory artifact updates after codebase changes
 
 **Aspects**:
+
 - requirements
 - tech-decisions
 - conventions
 - patterns
 
 **Example**:
+
 ```bash
 /update-memory conventions
 ```
@@ -653,14 +713,17 @@ graph LR
 ---
 
 #### `/cleanup-memory [optional: feature-slug]`
+
 **Purpose**: Remove stale memory artifacts
 
 **Actions**:
+
 - Removes `.tmp-*` files
 - Archives outdated graphs
 - Cleans legacy memory structure
 
 **Example**:
+
 ```bash
 /cleanup-memory user-authentication
 ```
@@ -670,15 +733,18 @@ graph LR
 ### Design Commands
 
 #### `/design-ui [feature-slug]`
+
 **Purpose**: UX research and UI design for feature
 
 **Outputs**:
+
 - User flows
 - Wireframes
 - Design specifications
 - Component breakdown
 
 **Example**:
+
 ```bash
 /design-ui user-authentication
 ```
@@ -688,9 +754,11 @@ graph LR
 ### Generator Commands
 
 #### `/generators:design [project idea or path to prd]`
+
 **Purpose**: Transform project plans into designs via multi-agent pipeline
 
 **Pipeline**:
+
 1. Business analysis
 2. Design research
 3. Variant generation
@@ -698,6 +766,7 @@ graph LR
 5. Implementation-ready specs
 
 **Example**:
+
 ```bash
 /generators:design docs/product-requirements.md
 ```
@@ -705,15 +774,18 @@ graph LR
 ---
 
 #### `/generators:prompt [vague prompt]`
+
 **Purpose**: Transform vague prompts into advanced prompt-engineered versions
 
 **Techniques Applied**:
+
 - Chain-of-Thought
 - Chain-of-Verification
 - Step-Back Prompting
 - Few-Shot Examples
 
 **Example**:
+
 ```bash
 /generators:prompt "Analyze the commands and document them"
 ```
@@ -723,11 +795,13 @@ graph LR
 ## Agents Reference
 
 ### requirements-analyst
+
 **Purpose**: Two-pass requirements elicitation - questions generation, then requirements document creation
 
 **Tools**: Read, Bash, Write
 
 **Methodology**:
+
 - 5-Level Questioning Framework (Purpose, Functional, NFR, Constraints, Acceptance)
 - Chain-of-Thought reasoning for gap analysis
 - Confidence levels per requirement (High/Medium/Low)
@@ -735,6 +809,7 @@ graph LR
 - Multi-feature detection and separation
 
 **Key Features**:
+
 - Automatic feature ID assignment
 - Root manifest creation/update
 - Assumption flagging
@@ -743,11 +818,13 @@ graph LR
 ---
 
 ### tech-researcher
+
 **Purpose**: Technology stack research and recommendation with grounded analysis
 
 **Tools**: Read, WebFetch, Grep, Glob, Bash
 
 **Capabilities**:
+
 - Library/framework evaluation using official docs
 - Architecture pattern recommendations
 - Security/performance trade-off analysis
@@ -755,6 +832,7 @@ graph LR
 - Stakeholder-specific justifications
 
 **Anti-Hallucination**:
+
 - WebFetch verification of API claims
 - Codebase pattern analysis
 - Explicit uncertainty expression
@@ -762,11 +840,13 @@ graph LR
 ---
 
 ### implementation-planner
+
 **Purpose**: Create task manifests (XML) and breakdown from requirements
 
 **Tools**: Read, Write, Bash (code-tools)
 
 **Outputs**:
+
 - Phase-based task breakdown
 - XML task files with dependencies
 - JSON task manifest
@@ -774,6 +854,7 @@ graph LR
 - Effort estimates
 
 **Validation**:
+
 - Requirements coverage check
 - Dependency cycle detection
 - Scope alignment verification
@@ -781,11 +862,13 @@ graph LR
 ---
 
 ### scope-guardian
+
 **Purpose**: Validate scope creep and feature drift
 
 **Tools**: Read, Bash (code-tools)
 
 **Checks**:
+
 - MVP feature alignment
 - Deferred features validation
 - Implementation vs plan comparison
@@ -796,17 +879,20 @@ graph LR
 ---
 
 ### senior-developer
+
 **Purpose**: Code implementation with CoT reasoning, CoVe verification, anti-hallucination
 
 **Tools**: Read, Write, Edit, Bash, Grep, Glob
 
 **Philosophy**:
+
 - YAGNI (You Aren't Gonna Need It)
 - Boring Technology (proven > cutting-edge)
 - Simple > Clever
 - Working Software First
 
 **Workflow**:
+
 1. Context retrieval and grounding
 2. Chain-of-Thought task decomposition
 3. Standards/best practices grounding
@@ -816,6 +902,7 @@ graph LR
 7. Documentation and commit
 
 **Anti-Patterns Detected**:
+
 - Premature abstraction
 - Speculative features
 - Config sprawl
@@ -825,11 +912,13 @@ graph LR
 ---
 
 ### qa-engineer
+
 **Purpose**: Test execution and validation
 
 **Tools**: Read, Write, Bash, Grep, Glob
 
 **Test Types**:
+
 - Unit tests
 - Integration tests
 - E2E tests
@@ -841,11 +930,13 @@ graph LR
 ---
 
 ### code-review-specialist
+
 **Purpose**: Pre-merge code review
 
 **Tools**: Read, Grep, Glob, Bash
 
 **Review Areas**:
+
 - Code quality and standards
 - Security vulnerabilities (OWASP Top 10)
 - Performance issues
@@ -856,11 +947,13 @@ graph LR
 ---
 
 ### task-manager
+
 **Purpose**: Task status updates and manifest synchronization
 
 **Tools**: Read, Write, Bash (code-tools)
 
 **Functions**:
+
 - Status transitions (NOT_STARTED -> IN_PROGRESS -> COMPLETED)
 - Manifest updates (task + root)
 - Dependency validation
@@ -869,11 +962,13 @@ graph LR
 ---
 
 ### memory-manager
+
 **Purpose**: Context management and artifact synthesis
 
 **Tools**: Read, Write, Grep, Bash
 
 **Capabilities**:
+
 - JSONL knowledge graph creation
 - Entity/relationship extraction
 - Graph query optimization
@@ -883,11 +978,13 @@ graph LR
 ---
 
 ### memory-migrator
+
 **Purpose**: Migrate legacy `.claude/memory/` to new `.tasks/` structure
 
 **Tools**: Read, Write, Bash, Glob, Grep
 
 **Migration**:
+
 - Automatic structure conversion
 - Manifest generation
 - Backward compatibility preservation
@@ -895,11 +992,13 @@ graph LR
 ---
 
 ### codebase-archeologist
+
 **Purpose**: Multi-phase codebase analysis with interactive validation
 
 **Tools**: Read, Glob, Grep, Bash, Write
 
 **Analysis Phases**:
+
 - Structure mapping
 - Pattern extraction
 - Dependency analysis
@@ -908,11 +1007,13 @@ graph LR
 ---
 
 ### ux-ui-designer
+
 **Purpose**: UX research and UI design specialist
 
 **Tools**: Read, Write, WebFetch
 
 **Deliverables**:
+
 - User flows
 - Wireframes
 - Design specifications
@@ -939,6 +1040,7 @@ pip install .[web]       # Standard install
 #### File Operations
 
 **list_dir** - List directory contents with depth control
+
 ```bash
 code-tools list_dir --path . --depth 2
 
@@ -946,6 +1048,7 @@ code-tools list_dir --path . --depth 2
 ```
 
 **search_file** - Search files by glob pattern
+
 ```bash
 code-tools search_file --glob "src/**/*.py" --limit 50
 
@@ -953,6 +1056,7 @@ code-tools search_file --glob "src/**/*.py" --limit 50
 ```
 
 **grep_code** - Search code for patterns
+
 ```bash
 code-tools grep_code --pattern "def authenticate" --paths "src,lib" --limit 30
 
@@ -960,6 +1064,7 @@ code-tools grep_code --pattern "def authenticate" --paths "src,lib" --limit 30
 ```
 
 **read_file** - Read file with line range
+
 ```bash
 code-tools read_file --path docs/README.md --start 1 --end 100
 
@@ -967,6 +1072,7 @@ code-tools read_file --path docs/README.md --start 1 --end 100
 ```
 
 **create_file** - Create new file
+
 ```bash
 code-tools create_file --file output.txt --content @content.txt --add-last-line-newline
 
@@ -974,6 +1080,7 @@ code-tools create_file --file output.txt --content @content.txt --add-last-line-
 ```
 
 **edit_file** - Edit existing file
+
 ```bash
 code-tools edit_file --file output.txt --patch @changes.txt
 
@@ -981,6 +1088,7 @@ code-tools edit_file --file output.txt --patch @changes.txt
 ```
 
 **search_replace** - Search and replace in file
+
 ```bash
 code-tools search_replace --file config.md --replacements @replacements.json
 
@@ -996,6 +1104,7 @@ code-tools search_replace --file config.md --replacements @replacements.json
 #### Web Operations
 
 **fetch_content** - Fetch web content
+
 ```bash
 code-tools fetch_content --url https://example.com/docs
 
@@ -1007,6 +1116,7 @@ code-tools fetch_content --url https://example.com/docs
 #### Task Management (v1.1)
 
 **slugify_feature** - Convert feature name to slug
+
 ```bash
 code-tools slugify_feature --name "User Authentication" --feature-id 01
 
@@ -1014,6 +1124,7 @@ code-tools slugify_feature --name "User Authentication" --feature-id 01
 ```
 
 **read_task_manifest** - Read manifest with metrics
+
 ```bash
 code-tools read_task_manifest --path .tasks/01-auth/manifest.json
 
@@ -1028,6 +1139,7 @@ code-tools read_task_manifest --path .tasks/01-auth/manifest.json
 ```
 
 **update_task_status** - Update task status and sync manifests
+
 ```bash
 code-tools update_task_status --task-id T01 --status IN_PROGRESS --feature-dir .tasks/01-auth
 
@@ -1036,6 +1148,7 @@ code-tools update_task_status --task-id T01 --status IN_PROGRESS --feature-dir .
 ```
 
 **find_next_task** - Get next available task (dependency-aware)
+
 ```bash
 code-tools find_next_task --manifest .tasks/01-auth/manifest.json
 
@@ -1043,6 +1156,7 @@ code-tools find_next_task --manifest .tasks/01-auth/manifest.json
 ```
 
 **validate_manifest** - Check manifest consistency
+
 ```bash
 code-tools validate_manifest --feature-dir .tasks/01-auth
 
@@ -1054,6 +1168,7 @@ code-tools validate_manifest --feature-dir .tasks/01-auth
 ```
 
 **list_memory_artifacts** - List/filter memory artifacts
+
 ```bash
 code-tools list_memory_artifacts --dir .claude/memory --feature user-auth
 
@@ -1065,6 +1180,7 @@ code-tools list_memory_artifacts --dir .claude/memory --feature user-auth
 #### Knowledge Graph (v1.2)
 
 **sync_memory_graph** - Build JSONL graphs from markdown
+
 ```bash
 code-tools sync_memory_graph --dir .claude/memory --feature user-authentication
 
@@ -1077,6 +1193,7 @@ code-tools sync_memory_graph --dir .claude/memory --feature user-authentication
 ```
 
 **query_memory** - Query knowledge graph with natural language
+
 ```bash
 code-tools query_memory --dir .claude/memory --feature user-authentication \
   --query "security requirements" --mode direct --limit 10
@@ -1241,11 +1358,13 @@ code-tools query_memory --dir .claude/memory --feature user-authentication \
 ## Validation
 
 ### Validate XML Tasks
+
 ```bash
 xmllint --schema .claude/schemas/task-schema.xsd .tasks/01-feature/T01-task.xml
 ```
 
 ### Validate JSON Manifests
+
 ```bash
 npm install -g ajv-cli
 ajv validate -s .claude/schemas/root-manifest-schema.json -d .tasks/manifest.json
@@ -1253,6 +1372,7 @@ ajv validate -s .claude/schemas/task-manifest-schema.json -d .tasks/01-feature/m
 ```
 
 ### Validate Manifest Consistency
+
 ```bash
 code-tools validate_manifest --feature-dir .tasks/01-user-authentication
 ```
@@ -1271,12 +1391,12 @@ pytest -q
 
 ## Naming Conventions
 
-| Item | Format | Example |
-|------|--------|---------|
-| Feature ID | Two-digit zero-padded | `01`, `02`, `99` |
-| Feature Slug | lowercase-hyphen | `user-authentication` |
-| Task ID | `T` + two-digit | `T01`, `T15` |
-| Task Slug | lowercase-hyphen | `database-schema` |
+| Item         | Format                | Example               |
+| ------------ | --------------------- | --------------------- |
+| Feature ID   | Two-digit zero-padded | `01`, `02`, `99`      |
+| Feature Slug | lowercase-hyphen      | `user-authentication` |
+| Task ID      | `T` + two-digit       | `T01`, `T15`          |
+| Task Slug    | lowercase-hyphen      | `database-schema`     |
 
 ---
 
