@@ -1,7 +1,7 @@
 ---
 allowed-tools: Bash(code-tools:*), Read
 argument-hint: [feature-slug]
-description: Validate new feature plan against existing codebase conventions and architectural decisions using systematic comparison
+description: Validate new feature plan against existing codebase conventions and architectural decisions using systematic comparison with Chain of Verification
 ---
 
 # Consistency Validation Command
@@ -13,20 +13,24 @@ Act as a product manager and scope management specialist with deep expertise in 
 
 ## Objective
 
-Perform systematic validation of a new feature's implementation plan against existing codebase conventions, architectural decisions, and technology baseline to identify deviations before implementation begins. This is a critical quality gate that prevents drift and maintains codebase coherence.
+Perform systematic validation of a new feature's implementation plan against existing codebase conventions, architectural decisions, and technology baseline to identify deviations before implementation begins. Use Chain of Verification to ensure validation accuracy and eliminate false positives/negatives.
 
-## Methodology
+## Methodology with Chain of Verification
 
-### Phase 1: Context Retrieval
+### Phase 1: Context Retrieval and Decomposition
 
-Load all baseline memory artifacts and feature plan:
+**Task 1.1: Load baseline artifacts**
 
 ```bash
 # Load codebase baseline artifacts
 code-tools read_file --path .claude/memory/coding-conventions.md
 code-tools read_file --path .claude/memory/architecture-decisions.md
 code-tools read_file --path .claude/memory/tech-stack-baseline.md
+```
 
+**Task 1.2: Load feature-specific artifacts**
+
+```bash
 # Load feature-specific artifacts
 code-tools read_file --path .claude/memory/implementation-plan-$1.md
 code-tools read_file --path .claude/memory/requirements-$1.md
@@ -36,76 +40,51 @@ code-tools read_file --path .claude/memory/tech-analysis-$1.md
 code-tools search_memory --dir .claude/memory --query "$1 related features patterns" --topk 5
 ```
 
-### Phase 2: Chain-of-Thought Comparison Reasoning
+### Phase 2: Initial Validation - Generate Comparison Analysis
 
-Before performing validation, reason through the comparison strategy:
+**Sub-task 2.1: Baseline understanding extraction**
 
 ```xml
-<comparison_reasoning>
 <baseline_understanding>
 **Coding Conventions Summary**:
-- {List 5-7 key conventions from coding-conventions.md}
-- {Pattern}: {Dominance %} conformance
+- {Extract 5-7 key conventions from coding-conventions.md with line references}
+- {Pattern}: {Dominance %} conformance (cite evidence)
 - {Exception cases}: {When deviations are acceptable}
 
 **Architecture Decisions**:
-- {Decision}: {Rationale} (ADR-001)
-- {Decision}: {Rationale} (ADR-002)
+- {Decision}: {Rationale} (ADR-XXX with file:line reference)
+- {Decision}: {Rationale} (ADR-XXX with file:line reference)
 - {Critical constraints}: {Non-negotiable patterns}
 
 **Tech Stack Baseline**:
-- {Framework/Library}: {Version} - {Usage pattern}
-- {Approved dependencies}: {List with versions}
-- {Prohibited dependencies}: {Why forbidden}
+- {Framework/Library}: {Version} - {Usage pattern with reference}
+- {Approved dependencies}: {List with versions and references}
+- {Prohibited dependencies}: {Why forbidden with reference}
 </baseline_understanding>
+```
 
+**Sub-task 2.2: Feature plan analysis**
+
+```xml
 <feature_plan_analysis>
 **Feature Components**:
 - {Component}: {Technology choice} - {Implementation approach}
 - {New dependencies introduced}: {List with justification}
 
-**Deviation Candidates**:
-- {Potential deviation 1}: {Why it might violate convention}
-- {Potential deviation 2}: {Why it might violate ADR}
+**Potential Deviation Candidates**:
+- {Deviation 1}: {Why it might violate convention} [reference: plan:line X]
+- {Deviation 2}: {Why it might violate ADR} [reference: plan:line Y]
 
 **Alignment Strengths**:
-- {Aspect}: {How it aligns with baseline}
+- {Aspect}: {How it aligns with baseline} [references]
 </feature_plan_analysis>
-
-<validation_strategy>
-**Comparison Dimensions**:
-1. **File Naming & Structure**: Compare against conventions
-2. **Architectural Patterns**: Validate against ADRs
-3. **Technology Choices**: Check against tech-stack-baseline
-4. **Error Handling**: Verify dominant pattern usage
-5. **Testing Strategy**: Check test pyramid compliance
-6. **API Design**: Validate against REST/GraphQL conventions
-7. **State Management**: Check against established patterns
-8. **Dependencies**: Verify no prohibited libraries
-
-**Severity Classification Logic**:
-- **CRITICAL**: Violates architectural decision OR uses prohibited technology
-- **WARNING**: Deviates from convention with >80% conformance
-- **INFO**: Minor deviation from convention with <80% conformance
-- **COMPLIANT**: Matches established patterns
-</validation_strategy>
-</comparison_reasoning>
 ```
 
-### Phase 3: Systematic Validation
+**Sub-task 2.3: Systematic validation by dimension**
 
-Perform systematic comparison across all dimensions:
+Execute validation across all dimensions:
 
-#### 3.1 File Naming & Directory Structure
-
-**Validation Questions**:
-
-- Does file naming match dominant pattern (camelCase, kebab-case, PascalCase)?
-- Does directory structure follow feature-based or layer-based organization?
-- Are files placed in correct directories per convention?
-- Do new directories follow established hierarchy?
-
-**Evidence Collection**:
+**Dimension A: File Naming & Directory Structure**
 
 ```bash
 # Extract file paths from implementation plan
@@ -115,17 +94,13 @@ grep -E "files_affected|file.*path" .claude/memory/implementation-plan-$1.md
 grep -E "file.*naming|directory.*structure" .claude/memory/coding-conventions.md
 ```
 
-#### 3.2 Architectural Pattern Compliance
+**Validation questions**:
+- Does file naming match dominant pattern (camelCase, kebab-case, PascalCase)?
+- Does directory structure follow feature-based or layer-based organization?
+- Are files placed in correct directories per convention?
+- Do new directories follow established hierarchy?
 
-**Validation Questions**:
-
-- Do planned components follow established architectural layers?
-- Are separation of concerns principles maintained?
-- Does data flow match architectural diagrams?
-- Are integration patterns consistent with ADRs?
-- Do new patterns contradict existing decisions?
-
-**Evidence Collection**:
+**Dimension B: Architectural Pattern Compliance**
 
 ```bash
 # Extract architectural patterns from plan
@@ -135,17 +110,14 @@ grep -E "architecture|layer|pattern|design" .claude/memory/implementation-plan-$
 grep -E "ADR-|decision|pattern" .claude/memory/architecture-decisions.md
 ```
 
-#### 3.3 Technology & Dependency Validation
+**Validation questions**:
+- Do planned components follow established architectural layers?
+- Are separation of concerns principles maintained?
+- Does data flow match architectural diagrams?
+- Are integration patterns consistent with ADRs?
+- Do new patterns contradict existing decisions?
 
-**Validation Questions**:
-
-- Are all libraries in tech-stack-baseline approved list?
-- Are new dependencies justified and vetted?
-- Do version constraints match baseline?
-- Are prohibited dependencies avoided?
-- Does technology choice align with stack strategy?
-
-**Evidence Collection**:
+**Dimension C: Technology & Dependency Validation**
 
 ```bash
 # Extract dependencies from tech analysis
@@ -155,16 +127,14 @@ grep -E "dependency|library|framework|package" .claude/memory/tech-analysis-$1.m
 grep -E "approved|prohibited|dependency" .claude/memory/tech-stack-baseline.md
 ```
 
-#### 3.4 Error Handling Pattern Validation
+**Validation questions**:
+- Are all libraries in tech-stack-baseline approved list?
+- Are new dependencies justified and vetted?
+- Do version constraints match baseline?
+- Are prohibited dependencies avoided?
+- Does technology choice align with stack strategy?
 
-**Validation Questions**:
-
-- Does error handling use dominant pattern (throw vs return, toast vs log)?
-- Are error types consistent with convention?
-- Is error propagation strategy aligned?
-- Are error messages following template?
-
-**Evidence Collection**:
+**Dimension D: Error Handling Pattern Validation**
 
 ```bash
 # Extract error handling from plan
@@ -174,16 +144,13 @@ grep -E "error.*handl|exception|catch|throw" .claude/memory/implementation-plan-
 grep -E "error.*pattern|exception.*handling" .claude/memory/coding-conventions.md
 ```
 
-#### 3.5 Testing Strategy Validation
+**Validation questions**:
+- Does error handling use dominant pattern (throw vs return, toast vs log)?
+- Are error types consistent with convention?
+- Is error propagation strategy aligned?
+- Are error messages following template?
 
-**Validation Questions**:
-
-- Does testing match pyramid (unit > integration > E2E)?
-- Are test locations following convention?
-- Is coverage target met (per convention)?
-- Are test naming patterns consistent?
-
-**Evidence Collection**:
+**Dimension E: Testing Strategy Validation**
 
 ```bash
 # Extract testing strategy
@@ -193,16 +160,13 @@ grep -E "test|coverage|unit|integration|e2e" .claude/memory/implementation-plan-
 grep -E "test.*strategy|coverage|pyramid" .claude/memory/coding-conventions.md
 ```
 
-#### 3.6 API Design Validation
+**Validation questions**:
+- Does testing match pyramid (unit > integration > E2E)?
+- Are test locations following convention?
+- Is coverage target met (per convention)?
+- Are test naming patterns consistent?
 
-**Validation Questions**:
-
-- Do endpoints follow RESTful conventions?
-- Is versioning strategy consistent?
-- Are authentication/authorization patterns aligned?
-- Do response formats match standard?
-
-**Evidence Collection**:
+**Dimension F: API Design Validation**
 
 ```bash
 # Extract API design
@@ -212,16 +176,13 @@ grep -E "endpoint|route|api|rest|graphql" .claude/memory/implementation-plan-$1.
 grep -E "api.*design|endpoint.*pattern|rest" .claude/memory/coding-conventions.md
 ```
 
-#### 3.7 State Management Validation
+**Validation questions**:
+- Do endpoints follow RESTful conventions?
+- Is versioning strategy consistent?
+- Are authentication/authorization patterns aligned?
+- Do response formats match standard?
 
-**Validation Questions**:
-
-- Does state management use established library?
-- Are state patterns consistent with convention?
-- Is global vs local state decision aligned?
-- Do data flow patterns match architecture?
-
-**Evidence Collection**:
+**Dimension G: State Management Validation**
 
 ```bash
 # Extract state management
@@ -231,56 +192,259 @@ grep -E "state|redux|context|store" .claude/memory/implementation-plan-$1.md
 grep -E "state.*management|store|context" .claude/memory/coding-conventions.md
 ```
 
-### Phase 4: Chain-of-Verification
+**Validation questions**:
+- Does state management use established library?
+- Are state patterns consistent with convention?
+- Is global vs local state decision aligned?
+- Do data flow patterns match architecture?
 
-Validate findings before finalizing report:
+**Sub-task 2.4: Generate initial findings**
 
 ```xml
-<verification_checklist>
-<question>Did I identify ALL deviations or only surface-level ones?</question>
-<check>Re-scan plan for subtle inconsistencies</check>
+<initial_findings>
+<critical_issues>
+  <issue id="CRIT-001">
+    <dimension>{Category}</dimension>
+    <title>{Issue title}</title>
+    <description>{What violation detected}</description>
+    <evidence>
+      <plan_ref>implementation-plan-{feature}.md:{line}</plan_ref>
+      <baseline_ref>{baseline artifact}:{line}</baseline_ref>
+      <conflict>
+        Plan: "{excerpt}"
+        Baseline: "{excerpt}"
+      </conflict>
+    </evidence>
+    <severity_rationale>
+      {Why classified as CRITICAL - must reference ADR violation or prohibited tech}
+    </severity_rationale>
+  </issue>
+</critical_issues>
 
-<question>Are severity classifications justified by evidence?</question>
-<check>Verify each CRITICAL has ADR violation or prohibited tech</check>
-<check>Verify each WARNING has >80% conformance data</check>
+<warnings>
+  <warning id="WARN-001">
+    <dimension>{Category}</dimension>
+    <title>{Warning title}</title>
+    <description>{Deviation description}</description>
+    <evidence>
+      <plan_ref>implementation-plan-{feature}.md:{line}</plan_ref>
+      <convention_ref>coding-conventions.md:{line}</convention_ref>
+      <conformance_data>
+        Dominant pattern: {Pattern} ({X}% of codebase - cite source)
+        Plan uses: {Different pattern}
+      </conformance_data>
+    </evidence>
+    <severity_rationale>
+      {Why classified as WARNING - must have >80% conformance data}
+    </severity_rationale>
+  </warning>
+</warnings>
 
-<question>Are false positives excluded?</question>
-<check>Acceptable deviations (justified in plan) marked INFO not WARNING</check>
+<informational>
+  <info id="INFO-001">
+    <dimension>{Category}</dimension>
+    <title>{Info title}</title>
+    <description>{Minor deviation}</description>
+    <evidence>
+      <plan_ref>{Reference}</plan_ref>
+      <note>{Why informational only}</note>
+    </evidence>
+  </info>
+</informational>
 
-<question>Is evidence cited with file:line or section references?</question>
-<check>Each issue has traceable evidence</check>
-
-<question>Are recommendations actionable and specific?</question>
-<check>Not "fix error handling" but "replace throw with toast pattern (see coding-conventions.md:45)"</check>
-
-<question>Is overall score calculated correctly?</question>
-<check>Score = 100 - (CRITICAL × 10 + WARNING × 5 + INFO × 1)</check>
-
-<question>Did I check for cross-feature consistency?</question>
-<check>Compare against similar features in memory search results</check>
-
-<question>Are there hidden assumptions in my validation?</question>
-<check>State any assumed convention interpretations</check>
-
-<question>Could any WARNING be a justified evolution of convention?</question>
-<check>Note if deviation might be intentional improvement</check>
-
-<question>Is the merge recommendation clear and justified?</question>
-<check>CRITICAL → must fix before implementation</check>
-<check>WARNING → should fix (or justify deviation)</check>
-<check>INFO → optional consideration</check>
-</verification_checklist>
+<compliant_areas>
+  <compliant dimension="{Category}">
+    ✅ {What is compliant} (reference: {artifact}:{line})
+  </compliant>
+</compliant_areas>
+</initial_findings>
 ```
 
-### Phase 5: Report Generation
+### Phase 3: Chain of Verification - Validate Initial Findings
 
-Create comprehensive consistency validation report:
+**Critical verification checklist - answer each question and revise findings if needed**:
+
+```xml
+<verification_round_1>
+<question_1>Did I identify ALL deviations or only surface-level ones?</question_1>
+<verification_1>
+  <action>Re-scan implementation plan for subtle inconsistencies</action>
+  <action>Check for implicit patterns not explicitly stated</action>
+  <action>Review dependencies graph for hidden tech choices</action>
+  <finding>
+    {Did this reveal additional issues? If yes, add them. If no, state "No additional issues found"}
+  </finding>
+</verification_1>
+
+<question_2>Are severity classifications justified by concrete evidence?</question_2>
+<verification_2>
+  <check>Each CRITICAL must cite specific ADR violation OR prohibited technology</check>
+  <check>Each WARNING must cite quantitative conformance data (>80% threshold)</check>
+  <check>Each INFO must explain why it's not higher severity</check>
+  <finding>
+    {Review each issue classification}
+    {Reclassify any issues with insufficient evidence}
+    {List any reclassifications: ISSUE-ID: {OLD} → {NEW} because {reason}}
+  </finding>
+</verification_2>
+
+<question_3>Are false positives excluded?</question_3>
+<verification_3>
+  <check>Acceptable deviations (justified in plan) marked INFO not WARNING</check>
+  <check>Intentional architectural evolution distinguished from drift</check>
+  <check>Context-appropriate exceptions recognized</check>
+  <finding>
+    {Identify any false positives}
+    {Remove or downgrade false positives: ISSUE-ID removed/downgraded because {reason}}
+  </finding>
+</verification_3>
+
+<question_4>Is evidence cited with traceable file:line references?</question_4>
+<verification_4>
+  <check>Every issue has plan_reference with file:line or section</check>
+  <check>Every issue has baseline_reference with file:line or section</check>
+  <check>Conflicting excerpts are quoted verbatim</check>
+  <finding>
+    {List issues with incomplete evidence}
+    {Add missing references: ISSUE-ID: added reference {artifact}:{line}}
+  </finding>
+</verification_4>
+
+<question_5>Are recommendations actionable and specific?</question_5>
+<verification_5>
+  <check>Not generic "fix error handling" but specific "replace lines X-Y with toast pattern (see coding-conventions.md:45)"</check>
+  <check>Each recommendation includes concrete example or reference</check>
+  <check>Recommendations are feasible within feature scope</check>
+  <finding>
+    {Review recommendation quality}
+    {Enhance vague recommendations: ISSUE-ID: improved recommendation to "{specific guidance}"}
+  </finding>
+</verification_5>
+
+<question_6>Is overall score calculated correctly?</question_6>
+<verification_6>
+  <calculation>
+    Base score: 100
+    Critical count: {N} → -{N × 10} = {deduction}
+    Warning count: {N} → -{N × 5} = {deduction}
+    Info count: {N} → -{N × 1} = {deduction}
+    Final score: {total}/100
+  </calculation>
+  <check>Verify arithmetic is correct</check>
+  <check>Score interpretation matches rubric</check>
+  <finding>
+    {Confirm score or state correction}
+  </finding>
+</verification_6>
+
+<question_7>Did I check cross-feature consistency?</question_7>
+<verification_7>
+  <check>Compare against similar features from memory search results</check>
+  <check>Are patterns consistent with related features?</check>
+  <check>If different, is there valid evolution rationale?</check>
+  <finding>
+    {Cross-feature consistency assessment}
+    {Any new issues discovered from cross-feature comparison}
+  </finding>
+</verification_7>
+
+<question_8>Are there hidden assumptions in my validation?</question_8>
+<verification_8>
+  <check>State any assumed convention interpretations</check>
+  <check>Note any ambiguous baseline requirements</check>
+  <check>Identify gaps in baseline documentation</check>
+  <finding>
+    {List all assumptions made}
+    {Note any validation limitations due to assumptions}
+  </finding>
+</verification_8>
+
+<question_9>Could any WARNING be justified evolution of convention?</question_9>
+<verification_9>
+  <check>Does deviation introduce better pattern?</check>
+  <check>Is there industry best practice justification?</check>
+  <check>Would adopting this improve codebase?</check>
+  <finding>
+    {Identify potential convention evolution opportunities}
+    {Note in findings if deviation might be intentional improvement}
+  </finding>
+</verification_9>
+
+<question_10>Is the merge recommendation clear and justified?</question_10>
+<verification_10>
+  <check>CRITICAL count > 0 → BLOCK or REQUEST_CHANGES</check>
+  <check>Score < 70 → must fix before implementation</check>
+  <check>Score 70-89 → address warnings before implementation</check>
+  <check>Score >= 90 → proceed with implementation</check>
+  <finding>
+    {State merge decision}
+    {Justify based on score and critical count}
+  </finding>
+</verification_10>
+</verification_round_1>
+```
+
+### Phase 4: Revise Findings Based on Verification
+
+**Generate revised findings incorporating verification insights**:
+
+```xml
+<revised_findings>
+<changes_from_verification>
+  - {List all changes made based on verification}
+  - {Issues added: ISSUE-ID with rationale}
+  - {Issues removed: ISSUE-ID with rationale}
+  - {Issues reclassified: ISSUE-ID from {OLD} to {NEW} with rationale}
+  - {Evidence added: ISSUE-ID with added references}
+  - {Recommendations enhanced: ISSUE-ID with improvements}
+</changes_from_verification>
+
+<verified_critical_issues>
+  {Same structure as initial_findings but with verified, evidence-backed issues}
+</verified_critical_issues>
+
+<verified_warnings>
+  {Same structure as initial_findings but with verified, evidence-backed warnings}
+</verified_warnings>
+
+<verified_informational>
+  {Same structure as initial_findings but with verified info items}
+</verified_informational>
+
+<verified_compliant_areas>
+  {List 5-10 areas where plan demonstrates strong compliance}
+</verified_compliant_areas>
+
+<cross_feature_analysis>
+  <similar_features>
+    <feature>{Related feature}</feature>
+    <consistency_note>
+      {How current plan compares to this feature's implementation}
+    </consistency_note>
+  </similar_features>
+</cross_feature_analysis>
+
+<assumptions_and_limitations>
+  {Document all assumptions made during validation}
+  {Note any limitations due to missing/ambiguous baseline documentation}
+</assumptions_and_limitations>
+
+<convention_evolution_suggestions>
+  {If any warnings suggest beneficial evolution, document here}
+  {Suggest baseline updates for future consideration}
+</convention_evolution_suggestions>
+</revised_findings>
+```
+
+### Phase 5: Final Report Generation
+
+Create comprehensive consistency validation report with verified findings:
 
 ```xml
 <consistency_report>
 <metadata>
   <feature_slug>{feature}</feature_slug>
-  <validation_date>2025-10-23</validation_date>
+  <validation_date>{current date}</validation_date>
   <artifacts_validated>
     <artifact>implementation-plan-{feature}.md</artifact>
     <artifact>requirements-{feature}.md</artifact>
@@ -291,6 +455,7 @@ Create comprehensive consistency validation report:
     <artifact>architecture-decisions.md</artifact>
     <artifact>tech-stack-baseline.md</artifact>
   </baseline_artifacts>
+  <verification_completed>true</verification_completed>
 </metadata>
 
 <validation_summary>
@@ -302,92 +467,7 @@ Create comprehensive consistency validation report:
   <compliant_count>{number}</compliant_count>
 </validation_summary>
 
-<critical_issues>
-  <issue id="CRIT-001">
-    <dimension>Architectural Pattern | Technology | {Category}</dimension>
-    <title>{Concise issue title}</title>
-    <description>
-      {Detailed description of violation}
-    </description>
-    <evidence>
-      <plan_reference>implementation-plan-{feature}.md:{section or line}</plan_reference>
-      <baseline_reference>architecture-decisions.md:{ADR-XXX or line}</baseline_reference>
-      <conflict>
-        Plan says: "{Excerpt from plan}"
-        Baseline requires: "{Excerpt from baseline}"
-      </conflict>
-    </evidence>
-    <impact>
-      {Why this is critical - technical debt, security, maintainability}
-    </impact>
-    <recommendation>
-      {Specific, actionable fix}
-    </recommendation>
-  </issue>
-</critical_issues>
-
-<warnings>
-  <warning id="WARN-001">
-    <dimension>{Category}</dimension>
-    <title>{Concise warning title}</title>
-    <description>
-      {Detailed description of deviation}
-    </description>
-    <evidence>
-      <plan_reference>implementation-plan-{feature}.md:{section}</plan_reference>
-      <convention_reference>coding-conventions.md:{section}</convention_reference>
-      <conformance_data>
-        Dominant pattern: {Pattern} ({X}% of codebase)
-        Plan uses: {Different pattern}
-      </conformance_data>
-    </evidence>
-    <impact>
-      {Why this matters - consistency, readability, onboarding}
-    </impact>
-    <recommendation>
-      {Specific fix OR justification for deviation}
-    </recommendation>
-  </warning>
-</warnings>
-
-<informational>
-  <info id="INFO-001">
-    <dimension>{Category}</dimension>
-    <title>{Concise info title}</title>
-    <description>
-      {Minor deviation or consideration}
-    </description>
-    <evidence>
-      <plan_reference>{Reference}</plan_reference>
-      <note>{Why this is informational only}</note>
-    </evidence>
-    <suggestion>
-      {Optional improvement suggestion}
-    </suggestion>
-  </info>
-</informational>
-
-<compliant_areas>
-  <compliant dimension="File Structure">
-    ✅ All files follow feature-based organization (coding-conventions.md:12)
-  </compliant>
-  <compliant dimension="API Design">
-    ✅ Endpoints follow /api/v1/{resource} pattern (coding-conventions.md:67)
-  </compliant>
-  <compliant dimension="TypeScript">
-    ✅ Strict mode enabled, all types defined (tech-stack-baseline.md:34)
-  </compliant>
-  <!-- List 5-10 compliant areas -->
-</compliant_areas>
-
-<cross_feature_analysis>
-  <similar_features>
-    <feature>{Related feature 1}</feature>
-    <consistency_note>
-      {How current plan compares to this feature's implementation}
-    </consistency_note>
-  </similar_features>
-</cross_feature_analysis>
+{Include verified_critical_issues, verified_warnings, verified_informational, verified_compliant_areas}
 
 <scoring_breakdown>
   <calculation>
@@ -407,35 +487,47 @@ Create comprehensive consistency validation report:
 
 <recommendations>
   <immediate_actions>
-    {List critical items that must be fixed}
+    {List critical items that MUST be fixed before implementation}
   </immediate_actions>
   <before_implementation>
-    {List warnings that should be addressed}
+    {List warnings that SHOULD be addressed before implementation}
   </before_implementation>
   <future_considerations>
-    {List info items and evolution suggestions}
+    {List info items and convention evolution suggestions}
   </future_considerations>
   <merge_decision>
     APPROVE | REQUEST_CHANGES | BLOCK
-    {Justification based on score and critical count}
+    {Justification based on verified score and critical count}
   </merge_decision>
 </recommendations>
 
+<verification_summary>
+  <verification_rounds_completed>1</verification_rounds_completed>
+  <issues_added_during_verification>{count}</issues_added_during_verification>
+  <issues_removed_during_verification>{count}</issues_removed_during_verification>
+  <issues_reclassified_during_verification>{count}</issues_reclassified_during_verification>
+  <false_positives_eliminated>{count}</false_positives_eliminated>
+  <assumptions_documented>{list key assumptions}</assumptions_documented>
+</verification_summary>
+
 <validation_notes>
   <assumptions>
-    {Any assumptions made during validation}
+    {All assumptions made during validation}
   </assumptions>
   <edge_cases>
-    {Any special cases or exceptions noted}
+    {Special cases or exceptions noted}
   </edge_cases>
   <convention_evolution>
-    {Any suggestions for updating conventions based on this validation}
+    {Suggestions for updating conventions based on this validation}
   </convention_evolution>
+  <baseline_gaps>
+    {Missing or ambiguous baseline documentation that limited validation}
+  </baseline_gaps>
 </validation_notes>
 </consistency_report>
 ```
 
-**Write report to memory**:
+**Write verified report to memory**:
 
 ```bash
 code-tools create_file \
@@ -450,15 +542,17 @@ EOF
 
 ## Anti-Hallucination Safeguards
 
-**Evidence-Based Validation**: Every issue MUST cite specific file:line references from both plan and baseline. No generic claims.
+**Evidence-Based Validation**: Every issue MUST cite specific file:line references from both plan and baseline. Verification phase eliminates any findings without proper evidence.
 
-**Conformance Data Required**: Warnings require quantitative conformance data (e.g., "80% of codebase uses pattern X"). Do NOT claim dominance without evidence.
+**Conformance Data Required**: Warnings require quantitative conformance data (e.g., "80% of codebase uses pattern X"). Verification phase checks this requirement and downgrades/removes issues lacking data.
 
 **"According to..." Prompting**: When stating conventions, use: "According to coding-conventions.md:{line}, the dominant pattern is {pattern}".
 
-**No Invented Conventions**: If convention is not documented in baseline artifacts, mark as INFO with note "No established convention found - comparing to similar features".
+**No Invented Conventions**: If convention is not documented in baseline artifacts, mark as INFO with note "No established convention found - comparing to similar features". Verification phase checks for hallucinated conventions.
 
-**Severity Justification**: Each CRITICAL must reference specific ADR or prohibited technology list. Each WARNING must have >80% conformance data.
+**Severity Justification**: Each CRITICAL must reference specific ADR or prohibited technology list. Each WARNING must have >80% conformance data. Verification phase enforces these requirements strictly.
+
+**Verification Loop Prevents False Findings**: The Chain of Verification phase systematically checks for false positives, missing evidence, incorrect severity classifications, and unarticulated assumptions before finalizing the report.
 
 ## Error Handling
 
@@ -495,6 +589,7 @@ If artifact exists but is empty or unparseable:
   - Report artifact issue
   - Attempt validation with available data
   - Note limitation in validation_notes
+  - Document in verification_summary
 ```
 
 ## Validation Checklist
@@ -503,37 +598,44 @@ Before finalizing report, verify:
 
 - [ ] All baseline artifacts loaded successfully
 - [ ] All feature artifacts loaded successfully
-- [ ] Each CRITICAL has ADR/prohibited-tech reference
-- [ ] Each WARNING has conformance percentage
-- [ ] Each issue has plan_reference and baseline_reference
-- [ ] Overall score calculation is correct
-- [ ] Merge decision matches score interpretation
-- [ ] No hallucinated conventions (all cited from artifacts)
-- [ ] Cross-feature consistency checked
-- [ ] Assumptions stated explicitly
+- [ ] Phase 3 verification completed with all 10 questions answered
+- [ ] Each CRITICAL has ADR/prohibited-tech reference (verified in Phase 3)
+- [ ] Each WARNING has conformance percentage (verified in Phase 3)
+- [ ] Each issue has plan_reference and baseline_reference (verified in Phase 3)
+- [ ] Overall score calculation is correct (verified in Phase 3)
+- [ ] Merge decision matches score interpretation (verified in Phase 3)
+- [ ] No hallucinated conventions - all cited from artifacts (verified in Phase 3)
+- [ ] Cross-feature consistency checked (verified in Phase 3)
+- [ ] Assumptions stated explicitly (verified in Phase 3)
+- [ ] False positives eliminated (verified in Phase 3)
+- [ ] Verification summary included in report
 - [ ] Report written to .claude/memory/consistency-report-{feature}.md
 
 ## Best Practices
 
-1. **Be Evidence-Based**: Never claim "convention is X" without citing source
-2. **Quantify Deviations**: Use conformance percentages, not subjective terms
-3. **Distinguish Convention from Preference**: Only enforce documented conventions
-4. **Suggest Convention Evolution**: If plan introduces better pattern, note it
-5. **Provide Actionable Recommendations**: Not "fix error handling" but "replace lines X-Y with toast pattern"
-6. **Cross-Reference Similar Features**: Learn from past implementations
-7. **Balance Consistency with Innovation**: Don't block justified improvements
-8. **Document Assumptions**: State interpretation when conventions are ambiguous
+1. **Verification Over Initial Judgment**: Initial findings are provisional - verification phase determines final report
+2. **Evidence-Based Only**: Never claim "convention is X" without citing source and verifying during Phase 3
+3. **Quantify Deviations**: Use conformance percentages verified against actual baseline data
+4. **Distinguish Convention from Preference**: Only enforce documented conventions verified in Phase 3
+5. **Suggest Convention Evolution**: If plan introduces better pattern, note in verification phase
+6. **Provide Actionable Recommendations**: Verify during Phase 3 that recommendations are specific and feasible
+7. **Cross-Reference Similar Features**: Verification phase checks consistency with past implementations
+8. **Balance Consistency with Innovation**: Verification phase identifies justified improvements vs drift
+9. **Document Assumptions**: Verification phase forces explicit assumption documentation
+10. **Eliminate False Positives**: Dedicated verification question ensures false positives are removed
 
 ## Output
 
 Generate markdown-formatted consistency report in `.claude/memory/consistency-report-{feature}.md` with:
 
 - Overall score (0-100) and status (PASS/PASS_WITH_WARNINGS/FAIL)
-- Critical issues (MUST fix before implementation)
-- Warnings (SHOULD fix or justify)
-- Informational notes (CONSIDER)
+- Verified critical issues (MUST fix before implementation)
+- Verified warnings (SHOULD fix or justify)
+- Verified informational notes (CONSIDER)
 - Compliant areas (positive reinforcement)
-- Actionable recommendations
+- Actionable, specific recommendations
 - Merge decision (APPROVE/REQUEST_CHANGES/BLOCK)
+- Verification summary showing validation quality
+- Documented assumptions and limitations
 
-**Success**: Feature plan validated against codebase baseline with evidence-based consistency report generated.
+**Success**: Feature plan validated against codebase baseline with verified, evidence-based consistency report generated. Verification phase ensures report accuracy and eliminates hallucinations/false positives.

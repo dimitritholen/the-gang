@@ -19,11 +19,19 @@ Delegate scope validation to the specialized scope-guardian agent while providin
 
 ## Methodology
 
-### Phase 0: Step-Back Prompting (Product Context)
+This orchestrator uses systematic task decomposition to break down scope validation into manageable, composable modules. Execute layers sequentially, with explicit integration points between layers.
 
-Before detailed scope validation, understand the product context:
+### Layer 1: Context Gathering and Product Understanding
 
-**Step-Back Questions**:
+**Purpose**: Collect all necessary context before validation begins
+**Execution**: Sequential tasks within this layer
+**Deliverable**: Comprehensive context summary for agent delegation
+
+#### Module 1.1: Product Context Discovery (Step-Back Prompting)
+
+Before detailed scope validation, think through the product context systematically:
+
+**Task 1.1.1: Identify core user problem**
 
 ```xml
 <product_context>
@@ -66,7 +74,9 @@ Before detailed scope validation, understand the product context:
 </product_context>
 ```
 
-**Reason about MVP scope**:
+**Task 1.1.2: Synthesize MVP scope boundaries**
+
+Reason about MVP scope based on product context:
 
 ```
 Given this solves {user problem} as a {category} with {constraints}, MVP scope should:
@@ -75,9 +85,11 @@ Given this solves {user problem} as a {category} with {constraints}, MVP scope s
 - Differentiate on: {Key value proposition}
 ```
 
-### Phase 1: Prerequisites Validation
+**Deliverable 1.1**: Product context understanding that defines MVP boundaries
 
-Check for existing artifacts before delegating:
+#### Module 1.2: Prerequisites Validation and Context Loading
+
+**Task 1.2.1: Load existing artifacts**
 
 ```bash
 # Load feature requirements
@@ -93,7 +105,9 @@ code-tools read_file --path .claude/memory/implementation-plan-$ARGUMENTS.md 2>/
 code-tools search_memory --dir .claude/memory --query "$ARGUMENTS mvp scope priorities" --topk 5
 ```
 
-**Context Summary for Agent**:
+**Task 1.2.2: Extract and summarize context**
+
+Think through each artifact systematically:
 
 ```xml
 <existing_context>
@@ -121,9 +135,31 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS mvp scope prio
 </existing_context>
 ```
 
-### Phase 2: Agent Invocation with Comprehensive Context
+**Deliverable 1.2**: Consolidated context from all existing artifacts
 
-Delegate to scope-guardian agent via Task tool:
+#### Module 1.3: Context Integration
+
+**Task 1.3.1: Compose complete agent context**
+
+Integrate deliverables from Module 1.1 and 1.2 into single comprehensive context package:
+
+```
+Product Understanding: {From Module 1.1}
+Existing Artifacts: {From Module 1.2}
+MVP Scope Hypothesis: {From Task 1.1.2}
+```
+
+**Deliverable 1.3**: Complete context package ready for agent delegation
+
+---
+
+### Layer 2: Validation Execution (Agent Delegation)
+
+**Purpose**: Delegate systematic scope validation to specialized agent
+**Execution**: Agent executes all modules sequentially with explicit composition steps
+**Deliverable**: Complete scope validation document with all validation blocks, MVP definition, and recommendations
+
+Delegate to scope-guardian agent via Task tool with the following comprehensive prompt:
 
 ````
 Perform comprehensive scope validation for feature: $ARGUMENTS
@@ -133,18 +169,56 @@ Perform comprehensive scope validation for feature: $ARGUMENTS
 **Mindset**: "A product that does one thing exceptionally well beats one that does many things poorly."
 
 **Product Context**:
-{Paste product understanding from Step-Back phase}
+{Paste product understanding from Module 1.1}
 
 **Existing Artifacts Context**:
-{Paste context summary from Phase 1}
+{Paste context summary from Module 1.2}
 
 **Methodology**:
 
-Use the systematic scope validation and MVP prioritization framework:
+Execute the following modules sequentially. Each module produces specific deliverables that feed into subsequent modules. Integrate results at designated composition points.
 
-**Phase 1: Core Scope Extraction**
+---
 
-From requirements document, identify the **essential core**:
+#### Module 2.1: Core Scope Extraction
+
+**Purpose**: Extract and document the essential core scope from requirements
+**Dependencies**: None (uses context from Layer 1)
+**Execution**: Single pass through requirements document
+
+Think through the requirements systematically to identify the essential core:
+
+**Task 2.1.1: Extract primary goal and user problem**
+
+From requirements document, identify:
+- The ONE main thing this feature must achieve
+- The fundamental problem users are experiencing
+- Current workaround or pain point
+
+**Task 2.1.2: Identify must-have capabilities**
+
+Extract ONLY capabilities explicitly requested by user:
+- Each capability must have source citation (exact user statement)
+- No inferred or assumed capabilities
+- Link to specific requirement IDs (FR-XXX)
+
+**Task 2.1.3: Define MVP success criteria**
+
+Identify minimum metrics to declare MVP success:
+- Must be measurable
+- Must come from requirements (not assumed)
+- Must be achievable with must-have capabilities only
+
+**Task 2.1.4: Document constraints and out-of-scope**
+
+Extract stated constraints and exclusions:
+- Timeline (hard vs soft deadline)
+- Budget (fixed vs flexible)
+- Resources (team, skills, availability)
+- Technical (must-use technologies)
+- Explicitly excluded items
+
+**Deliverable 2.1**: Core scope baseline in structured XML format
 
 ```xml
 <core_scope>
@@ -156,14 +230,12 @@ From requirements document, identify the **essential core**:
   </user_problem>
 
   <must_have_capabilities>
-    <!-- ONLY capabilities explicitly requested by user -->
     <capability id="{FR-XXX}" source="{Exact user statement or requirement text}">
       {Capability description}
     </capability>
   </must_have_capabilities>
 
   <success_criteria_mvp>
-    <!-- Minimum metrics to declare MVP success -->
     <criterion measurable="true">{Criterion from requirements}</criterion>
   </success_criteria_mvp>
 
@@ -175,19 +247,22 @@ From requirements document, identify the **essential core**:
   </constraints>
 
   <explicitly_out_of_scope>
-    <!-- Items user explicitly said are NOT included -->
     <item source="{requirements section}">{Item}</item>
   </explicitly_out_of_scope>
 </core_scope>
-````
+```
 
-**Phase 2: Scope Creep Detection**
+---
 
-For EACH artifact (requirements doc, tech analysis, implementation plan), apply systematic validation:
+#### Module 2.2: Scope Creep Detection
 
-**2A. Requirements Document Validation**
+**Purpose**: Systematically validate each artifact against core scope baseline
+**Dependencies**: Requires Deliverable 2.1 (core scope baseline)
+**Execution**: Three parallel sub-modules, then integrate findings
 
-For EACH requirement (FR-XXX, NFR-XXX), ask:
+**Sub-Module 2.2.A: Requirements Document Validation**
+
+For EACH requirement (FR-XXX, NFR-XXX), think through these validation questions systematically:
 
 ```xml
 <requirement_validation id="{REQ-ID}">
@@ -220,16 +295,17 @@ For EACH requirement (FR-XXX, NFR-XXX), ask:
 ```
 
 **Flag as scope creep if**:
-
 - Requirement not explicitly requested by user
 - Requirement is "should-have" or "could-have" rather than "must-have"
 - Requirement adds complexity without proportional value
-- Requirement conflicts with constraints (timeline, budget, resources)
+- Requirement conflicts with constraints
 - Passes MVP litmus test (can ship without it)
 
-**2B. Technology Analysis Validation**
+**Deliverable 2.2.A**: All requirement validation blocks
 
-For EACH major technology choice in tech-analysis doc:
+**Sub-Module 2.2.B: Technology Analysis Validation**
+
+For EACH major technology choice, reason through validation systematically:
 
 ```xml
 <tech_validation technology="{name}">
@@ -258,16 +334,17 @@ For EACH major technology choice in tech-analysis doc:
 ```
 
 **Flag as over-engineering if**:
-
 - Technology is more complex than requirements necessitate
 - Simpler alternative exists that fully meets requirements
 - Chosen for "coolness factor" rather than practical fit
-- Adds learning curve or integration complexity without sufficient benefit
+- Adds learning curve without sufficient benefit
 - No clear requirement justifying the complexity
 
-**2C. Implementation Plan Validation**
+**Deliverable 2.2.B**: All technology validation blocks
 
-For EACH task in implementation plan:
+**Sub-Module 2.2.C: Implementation Plan Validation**
+
+For EACH task in implementation plan, apply systematic validation:
 
 ```xml
 <task_validation task_id="{T-X-Y}">
@@ -300,21 +377,72 @@ For EACH task in implementation plan:
 ```
 
 **Flag as scope expansion if**:
-
 - Task doesn't map to a must-have core requirement
 - Task implements should-have or could-have feature
-- Task can be deferred without blocking MVP functionality
-- Task adds unrequested capability or "future-proofing"
+- Task can be deferred without blocking MVP
+- Task adds unrequested capability
 - Task fails MVP litmus test
 
-**Phase 3: MVP Definition (Ruthless Prioritization)**
+**Deliverable 2.2.C**: All task validation blocks
 
-Define the TRUE MVP using MoSCoW method:
+**Composition Point 2.2**: Integrate all validation findings
+
+Synthesize findings from sub-modules 2.2.A, 2.2.B, and 2.2.C:
+- Total items validated: {requirements + tech choices + tasks}
+- Items flagged for removal: {count and list}
+- Items flagged for deferral: {count and list}
+- Items flagged for simplification: {count and list}
+- Items flagged for clarification: {count and list}
+
+**Deliverable 2.2**: Complete scope creep analysis with all validation blocks
+
+---
+
+#### Module 2.3: MVP Definition (Ruthless Prioritization)
+
+**Purpose**: Define the TRUE MVP using MoSCoW method
+**Dependencies**: Requires Deliverable 2.2 (all validation blocks)
+**Execution**: Sequential tasks building on validation findings
+
+**Task 2.3.1: Categorize all requirements using MoSCoW**
+
+Think through each requirement and apply MVP Litmus Test:
+
+**MVP Litmus Test**: "Can we ship without this feature and still solve the core problem?"
+- If YES → Not MVP must-have; defer to should/could-have
+- If NO → Must-have; keep in MVP
+
+**Task 2.3.2: Document must-have features**
+
+For each must-have, provide:
+- Feature description
+- Rationale citing core goal
+- Litmus test result: "Cannot ship without this; core problem unsolved"
+
+**Task 2.3.3: Document should-have features**
+
+For each should-have, provide:
+- Feature description
+- Deferral impact: "What happens if we launch without this"
+- Recommendation: "Defer to Phase 2"
+- Litmus test result: "Can ship without this; users can work around limitation"
+
+**Task 2.3.4: Document could-have and won't-have features**
+
+Categorize remaining items with justifications
+
+**Task 2.3.5: Synthesize MVP summary**
+
+Create 1-2 sentence summary of MVP scope:
+- What MVP includes
+- What MVP excludes
+- Core value proposition
+
+**Deliverable 2.3**: Complete MVP definition with MoSCoW categorization
 
 ```xml
 <mvp_definition>
   <must_have>
-    <!-- Without these, product is useless for core problem -->
     <feature id="{FR-XXX}">
       <description>{Feature description}</description>
       <rationale>{Why absolutely essential - cite core goal}</rationale>
@@ -323,7 +451,6 @@ Define the TRUE MVP using MoSCoW method:
   </must_have>
 
   <should_have>
-    <!-- Important but not critical for initial launch -->
     <feature id="{FR-XXX}">
       <description>{Feature description}</description>
       <deferral_impact>{What happens if we launch without this}</deferral_impact>
@@ -333,7 +460,6 @@ Define the TRUE MVP using MoSCoW method:
   </should_have>
 
   <could_have>
-    <!-- Nice-to-have, low priority enhancement -->
     <feature id="{FR-XXX}">
       <description>{Feature description}</description>
       <value>{Why this would be nice}</value>
@@ -343,7 +469,6 @@ Define the TRUE MVP using MoSCoW method:
   </could_have>
 
   <wont_have>
-    <!-- Explicitly out of scope for MVP and near-term -->
     <feature>
       <description>{Feature description}</description>
       <reasoning>{Why excluding - complexity, constraints, or out-of-scope}</reasoning>
@@ -357,14 +482,15 @@ Define the TRUE MVP using MoSCoW method:
 </mvp_definition>
 ```
 
-**MVP Litmus Test** (apply to every feature):
+---
 
-Ask: "Can we ship without this feature and still solve the core problem?"
+#### Module 2.4: Alignment and Red Flag Analysis
 
-- If YES → Not MVP must-have; defer to should/could-have
-- If NO → Must-have; keep in MVP
+**Purpose**: Cross-reference all artifacts and identify scope creep patterns
+**Dependencies**: Requires Deliverables 2.1, 2.2, and 2.3
+**Execution**: Parallel analysis, then integrate findings
 
-**Phase 4: Alignment Matrix**
+**Task 2.4.1: Create alignment matrix**
 
 Cross-reference requirements ↔ tech ↔ tasks:
 
@@ -375,9 +501,9 @@ Cross-reference requirements ↔ tech ↔ tasks:
 | NFR-PERF-002   | Could-Have        | ⚠️ Over-engineered | T-2-5                | ❌       | Tech exceeds needs           |
 | N/A            | N/A               | N/A                | T-4-2                | ❌       | No requirement for this task |
 
-**Phase 5: Red Flag Analysis**
+**Task 2.4.2: Identify red flag patterns**
 
-Identify scope creep red flags:
+Think through each category of scope creep:
 
 ```xml
 <red_flags>
@@ -410,9 +536,26 @@ Identify scope creep red flags:
 </red_flags>
 ```
 
-**Phase 6: Chain-of-Verification (CoVe)**
+**Composition Point 2.4**: Integrate alignment and red flags
 
-Before finalizing validation, verify:
+Synthesize:
+- Alignment matrix with all misalignments highlighted
+- Red flag count and severity assessment
+- Scope creep risk level justification
+
+**Deliverable 2.4**: Alignment matrix and red flag analysis
+
+---
+
+#### Module 2.5: Verification and Refinement (Chain of Verification)
+
+**Purpose**: Verify validation completeness and accuracy before finalizing
+**Dependencies**: Requires all previous deliverables (2.1-2.4)
+**Execution**: Systematic verification checklist, then iterative refinement
+
+**Task 2.5.1: Execute verification checklist**
+
+Before finalizing validation, verify systematically:
 
 ```xml
 <verification_checklist>
@@ -460,11 +603,91 @@ Before finalizing validation, verify:
 </verification_checklist>
 ```
 
-Present summary to user and ask:
+**Task 2.5.2: Present to user for confirmation**
+
+Ask user:
 
 > "Based on the above validation, do you agree with the MVP definition and scope recommendations? Are there any must-haves I've incorrectly flagged as deferrable, or any should-haves you'd like to promote to must-have?"
 
-**Iterate** until user confirms MVP scope.
+**Task 2.5.3: Iterate based on user feedback**
+
+If user provides feedback:
+- Re-evaluate flagged items
+- Adjust MoSCoW categorization if justified
+- Re-run relevant validation blocks
+- Update verification checklist
+
+Iterate until user confirms MVP scope.
+
+**Deliverable 2.5**: User-confirmed verification with any revisions applied
+
+---
+
+#### Module 2.6: Final Document Assembly
+
+**Purpose**: Compose all deliverables into structured scope validation document
+**Dependencies**: Requires all deliverables 2.1-2.5
+**Execution**: Sequential assembly with explicit structure
+
+**Task 2.6.1: Assemble document sections**
+
+Integrate all deliverables into final structure:
+
+1. Metadata and validation summary (from 2.2, 2.3, 2.4)
+2. Core scope baseline (Deliverable 2.1)
+3. Scope creep analysis (Deliverable 2.2)
+4. MVP definition (Deliverable 2.3)
+5. Alignment matrix (Deliverable 2.4)
+6. Red flag analysis (Deliverable 2.4)
+7. Recommendations (synthesized from all validations)
+8. Constraint validation (from verification)
+9. Risk assessment
+10. Sign-off decision
+11. Verification confirmation (Deliverable 2.5)
+
+**Task 2.6.2: Generate recommendations**
+
+Synthesize all validation findings into actionable recommendations:
+
+- **Keep**: Items validated as appropriate MVP scope
+- **Simplify**: Over-engineered tech/requirements with simpler alternatives
+- **Defer**: Should-have and could-have items for Phase 2/backlog
+- **Remove**: Scope creep items not aligned with core goal
+- **Clarify**: Items needing user/stakeholder input
+
+Each recommendation includes:
+- What to do
+- Why (justification with citations)
+- Effort saved (for simplify/remove)
+- Impact of deferral
+
+**Task 2.6.3: Generate constraint validation**
+
+Validate against all stated constraints:
+- Timeline check: MVP effort ≤ deadline
+- Budget check: MVP cost ≤ budget
+- Resource check: Required skills available
+
+**Task 2.6.4: Generate risk assessment**
+
+Assess scope creep risk and consequences:
+- Risk level justification (Low/Medium/High)
+- Risk factors identified
+- Mitigation through recommendations
+- Consequences if no action taken
+
+**Task 2.6.5: Generate sign-off decision**
+
+Decision: APPROVE | REVISE_REQUIRED | REJECT
+
+Justification:
+- APPROVE: MVP well-defined, minimal scope creep, constraints aligned
+- REVISE_REQUIRED: Moderate scope creep, recommendations must be addressed
+- REJECT: Significant scope creep, major rework needed
+
+Next steps based on decision.
+
+**Deliverable 2.6**: Complete scope validation document in specified XML/markdown structure
 
 **Output Requirements**:
 
@@ -474,7 +697,7 @@ Generate scope validation document in the following structure (render as markdow
 <scope_validation>
   <metadata>
     <feature_slug>{feature}</feature_slug>
-    <validation_date>2025-10-23</validation_date>
+    <validation_date>2025-10-24</validation_date>
     <validator>Scope Guardian Agent</validator>
     <status>Draft</status>
   </metadata>
@@ -499,34 +722,34 @@ Generate scope validation document in the following structure (render as markdow
   </validation_summary>
 
   <core_scope_baseline>
-    <!-- Include full <core_scope> XML from Phase 1 -->
+    <!-- Include full <core_scope> XML from Module 2.1 -->
   </core_scope_baseline>
 
   <scope_creep_analysis>
     <requirements_validation>
-      <!-- Include ALL <requirement_validation> blocks from Phase 2A -->
+      <!-- Include ALL <requirement_validation> blocks from Module 2.2.A -->
     </requirements_validation>
 
     <technology_validation>
-      <!-- Include ALL <tech_validation> blocks from Phase 2B -->
+      <!-- Include ALL <tech_validation> blocks from Module 2.2.B -->
     </technology_validation>
 
     <implementation_validation>
-      <!-- Include ALL <task_validation> blocks from Phase 2C -->
+      <!-- Include ALL <task_validation> blocks from Module 2.2.C -->
     </implementation_validation>
   </scope_creep_analysis>
 
   <mvp_definition>
-    <!-- Include full <mvp_definition> XML from Phase 3 -->
+    <!-- Include full <mvp_definition> XML from Module 2.3 -->
   </mvp_definition>
 
   <alignment_matrix>
-    <!-- Include table from Phase 4 -->
+    <!-- Include table from Module 2.4 -->
     <!-- List all misalignments with severity and recommendation -->
   </alignment_matrix>
 
   <red_flag_analysis>
-    <!-- Include full <red_flags> XML from Phase 5 -->
+    <!-- Include full <red_flags> XML from Module 2.4 -->
 
     <red_flag_count>{Total number of red flags}</red_flag_count>
     <severity>
@@ -653,25 +876,23 @@ Generate scope validation document in the following structure (render as markdow
 - **Constraint-Aware**: Respect timeline/budget limits; cut scope to fit
 - **Iterative**: MVP is first step; Phase 2 exists for enhancements
 
-**Iterative Refinement**:
-
-After presenting initial validation:
-
-1. User reviews MVP definition and recommendations
-2. User can promote should-haves to must-haves (with justification)
-3. User can accept deferrals or request re-evaluation
-4. Re-verify with CoVe checklist
-5. Iterate until user approves final MVP scope
-
 Return final scope validation document content ready to write to file.
 
 ````
 
-### Phase 3: Validation and Artifact Creation
+---
 
-After agent completes scope validation:
+### Layer 3: Integration and Quality Assurance
 
-**Validation Checklist**:
+**Purpose**: Validate agent output meets orchestrator requirements
+**Execution**: Sequential validation gates
+**Deliverable**: Quality-assured scope validation document
+
+#### Module 3.1: Orchestrator Validation
+
+**Task 3.1.1: Execute validation checklist**
+
+Verify agent deliverable against requirements:
 
 ```xml
 <orchestrator_validation>
@@ -712,25 +933,22 @@ After agent completes scope validation:
 <question>Is sign-off decision justified?</question>
 <check>APPROVE/REVISE/REJECT matches scope creep risk level and findings</check>
 </orchestrator_validation>
-````
-
-**Write to Memory**:
-
-```bash
-# Write scope validation to memory
-code-tools create_file \
-  --file .claude/memory/scope-validation-$ARGUMENTS.md \
-  --content @- \
-  --add-last-line-newline <<EOF
-{Agent's scope validation document content}
-EOF
 ```
 
-### Phase 4: Quality Gates
+**Task 3.1.2: Handle validation failures**
 
-Before considering scope validation complete, verify:
+If validation fails:
+- Identify specific failures
+- Re-invoke agent with corrective instructions
+- Do NOT proceed until validation passes
 
-**Completeness Gates**:
+**Deliverable 3.1**: Validated scope validation document or corrective action plan
+
+#### Module 3.2: Quality Gates
+
+**Task 3.2.1: Execute completeness gates**
+
+Verify all required sections present:
 
 - [ ] Core scope baseline extracted from requirements
 - [ ] All requirements validated with 7-question framework
@@ -744,7 +962,9 @@ Before considering scope validation complete, verify:
 - [ ] Sign-off decision with justification
 - [ ] User confirmed MVP scope
 
-**Quality Gates**:
+**Task 3.2.2: Execute quality gates**
+
+Verify quality criteria met:
 
 - [ ] Every must-have passes "cannot ship without" litmus test
 - [ ] Should-haves and could-haves are genuinely deferrable
@@ -754,7 +974,9 @@ Before considering scope validation complete, verify:
 - [ ] Scope creep risk level justified by data
 - [ ] Recommendations have effort/cost savings estimates
 
-**Evidence Gates**:
+**Task 3.2.3: Execute evidence gates**
+
+Verify evidence-based validation:
 
 - [ ] Every validation cites specific requirement IDs
 - [ ] Verdicts justified with litmus test results
@@ -762,10 +984,43 @@ Before considering scope validation complete, verify:
 - [ ] Alignment issues have clear problem descriptions
 - [ ] Constraint violations have quantitative data (hours, cost)
 
+**Deliverable 3.2**: Quality gate pass/fail results
+
+---
+
+### Layer 4: Artifact Creation
+
+**Purpose**: Persist validated scope validation document to memory
+**Execution**: Single write operation after all validations pass
+**Deliverable**: Scope validation artifact in project memory
+
+#### Module 4.1: Write to Memory
+
+**Task 4.1.1: Persist scope validation document**
+
+```bash
+# Write scope validation to memory
+code-tools create_file \
+  --file .claude/memory/scope-validation-$ARGUMENTS.md \
+  --content @- \
+  --add-last-line-newline <<EOF
+{Agent's scope validation document content}
+EOF
+```
+
+**Task 4.1.2: Verify write success**
+
+Confirm file created and readable.
+
+**Deliverable 4.1**: Scope validation artifact at `.claude/memory/scope-validation-{slug}.md`
+
+---
+
 ## Error Handling
 
-**Agent Returns Incomplete Validation**:
+Think through error scenarios systematically:
 
+**Agent Returns Incomplete Validation**:
 ```
 If missing required validations:
   - Report: "Scope validation incomplete - missing {requirement/tech/task validations}"
@@ -774,7 +1029,6 @@ If missing required validations:
 ```
 
 **Agent Flags Everything as Must-Have**:
-
 ```
 If >80% of requirements are must-have:
   - Report: "MVP definition not ruthless enough - too many must-haves"
@@ -783,7 +1037,6 @@ If >80% of requirements are must-have:
 ```
 
 **Missing Prerequisites**:
-
 ```
 If requirements-{feature}.md not found:
   - Cannot validate scope without requirements
@@ -792,7 +1045,6 @@ If requirements-{feature}.md not found:
 ```
 
 **Agent Doesn't Apply Litmus Test**:
-
 ```
 If validation blocks missing mvp_litmus_test:
   - Re-invoke agent: "Apply MVP litmus test to ALL requirements and tasks"
@@ -800,7 +1052,6 @@ If validation blocks missing mvp_litmus_test:
 ```
 
 **Validation Fails**:
-
 ```
 If orchestrator validation checklist fails:
   - Identify specific failures

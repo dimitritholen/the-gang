@@ -9,78 +9,23 @@ description: Orchestrate technology research by delegating to tech-researcher ag
 **System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature slug**: $ARGUMENTS
 
-Act as a technology research orchestrator responsible for coordinating the tech stack evaluation workflow and ensuring comprehensive, evidence-based analysis.
+Act as a technology research orchestrator coordinating evidence-based technology evaluation using systematic ReAct (Reasoning + Acting) cycles with Chain of Verification validation.
 
 ## Objective
 
-Delegate technology research to the specialized tech-researcher agent while providing necessary context, validation checkpoints, and artifact structure enforcement.
+Execute comprehensive technology research through iterative Thought-Action-Observation cycles, validating findings at each stage before delegating to specialized tech-researcher agent.
 
-## Methodology
+## Methodology: ReAct + Chain of Verification
 
-### Phase 0: Step-Back Prompting (Architectural Context)
+### Phase 0: Architectural Context Discovery (ReAct Cycle 1)
 
-Before detailed technology research, understand the architectural context:
+**Thought 1**: Before evaluating specific technologies, I need architectural context to constrain research scope and identify relevant patterns.
 
-**Step-Back Questions**:
-
-```xml
-<architectural_context>
-<question>What fundamental architectural pattern applies?</question>
-<patterns>
-- Monolithic application
-- Microservices architecture
-- Serverless/FaaS
-- Event-driven architecture
-- JAMstack
-- Modular monolith
-- Service-oriented architecture (SOA)
-</patterns>
-<purpose>Pattern dictates technology selection constraints and integration needs</purpose>
-
-<question>What are the key technical challenges for this feature?</question>
-<challenge_categories>
-Performance: High throughput, low latency, real-time processing
-Scale: Concurrent users, data volume, geographic distribution
-Complexity: Business logic complexity, workflow orchestration, state management
-Integration: Third-party APIs, legacy systems, data synchronization
-Security: Authentication, authorization, data protection, compliance
-Reliability: Fault tolerance, disaster recovery, uptime requirements
-</challenge_categories>
-
-<question>What industry standards or best practices apply?</question>
-<purpose>Identify reference architectures and proven patterns for this domain</purpose>
-<examples>
-E-commerce: PCI-DSS compliance, checkout optimization, inventory management
-SaaS: Multi-tenancy, subscription billing, data isolation
-Real-time: WebSocket patterns, event streaming, CQRS
-Mobile: Offline-first, sync strategies, push notifications
-Data-intensive: ETL patterns, data lakes, batch vs streaming
-</examples>
-
-<question>What are the scale and performance requirements?</question>
-<metrics>
-- Expected load: {concurrent users, requests/sec, data volume}
-- Growth projection: {1 year, 3 years}
-- Performance targets: {response times, throughput, latency}
-- Availability: {uptime SLA, geographic redundancy}
-</metrics>
-</architectural_context>
-```
-
-**Reason about architectural implications**:
-
-```
-Given this is a {pattern} architecture with {challenge} challenges, I should ensure tech research covers:
-- {Architecture-specific consideration 1}
-- {Architecture-specific consideration 2}
-- {Scale-specific requirement 1}
-```
-
-### Phase 1: Prerequisites Validation
-
-Check for existing context before delegating:
-
+**Action 1**: Execute context gathering
 ```bash
+# System date
+date +%Y-%m-%d
+
 # Load feature requirements
 code-tools read_file --path .claude/memory/requirements-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Requirements not found. Run /gather-requirements first."
 
@@ -101,13 +46,126 @@ code-tools search_file --glob "go.mod" --limit 1
 code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology stack dependencies" --topk 5
 ```
 
-**Context Summary for Agent**:
+**Observation 1**: [Capture loaded context: requirements summary, current stack, ADRs, related decisions]
 
+**Thought 2**: Based on requirements and existing stack, I can identify the architectural pattern and key technical challenges that will guide technology selection.
+
+**Action 2**: Analyze requirements to extract:
+- Fundamental architectural pattern (monolithic, microservices, serverless, event-driven, JAMstack, modular monolith, SOA)
+- Key technical challenges (performance, scale, complexity, integration, security, reliability)
+- Scale and performance requirements (concurrent users, throughput, latency targets, availability SLA)
+- Industry standards applicable to this domain
+
+**Observation 2**: [Document architectural pattern, challenges, scale requirements, industry standards]
+
+**Verification Checkpoint 1**: Before proceeding to technology research, verify:
+```xml
+<verification_checkpoint_1>
+<question>Do I have sufficient requirements to guide technology selection?</question>
+<check>Confirm functional and non-functional requirements are documented with IDs</check>
+<check>If missing: report error and recommend /gather-requirements first</check>
+
+<question>Have I identified the architectural pattern correctly?</question>
+<check>Pattern aligns with requirements (e.g., real-time needs suggest event-driven)</check>
+<check>Pattern is explicit, not assumed</check>
+
+<question>Are technical challenges prioritized by impact?</question>
+<check>Challenges ranked High/Medium/Low based on requirements</check>
+<check>Each challenge has "why it matters" justification</check>
+
+<question>Do scale requirements provide concrete targets?</question>
+<check>Numbers specified for: concurrent users, requests/sec, data volume, response times</check>
+<check>Growth projections over 1-3 years documented</check>
+<check>If vague: flag as open question for user clarification</check>
+</verification_checkpoint_1>
+```
+
+**Action 3**: Present architectural context summary to user:
+```
+Based on analysis of requirements and existing codebase:
+
+ARCHITECTURAL PATTERN: {identified pattern}
+JUSTIFICATION: {why this pattern fits requirements}
+
+KEY TECHNICAL CHALLENGES (prioritized):
+1. {Challenge} - Priority: HIGH - Why: {impact on system}
+2. {Challenge} - Priority: MEDIUM - Why: {impact on system}
+...
+
+SCALE REQUIREMENTS:
+- Load: {concurrent users, requests/sec, data volume}
+- Growth: {1-year, 3-year projections}
+- Performance: {response time, throughput, latency targets}
+- Availability: {uptime SLA}
+
+INDUSTRY STANDARDS: {applicable reference architectures, compliance needs}
+
+EXISTING CONSTRAINTS:
+- Current stack: {detected technologies}
+- Architectural decisions: {from ADRs}
+- Team context: {skills, size if known}
+
+Does this architectural understanding accurately represent the feature requirements? Any corrections or clarifications?
+```
+
+**Observation 3**: [User confirms or corrects architectural understanding]
+
+**Thought 3**: With validated architectural context, I can now construct research parameters for the tech-researcher agent that will focus on relevant technology categories and evaluation criteria.
+
+### Phase 1: Research Scope Definition (ReAct Cycle 2)
+
+**Thought 4**: Given the architectural pattern and challenges, I need to identify which technology categories require research.
+
+**Action 4**: Map architectural pattern and challenges to technology categories:
+```
+Pattern: {monolithic|microservices|serverless|event-driven|JAMstack|modular monolith|SOA}
+→ Categories: {Frontend, Backend, Database, Caching, Messaging, Infrastructure, Testing, etc.}
+
+Challenges:
+- {Challenge 1} → Requires evaluation of: {specific tech category}
+- {Challenge 2} → Requires evaluation of: {specific tech category}
+```
+
+**Observation 4**: [List of technology categories requiring research: Frontend, Backend, Database, Caching, Messaging, Infrastructure, Testing, etc.]
+
+**Verification Checkpoint 2**: Validate research scope:
+```xml
+<verification_checkpoint_2>
+<question>Have I identified all relevant technology categories?</question>
+<check>Each key challenge maps to at least one technology category</check>
+<check>Integration points with existing stack considered</check>
+<check>No critical categories missed (e.g., authentication, monitoring, deployment)</check>
+
+<question>Is the research scope manageable?</question>
+<check>Focused on 3-6 major categories (not trying to research everything)</check>
+<check>Prioritized by impact on critical requirements</check>
+
+<question>Are evaluation criteria clear for each category?</question>
+<check>Success criteria tied to specific FR/NFR IDs</check>
+<check>Trade-off dimensions identified (performance vs complexity, cost vs scalability)</check>
+</verification_checkpoint_2>
+```
+
+**Thought 5**: Research scope is validated. Now I'll delegate to tech-researcher agent with comprehensive context and structured verification requirements.
+
+### Phase 2: Agent Delegation with ReAct Framework (ReAct Cycle 3)
+
+**Action 5**: Invoke tech-researcher agent with structured research protocol:
+
+````
+Perform comprehensive technology research for feature: $ARGUMENTS
+
+**Role**: Senior Software Architect specializing in evidence-based technology evaluation and comparative analysis.
+
+**Architectural Context**:
+{Paste validated architectural understanding from Phase 0}
+
+**Existing Project Context**:
 ```xml
 <existing_context>
 <requirements>
-{Summary of functional and non-functional requirements from requirements-{feature}.md}
-{Key constraints, performance targets, scale requirements}
+{Functional and non-functional requirements from requirements-{feature}.md}
+{Key constraints, performance targets, scale requirements with FR/NFR IDs}
 </requirements>
 
 <current_tech_stack>
@@ -126,283 +184,246 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology sta
 </tech_baseline>
 
 <related_tech_decisions>
-{Any similar features' tech choices from memory search}
+{Similar features' tech choices from memory search}
 </related_tech_decisions>
 </existing_context>
 ```
 
-### Phase 2: Agent Invocation with Comprehensive Context
+**Research Protocol**: Execute ReAct cycles for each technology category
 
-Delegate to tech-researcher agent via Task tool:
+### ReAct Research Template (Apply to each category)
 
-````
-Perform comprehensive technology research for feature: $ARGUMENTS
+**CATEGORY**: {Frontend|Backend|Database|Caching|Messaging|Infrastructure|Testing}
 
-**Role**: Act as a Senior Software Architect specializing in technology selection, evaluation, and justified recommendation with expertise in comparative analysis and evidence-based decision-making.
+**Thought 1**: I need to identify 2-3 viable technology options for this category based on industry standards and requirements.
 
-**Architectural Context**:
-{Paste architectural understanding from Step-Back phase}
+**Action 1**: Research viable options
+- Query industry standards: "According to {domain} best practices, what are standard technologies for {use case}?"
+- WebFetch official documentation for candidate technologies
+- Identify version recommendations from official sources
 
-**Existing Project Context**:
-{Paste context summary from Phase 1}
+**Observation 1**: [List of 2-3 candidate technologies with official docs URLs]
 
-**Methodology**:
+**Thought 2**: For each candidate, I need to gather evidence about capabilities, performance, and fit.
 
-Use the systematic research and comparison framework:
+**Action 2**: For EACH candidate technology, execute research actions:
+```
+Action 2a: WebFetch official documentation
+- URL: {official-docs-url}
+- Extract: key capabilities, main use cases, core features relevant to requirements
 
-**Phase 1: High-Level Analysis** (Step-Back Prompting)
+Action 2b: WebFetch performance benchmarks
+- Search for: "{technology} benchmark {use case}"
+- Cite sources: TechEmpower, official docs, case studies
+- Record: specific metrics (req/s, latency, throughput, memory)
 
-Before evaluating specific technologies, analyze:
+Action 2c: WebFetch best practices guides
+- URL: {official best practices or authoritative guides}
+- Extract: common pitfalls, integration patterns, optimization techniques
 
-1. **Architectural Pattern Alignment**
-   - What fundamental pattern applies? (monolith, microservices, serverless, event-driven, etc.)
-   - Why is this pattern appropriate for the requirements?
-   - What technologies are typically used in this pattern?
+Action 2d: WebFetch ecosystem information
+- GitHub repo: stars, active contributors, recent commits, issue resolution time
+- Package registry: downloads, version history, breaking changes
+- Community: Stack Overflow questions, tutorial availability
+```
 
-2. **Technical Challenge Identification**
-   - What are the 3-5 key technical challenges?
-   - For each challenge: Why does it matter? What makes it hard?
-   - What types of technologies address these challenges?
+**Observation 2**: [For each candidate, document research findings with source URLs]
 
-3. **Industry Standards Research**
-   - According to {industry/domain} best practices, what is the standard approach for {this type of feature}?
-   - What are reference architectures or proven patterns?
-   - What technologies do similar systems use?
+**Thought 3**: I have gathered evidence. Now I need to evaluate each technology against specific requirements.
 
-4. **Scale & Performance Analysis**
-   - Expected load characteristics
-   - Growth projections
-   - Performance requirements and how they constrain tech choices
+**Action 3**: Map technologies to requirements
+```
+For each candidate:
+  For each critical requirement (FR-XXX, NFR-XXX):
+    - Status: Fully Met|Partially Met|Not Met
+    - Evidence: {specific feature or capability from docs}
+    - Source: {URL citation}
+```
 
-**Phase 2: Technology Option Research**
+**Observation 3**: [Requirements alignment matrix for all candidates]
 
-For each relevant category (frontend, backend, database, caching, messaging, etc.):
+**Thought 4**: I need to assess practical fit considering team context, integration complexity, and operational burden.
 
-**Research 2-3 Viable Options** per category:
+**Action 4**: Evaluate fit dimensions
+```
+For each candidate:
+  - Learning curve: {Low|Medium|High} based on team skills
+  - Ecosystem maturity: {Mature|Emerging|Experimental} with evidence
+  - Community support: {size metrics, activity metrics, resource availability}
+  - Integration with existing stack: {Native|Adapter|Custom} with complexity assessment
+  - Maintenance burden: {update frequency, breaking changes history, LTS commitment}
+  - Cost: {licensing, infrastructure, operational}
+```
 
-For EACH option:
+**Observation 4**: [Fit assessment for all candidates with justifications]
 
-1. **Fetch Official Documentation** using WebFetch
-   - Primary docs URL: {official-docs-url}
-   - Key capabilities summary
-   - Version recommendation
+**Thought 5**: I have comprehensive data on all candidates. Now I'll create comparative analysis with weighted scoring.
 
-2. **Research Best Practices** using WebFetch
-   - Best practices guides
-   - Common pitfalls
-   - Integration patterns
-
-3. **Gather Performance Data** using WebFetch
-   - Benchmarks (cite source)
-   - Known performance characteristics
-   - Scale limits
-
-**Document Each Option in XML Structure**:
-
-```xml
-<technology_option>
-  <name>{Technology Name}</name>
-  <category>{Frontend|Backend|Database|Caching|Messaging|Infrastructure|Testing}</category>
-  <version>{Recommended version with justification}</version>
-
-  <official_documentation>
-    <url>{Primary documentation URL}</url>
-    <summary>
-      {Key capabilities from official docs}
-      {Main use cases}
-      {Core features relevant to requirements}
-    </summary>
-  </official_documentation>
-
-  <strengths>
-    <strength source="{URL or 'official docs:{page}'}">
-      {Specific strength with feature citation}
-      {Why this matters for our requirements}
-    </strength>
-    <!-- List 4-6 strengths, each with source -->
-  </strengths>
-
-  <weaknesses>
-    <weakness source="{URL or known limitation}">
-      {Specific weakness with explanation}
-      {Impact on our use case}
-    </weakness>
-    <!-- List 3-5 weaknesses, each with source or reasoning -->
-  </weaknesses>
-
-  <requirements_alignment>
-    <requirement id="{FR-XXX or NFR-XXX}" status="Fully Met|Partially Met|Not Met">
-      {How this technology addresses the requirement}
-      {Specific features or capabilities that provide this}
-      {Source: documentation or benchmark citation}
-    </requirement>
-    <!-- Map ALL critical requirements -->
-  </requirements_alignment>
-
-  <fit_assessment>
-    <learning_curve severity="Low|Medium|High">
-      {Explanation based on team skills from context}
-      {Time to productivity estimate}
-    </learning_curve>
-
-    <ecosystem_maturity>
-      {Mature|Emerging|Experimental}
-      {Age, stability, backward compatibility track record}
-      {Source: release history, adoption metrics}
-    </ecosystem_maturity>
-
-    <community_support>
-      {Size: GitHub stars, downloads, active contributors}
-      {Activity: recent commits, issue resolution time}
-      {Resources: tutorials, Stack Overflow questions}
-      {Source: GitHub, npm, PyPI, etc.}
-    </community_support>
-
-    <integration_with_existing>
-      {How it integrates with current stack from context}
-      {Native|Official Adapter|Third-party|Custom Integration Required}
-      {Integration complexity assessment}
-    </integration_with_existing>
-
-    <maintenance_burden>
-      {Update frequency, breaking changes history}
-      {Long-term support commitment}
-      {Vendor lock-in risk}
-    </maintenance_burden>
-  </fit_assessment>
-
-  <performance_characteristics>
-    <metric name="{requests/sec, latency, throughput, memory, etc}">
-      {Value with source citation}
-      {Comparison to requirement target}
-    </metric>
-    <!-- Cite benchmarks: TechEmpower, official docs, case studies -->
-  </performance_characteristics>
-
-  <cost_analysis>
-    <licensing>{Open source|Freemium|Commercial} - {License type}</licensing>
-    <infrastructure_cost>{Estimate based on scale requirements}</infrastructure_cost>
-    <operational_cost>{Maintenance, training, support}</operational_cost>
-  </cost_analysis>
-
-  <risk_assessment>
-    <risk severity="High|Medium|Low">
-      {Description of risk}
-      {Mitigation strategy}
-    </risk>
-  </risk_assessment>
-</technology_option>
-````
-
-**Phase 3: Comparative Analysis**
-
-Create comparison matrix for each technology category:
-
+**Action 5**: Generate comparison matrix
+```
 | Criterion          | Option A        | Option B        | Option C        | Weight |
 | ------------------ | --------------- | --------------- | --------------- | ------ |
-| Meets FR-001       | ✅ Full         | ✅ Full         | ⚠️ Partial      | HIGH   |
+| Meets FR-001       | ✅ Full (cite)  | ✅ Full (cite)  | ⚠️ Partial (cite) | HIGH   |
 | Meets NFR-PERF-001 | ✅ (cite)       | ⚠️ (cite)       | ❌ (reason)     | HIGH   |
 | Learning Curve     | Medium          | Low             | High            | MEDIUM |
 | Ecosystem Maturity | Mature (source) | Emerging        | Mature (source) | MEDIUM |
 | Integration        | Native          | Adapter         | Complex         | HIGH   |
-| Cost               | Free/OSS        | Freemium        | Enterprise      | LOW    |
+| Cost               | {$ source}      | {$ source}      | {$ source}      | LOW    |
 | Performance        | {metric source} | {metric source} | {metric source} | HIGH   |
 | Community Size     | {data source}   | {data source}   | {data source}   | LOW    |
-| Risk Level         | Low             | Medium          | High            | HIGH   |
+| Risk Level         | Low (why)       | Medium (why)    | High (why)      | HIGH   |
 
-**Scoring Logic**:
-
+SCORING LOGIC:
 - HIGH weight: 3x multiplier
 - MEDIUM weight: 2x multiplier
 - LOW weight: 1x multiplier
 - ✅ = 3 points, ⚠️ = 2 points, ❌ = 0 points
 
-Calculate weighted scores to inform recommendation.
+WEIGHTED SCORES:
+Option A: {calculated score}
+Option B: {calculated score}
+Option C: {calculated score}
+```
 
-**Phase 4: "According to..." Source Grounding**
+**Observation 5**: [Comparison matrix with weighted scores]
 
-For EVERY factual claim, use grounded language:
+**Thought 6**: Based on scores and qualitative factors, I can recommend the best-fit technology for this category.
 
-**Required Patterns**:
+**Action 6**: Formulate category recommendation
+```xml
+<category_recommendation>
+  <primary_choice>
+    <technology>{Name version}</technology>
+    <justification>
+      {Why best fit based on weighted scoring}
+      {Key differentiators vs alternatives}
+      {How it addresses critical requirements with FR/NFR IDs}
+      {Sources supporting recommendation}
+    </justification>
+    <score>{weighted score}</score>
+  </primary_choice>
 
-- "According to {official docs URL}, {claim}"
-- "Based on {benchmark name} at {URL}, {performance claim}"
-- "{Technology}'s official {guide type} states that {claim}"
-- "A {date} {source type} shows that {trend}"
+  <alternative_choice>
+    <technology>{Name version}</technology>
+    <use_case>
+      {When to choose this instead}
+      {Different trade-offs it offers}
+    </use_case>
+    <score>{weighted score}</score>
+  </alternative_choice>
 
-**Examples of Proper Grounding**:
+  <anti_recommendation>
+    <technology>{Name}</technology>
+    <reasons>
+      {Why NOT to use for this feature}
+      {Specific gaps or risks with evidence}
+    </reasons>
+  </anti_recommendation>
+</category_recommendation>
+```
 
-- "According to the React documentation (react.dev/reference), concurrent features enable non-blocking rendering"
-- "Based on TechEmpower benchmarks Round 22 (techempower.com/benchmarks), FastAPI achieves 28,000 req/s on JSON serialization"
-- "MongoDB's official scaling guide (docs.mongodb.com/manual/sharding) recommends sharding at 2-5GB per shard"
-- "The 2024 State of JS survey (stateofjs.com) shows Next.js with 75% satisfaction rating"
+**Observation 6**: [Category recommendation with primary, alternative, and anti-recommendation]
 
-**Forbidden Ungrounded Claims**:
+**REPEAT ReAct Research Template for all technology categories**
 
-- ❌ "React is the best framework"
-- ❌ "MongoDB is very scalable"
-- ❌ "Everyone uses PostgreSQL"
-- ❌ "FastAPI is faster" (without comparison data)
+### Chain of Verification: Pre-Finalization Validation
 
-**Phase 5: Chain-of-Verification (CoVe)**
+**Thought N**: Before finalizing recommendations, I must verify the analysis for completeness, accuracy, and bias.
 
-Before finalizing recommendations, verify:
+**Action N**: Execute comprehensive verification checklist
 
 ```xml
 <verification_checklist>
-<question>Does each recommendation directly address stated requirements?</question>
-<check>Cross-reference every recommended tech against FR/NFR IDs</check>
+<verification_1>
+  <question>Does each recommendation directly address stated requirements?</question>
+  <action>Cross-reference every recommended tech against FR/NFR IDs</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_1>
 
-<question>Are all pros/cons backed by sources or clear reasoning?</question>
-<check>Every strength/weakness has source URL or logical explanation</check>
+<verification_2>
+  <question>Are all pros/cons backed by sources or clear reasoning?</question>
+  <action>Audit 100% of strength/weakness claims for source URLs or logical explanations</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_2>
 
-<question>Have I provided at least 2 alternatives for key technology choices?</question>
-<check>Each major category has 2-3 evaluated options</check>
+<verification_3>
+  <question>Have I provided at least 2 alternatives for key technology choices?</question>
+  <action>Count options per category - verify 2-3 options evaluated</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_3>
 
-<question>Are performance claims backed by benchmarks or documentation?</question>
-<check>All performance metrics cite specific benchmarks or official docs</check>
+<verification_4>
+  <question>Are performance claims backed by benchmarks or documentation?</question>
+  <action>Verify all performance metrics cite specific benchmarks with URLs</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_4>
 
-<question>Have I considered the team's existing skills and stack?</question>
-<check>Learning curve assessments reference current stack from context</check>
-<check>Integration complexity considers existing tech baseline</check>
+<verification_5>
+  <question>Have I considered team's existing skills and stack?</question>
+  <action>Verify learning curve assessments reference current stack from context</action>
+  <action>Verify integration complexity considers existing tech baseline</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_5>
 
-<question>Is the recommendation practical (not just theoretically optimal)?</question>
-<check>Cost analysis includes infrastructure + operational costs</check>
-<check>Risk assessment identifies blockers and mitigations</check>
+<verification_6>
+  <question>Is the recommendation practical (not just theoretically optimal)?</question>
+  <action>Verify cost analysis includes infrastructure + operational costs</action>
+  <action>Verify risk assessment identifies blockers with mitigations</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_6>
 
-<question>Have I identified integration challenges with existing systems?</question>
-<check>Integration section addresses current stack compatibility</check>
-<check>Migration path from current state outlined if applicable</check>
+<verification_7>
+  <question>Have I identified integration challenges with existing systems?</question>
+  <action>Verify integration section addresses current stack compatibility</action>
+  <action>Verify migration path outlined if replacing current tech</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_7>
 
-<question>Are there any "cool tech" biases I should check?</question>
-<check>Justified preference for proven tech over bleeding edge unless compelling reason</check>
-<check>Hype-driven choices flagged and evaluated objectively</check>
+<verification_8>
+  <question>Are there any "cool tech" biases I should check?</question>
+  <action>Flag bleeding-edge choices - verify compelling justification exists</action>
+  <action>Verify preference for proven tech over hype-driven choices</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_8>
 
-<question>Have I checked for hallucinated features or capabilities?</question>
-<check>Every claimed feature verified against official documentation</check>
-<check>No assumptions about what technology "probably supports"</check>
+<verification_9>
+  <question>Have I checked for hallucinated features or capabilities?</question>
+  <action>Verify every claimed feature against official documentation</action>
+  <action>Confirm no assumptions about what technology "probably supports"</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_9>
 
-<question>Is version information current and accurate?</question>
-<check>Recommended versions are latest stable (cite release date)</check>
-<check>No recommendations for deprecated or EOL versions</check>
+<verification_10>
+  <question>Is version information current and accurate?</question>
+  <action>Verify recommended versions are latest stable with release dates</action>
+  <action>Confirm no deprecated or EOL versions recommended</action>
+  <status>PASS|FAIL: {findings}</status>
+</verification_10>
 </verification_checklist>
 ```
 
-Present summary to user and ask:
+**Observation N**: [Verification results - PASS/FAIL for each check with specific findings]
 
-> "Based on the above research and analysis, have I covered all technology categories relevant to this feature? Are there additional integration points or constraints I should research?"
+**Thought N+1**: If any verification checks FAIL, I must revise the analysis before presenting to user.
 
-**Iterate** until user confirms completeness.
+**Action N+1**: [If FAIL found] Correct identified issues:
+- Re-research claims lacking sources
+- Remove or qualify unverified statements
+- Add missing alternatives
+- Strengthen requirements alignment
+- Address bias or hallucination issues
 
-**Output Requirements**:
+**Observation N+1**: [Revised analysis with corrections applied]
 
-Generate technology analysis document in the following structure (render as markdown):
+**Thought N+2**: Verification complete (all PASS). Now I'll structure the comprehensive technology analysis document.
+
+**Action N+2**: Generate final technology analysis document
 
 ```xml
 <tech_analysis>
   <metadata>
     <feature_slug>{feature}</feature_slug>
-    <created>2025-10-23</created>
+    <created>{current date}</created>
     <analyst>Tech Researcher Agent</analyst>
     <status>Draft</status>
   </metadata>
@@ -412,98 +433,160 @@ Generate technology analysis document in the following structure (render as mark
     {Key trade-offs highlighted}
   </executive_summary>
 
-  <current_context>
-    <existing_stack>
-      {Technologies currently in use from project context}
-      {Versions, frameworks, libraries}
-    </existing_stack>
-
-    <team_context>
-      {Skills, experience level with relevant technologies from context if available}
-      {Size and structure if relevant to tech choices}
-    </team_context>
-
-    <constraints>
-      {Architectural decisions that constrain tech choices}
-      {Budget, timeline, compliance requirements}
-    </constraints>
-  </current_context>
-
-  <step_back_analysis>
-    <architectural_pattern>
-      {Pattern identified: monolith, microservices, etc.}
+  <architectural_context>
+    <pattern>
+      {Identified pattern: monolith, microservices, etc.}
       {Justification based on requirements}
-      {Implications for tech selection}
-    </architectural_pattern>
+    </pattern>
 
     <technical_challenges>
       <challenge priority="High|Medium|Low">
         <description>{Challenge}</description>
-        <why_it_matters>{Impact on system}</why_it_matters>
+        <why_matters>{Impact on system}</why_matters>
         <tech_implications>{What types of tech address this}</tech_implications>
       </challenge>
     </technical_challenges>
 
-    <industry_standards>
-      <standard source="{URL or domain knowledge}">
-        {Standard approach for this type of feature in this domain}
-        {Rationale for why this is standard}
-        {Common technology choices}
-      </standard>
+    <industry_standards source="{URL or domain knowledge}">
+      {Standard approach for this feature type in this domain}
+      {Rationale for standard}
+      {Common technology choices}
     </industry_standards>
 
-    <scale_considerations>
+    <scale_requirements>
       <load_profile>
-        {Expected concurrent users, requests/sec, data volume}
-        {Growth projection over 1-3 years}
+        {Expected: concurrent users, requests/sec, data volume}
+        {Growth: 1-year, 3-year projections}
       </load_profile>
-
       <performance_targets>
-        {Response time requirements}
-        {Throughput requirements}
-        {Availability/uptime SLA}
+        {Response time, throughput, availability SLA}
       </performance_targets>
-    </scale_considerations>
-  </step_back_analysis>
+    </scale_requirements>
+  </architectural_context>
+
+  <current_context>
+    <existing_stack>
+      {Technologies currently in use}
+      {Versions, frameworks, libraries}
+    </existing_stack>
+
+    <constraints>
+      {Architectural decisions constraining choices}
+      {Budget, timeline, compliance requirements}
+    </constraints>
+  </current_context>
 
   <technology_categories>
     <category name="{Frontend|Backend|Database|Caching|Messaging|Infrastructure|Testing}">
+      <research_summary>
+        {Brief summary of research process for this category}
+        {Number of options evaluated, sources consulted}
+      </research_summary>
+
       <options_evaluated>
-        <!-- Include full <technology_option> XML blocks from Phase 2 -->
+        <technology_option>
+          <name>{Technology Name}</name>
+          <version>{Recommended version with release date}</version>
+
+          <official_documentation>
+            <url>{Primary documentation URL}</url>
+            <summary>
+              {Key capabilities from official docs}
+              {Main use cases}
+              {Core features relevant to requirements}
+            </summary>
+          </official_documentation>
+
+          <strengths>
+            <strength source="{URL or 'official docs:{page}'}">
+              {Specific strength with feature citation}
+              {Why matters for requirements}
+            </strength>
+            <!-- 4-6 strengths, each with source -->
+          </strengths>
+
+          <weaknesses>
+            <weakness source="{URL or known limitation}">
+              {Specific weakness with explanation}
+              {Impact on use case}
+            </weakness>
+            <!-- 3-5 weaknesses, each with source or reasoning -->
+          </weaknesses>
+
+          <requirements_alignment>
+            <requirement id="{FR-XXX or NFR-XXX}" status="Fully Met|Partially Met|Not Met">
+              {How technology addresses requirement}
+              {Specific features providing this}
+              {Source: documentation or benchmark citation}
+            </requirement>
+            <!-- Map ALL critical requirements -->
+          </requirements_alignment>
+
+          <fit_assessment>
+            <learning_curve severity="Low|Medium|High">
+              {Explanation based on team skills}
+              {Time to productivity estimate}
+            </learning_curve>
+
+            <ecosystem_maturity>
+              {Mature|Emerging|Experimental}
+              {Age, stability, backward compatibility record}
+              {Source: release history, adoption metrics}
+            </ecosystem_maturity>
+
+            <community_support>
+              {Size: GitHub stars, downloads, contributors}
+              {Activity: recent commits, issue resolution}
+              {Resources: tutorials, Stack Overflow}
+              {Source: GitHub, npm, PyPI, etc.}
+            </community_support>
+
+            <integration_with_existing>
+              {How integrates with current stack}
+              {Native|Official Adapter|Third-party|Custom}
+              {Integration complexity assessment}
+            </integration_with_existing>
+
+            <maintenance_burden>
+              {Update frequency, breaking changes history}
+              {Long-term support commitment}
+              {Vendor lock-in risk}
+            </maintenance_burden>
+          </fit_assessment>
+
+          <performance_characteristics>
+            <metric name="{requests/sec, latency, throughput, memory}">
+              {Value with source citation}
+              {Comparison to requirement target}
+            </metric>
+            <!-- Cite benchmarks: TechEmpower, official docs, case studies -->
+          </performance_characteristics>
+
+          <cost_analysis>
+            <licensing>{Open source|Freemium|Commercial} - {License type}</licensing>
+            <infrastructure_cost>{Estimate based on scale}</infrastructure_cost>
+            <operational_cost>{Maintenance, training, support}</operational_cost>
+            <total_monthly_estimate>{$X,XXX/month}</total_monthly_estimate>
+          </cost_analysis>
+
+          <risk_assessment>
+            <risk severity="High|Medium|Low">
+              <description>{Risk}</description>
+              <probability>High|Medium|Low</probability>
+              <impact>{Impact if occurs}</impact>
+              <mitigation>{How to prevent or handle}</mitigation>
+            </risk>
+          </risk_assessment>
+        </technology_option>
         <!-- 2-3 options per category -->
       </options_evaluated>
 
-      <comparative_matrix>
-        <!-- Table from Phase 3 -->
-        <!-- Include weighted scoring -->
-      </comparative_matrix>
+      <comparative_analysis>
+        {Comparison matrix with weighted scoring from Action 5}
+      </comparative_analysis>
 
       <category_recommendation>
-        <primary_choice>
-          <technology>{Name}</technology>
-          <justification>
-            {Why this is the best fit based on scoring and analysis}
-            {Key differentiators vs alternatives}
-            {How it addresses critical requirements}
-            {Sources supporting recommendation}
-          </justification>
-        </primary_choice>
-
-        <alternative_choice>
-          <technology>{Name}</technology>
-          <use_case>
-            {When to choose this instead}
-            {Different trade-offs it offers}
-          </use_case>
-        </alternative_choice>
-
-        <anti_recommendation>
-          <technology>{Name}</technology>
-          <reasons>
-            {Why NOT to use this for this feature}
-            {Specific gaps or risks}
-          </reasons>
-        </anti_recommendation>
+        {Category recommendation from Action 6}
       </category_recommendation>
     </category>
   </technology_categories>
@@ -512,21 +595,23 @@ Generate technology analysis document in the following structure (render as mark
     <recommended_stack>
       <layer name="{Frontend|Backend|Database|etc}">
         <technology>{Name version}</technology>
-        <role>{What it does in the stack}</role>
+        <role>{What it does in stack}</role>
+        <justification>{Why chosen for this layer}</justification>
       </layer>
     </recommended_stack>
 
-    <justification>
-      {Comprehensive reasoning for the stack as a whole}
+    <stack_justification>
+      {Comprehensive reasoning for stack as whole}
       {How components integrate}
       {How stack addresses all critical requirements}
       {Total cost of ownership estimate}
-    </justification>
+    </stack_justification>
 
     <integration_strategy>
       {How recommended tech integrates with existing stack}
       {Migration path if replacing current tech}
       {Integration complexity and timeline}
+      {Fallback strategies if integration issues arise}
     </integration_strategy>
 
     <implementation_risks>
@@ -535,14 +620,25 @@ Generate technology analysis document in the following structure (render as mark
         <probability>High|Medium|Low</probability>
         <impact>{Impact if occurs}</impact>
         <mitigation>{How to prevent or handle}</mitigation>
+        <contingency>{What to do if mitigation fails}</contingency>
       </risk>
     </implementation_risks>
 
-    <best_practices source="{URL}">
-      {Practice 1 with source}
-      {Practice 2 with source}
-      {Practice 3 with source}
+    <best_practices>
+      <practice source="{URL}">
+        {Practice with detailed explanation}
+        {Why important for this stack}
+      </practice>
     </best_practices>
+
+    <rollout_strategy>
+      <phase number="1" duration="{timeframe}">
+        {What to implement}
+        {Success criteria}
+        {Validation approach}
+      </phase>
+      <!-- Phased rollout with validation gates -->
+    </rollout_strategy>
   </overall_recommendation>
 
   <alternative_stack>
@@ -552,31 +648,36 @@ Generate technology analysis document in the following structure (render as mark
     </stack_description>
 
     <trade_offs>
-      {What you gain vs primary recommendation}
-      {What you lose vs primary recommendation}
+      <gains>{What you gain vs primary recommendation}</gains>
+      <losses>{What you lose vs primary recommendation}</losses>
     </trade_offs>
+
+    <use_cases>
+      {Scenarios where alternative is superior}
+    </use_cases>
   </alternative_stack>
 
   <references>
     <documentation_sources>
-      <source>{Technology}: {URL}</source>
+      <source technology="{name}">{URL}</source>
     </documentation_sources>
 
     <benchmark_sources>
-      <source>{Benchmark name}: {URL}</source>
+      <source name="{benchmark name}">{URL}</source>
     </benchmark_sources>
 
     <best_practice_guides>
-      <source>{Guide name}: {URL}</source>
+      <source name="{guide name}">{URL}</source>
     </best_practice_guides>
 
     <community_resources>
-      <source>{Resource name}: {URL}</source>
+      <source name="{resource name}">{URL}</source>
     </community_resources>
   </references>
 
   <verification_confirmation>
-    {Confirmation that all CoVe checks passed}
+    {Confirmation all CoVe checks passed}
+    {Summary of verification process}
     {Any assumptions or uncertainties flagged}
   </verification_confirmation>
 
@@ -584,201 +685,407 @@ Generate technology analysis document in the following structure (render as mark
     <question priority="High|Medium|Low">
       {Question requiring user input or further research}
       {Why this question matters}
+      {Impact on recommendation if answered differently}
     </question>
   </open_questions>
 </tech_analysis>
 ```
 
-**Anti-Hallucination Safeguards**:
+**Observation N+2**: [Complete technology analysis document]
 
-1. **Source Everything**: Every claim must cite URL or documented reasoning
-2. **No Assumptions**: If unsure about capability, mark as "UNCERTAIN - requires verification"
-3. **Version Accuracy**: Only recommend versions verified in official docs
-4. **Benchmark Honesty**: Only cite benchmarks you've actually fetched and read
-5. **Feature Verification**: Every claimed feature verified in official documentation
-6. **Avoid Absolutes**: Replace "X is the best" with "According to {source}, X performs better in {context}"
+**Thought N+3**: Analysis is complete and verified. I'll present summary to user for confirmation before finalizing.
 
-**Best Practices**:
+**Action N+3**: Present analysis summary to user
+```
+TECHNOLOGY RESEARCH COMPLETE
 
-- **Evidence-Based**: Every recommendation grounded in sources
-- **Balanced**: Present pros AND cons for all options
-- **Practical**: Consider real-world constraints (cost, team skills, timeline)
-- **Risk-Aware**: Identify and mitigate implementation risks
-- **Integration-Focused**: Address how new tech works with existing stack
-- **Testable**: Recommendations include verification/validation approach
+RECOMMENDED STACK:
+- {Layer 1}: {Technology} - {Justification}
+- {Layer 2}: {Technology} - {Justification}
+...
 
-**Iterative Refinement**:
+KEY TRADE-OFFS:
+- {Trade-off 1}: {Explanation}
+- {Trade-off 2}: {Explanation}
 
-After presenting initial analysis:
+INTEGRATION COMPLEXITY: {Low|Medium|High}
+TOTAL ESTIMATED COST: ${X,XXX}/month
+IMPLEMENTATION TIMELINE: {estimate}
 
-1. Ask user to confirm completeness and accuracy
-2. Refine based on feedback
-3. Re-verify with CoVe checklist
-4. Iterate until user approves
+CRITICAL REQUIREMENTS COVERAGE:
+- {FR-001}: ✅ {How addressed}
+- {NFR-001}: ✅ {How addressed}
+
+OPEN QUESTIONS (require your input):
+1. {Question 1} - Priority: HIGH
+2. {Question 2} - Priority: MEDIUM
+
+Have I covered all technology categories relevant to this feature? Are there additional integration points or constraints I should research?
+```
+
+**Observation N+3**: [User confirms completeness or requests additional research]
+
+**Thought N+4**: [If user requests changes] I need to iterate on specific areas based on feedback.
+**Thought N+4**: [If user confirms] Research is complete and validated. Ready to write artifact.
 
 Return final technology analysis document content ready to write to file.
 
 ````
 
-### Phase 3: Validation and Artifact Creation
+**Observation 5**: [Tech-researcher agent returns complete technology analysis document]
 
-After agent completes technology research:
+### Phase 3: Orchestrator Validation (ReAct Cycle 4)
 
-**Validation Checklist**:
+**Thought 7**: Agent has returned analysis. Before accepting it, I must validate against quality gates to ensure completeness, accuracy, and adherence to methodology.
+
+**Action 7**: Execute orchestrator validation checklist
 
 ```xml
 <orchestrator_validation>
-<question>Did agent perform Step-Back analysis?</question>
-<check>Verify architectural pattern, challenges, industry standards, scale analysis present</check>
+<validation_1>
+  <check>Did agent perform Step-Back analysis?</check>
+  <action>Verify architectural pattern, challenges, industry standards, scale analysis present</action>
+  <pass_criteria>All architectural context sections populated with evidence</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_1>
 
-<question>Did agent research 2-3 options per major category?</question>
-<check>Count technology_option blocks - should have multiple per category</check>
+<validation_2>
+  <check>Did agent research 2-3 options per major category?</check>
+  <action>Count technology_option blocks per category</action>
+  <pass_criteria>Minimum 2 options per critical category, 1 option acceptable for minor categories</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_2>
 
-<question>Are all options documented in XML structure?</question>
-<check>Verify each option has: name, category, version, docs, strengths, weaknesses, requirements alignment, fit assessment</check>
+<validation_3>
+  <check>Are all options documented in complete XML structure?</check>
+  <action>Verify each option has: name, category, version, docs URL, strengths (4+), weaknesses (3+), requirements alignment, fit assessment, performance data, cost, risks</action>
+  <pass_criteria>All required fields present for every technology_option</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_3>
 
-<question>Did agent create comparative matrices?</question>
-<check>Verify tables with weighted scoring for each category</check>
+<validation_4>
+  <check>Did agent create comparative matrices with weighted scoring?</check>
+  <action>Verify tables exist for each category with weights and scores calculated</action>
+  <pass_criteria>Comparison matrices present with explicit scoring methodology</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_4>
 
-<question>Are all claims source-grounded ("According to...")?</question>
-<check>Spot-check 10 random factual claims for source citations</check>
-<check>No ungrounded claims like "X is the best" without justification</check>
+<validation_5>
+  <check>Are all claims source-grounded with "According to..." pattern?</check>
+  <action>Spot-check 10 random factual claims for source citations (URLs or explicit reasoning)</action>
+  <pass_criteria>100% of checked claims have sources; no ungrounded assertions</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_5>
 
-<question>Did agent perform CoVe validation?</question>
-<check>Verify verification_confirmation section present</check>
-<check>Verify all 10 CoVe questions addressed</check>
+<validation_6>
+  <check>Did agent perform Chain of Verification validation?</check>
+  <action>Verify verification_confirmation section present with all 10 CoVe questions addressed</action>
+  <pass_criteria>Verification checklist completed with PASS/FAIL status for each check</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_6>
 
-<question>Is output in correct XML structure?</question>
-<check>Verify all required sections: metadata, executive_summary, current_context, step_back_analysis, technology_categories, overall_recommendation, references</check>
+<validation_7>
+  <check>Is output in correct XML structure?</check>
+  <action>Verify all required sections present: metadata, executive_summary, architectural_context, current_context, technology_categories (with nested options), overall_recommendation, alternative_stack, references, verification_confirmation, open_questions</action>
+  <pass_criteria>All required XML sections present and properly nested</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_7>
 
-<question>Are recommendations practical and justified?</question>
-<check>Recommendations address actual requirements with IDs</check>
-<check>Risk assessment includes mitigations</check>
-<check>Integration strategy addresses existing stack</check>
+<validation_8>
+  <check>Are recommendations practical and justified?</check>
+  <action>Verify recommendations address actual requirements with FR/NFR IDs</action>
+  <action>Verify risk assessments include specific mitigations and contingencies</action>
+  <action>Verify integration strategy addresses existing stack compatibility</action>
+  <pass_criteria>Every recommendation maps to requirements; risks have mitigations; integration path clear</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_8>
 
-<question>Are references comprehensive?</question>
-<check>All cited sources listed in references section</check>
-<check>URLs are valid (spot-check 5 random URLs)</check>
+<validation_9>
+  <check>Are references comprehensive and valid?</check>
+  <action>Verify all cited sources listed in references section</action>
+  <action>Spot-check 5 random URLs for validity</action>
+  <pass_criteria>All sources catalogued; spot-checked URLs are valid</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_9>
 
-<question>Did agent avoid "cool tech" bias?</question>
-<check>Bleeding-edge choices have compelling justification</check>
-<check>Mature, proven technologies preferred unless good reason</check>
+<validation_10>
+  <check>Did agent avoid "cool tech" bias?</check>
+  <action>Check if bleeding-edge choices have compelling justification tied to requirements</action>
+  <action>Verify mature, proven technologies preferred unless specific reason</action>
+  <pass_criteria>No unjustified hype-driven recommendations; trade-offs explicitly stated</pass_criteria>
+  <status>PASS|FAIL: {findings}</status>
+</validation_10>
 </orchestrator_validation>
-````
+```
 
-**Write to Memory**:
+**Observation 7**: [Validation results - PASS/FAIL for each check]
 
+**Thought 8**: Based on validation results, I need to determine if analysis is acceptable or requires agent to revise.
+
+**Decision Branch**:
+- **IF all validations PASS**: Proceed to Phase 4 (write artifact)
+- **IF any validation FAILS**: Execute corrective action
+
+**Action 8a** [If FAIL]: Re-invoke agent with corrective instructions
+```
+Your technology analysis has validation issues that must be corrected:
+
+FAILED VALIDATIONS:
+{List specific validation failures with details}
+
+REQUIRED CORRECTIONS:
+{Specific instructions for each failure}
+
+Please revise the analysis to address these issues and resubmit.
+```
+
+**Observation 8a**: [Agent returns revised analysis - loop back to Action 7 for re-validation]
+
+**Action 8b** [If PASS]: Proceed to artifact creation
+
+**Observation 8b**: [All validations passed - ready to write memory artifact]
+
+### Phase 4: Artifact Creation and Final Verification
+
+**Thought 9**: Validation complete. I'll write the technology analysis to memory for use in implementation planning.
+
+**Action 9**: Write artifact to memory
 ```bash
-# Write tech analysis to memory
 code-tools create_file \
   --file .claude/memory/tech-analysis-$ARGUMENTS.md \
   --content @- \
   --add-last-line-newline <<EOF
-{Agent's tech analysis document content}
+{Agent's verified tech analysis document content}
 EOF
 ```
 
-### Phase 4: Quality Gates
+**Observation 9**: [File written to .claude/memory/tech-analysis-{slug}.md]
 
-Before considering tech research complete, verify:
+**Thought 10**: Artifact created. I'll perform final completeness check before reporting success.
 
-**Completeness Gates**:
+**Action 10**: Final quality gate verification
+```xml
+<final_quality_gates>
+<completeness_check>
+  <gate>Step-back analysis addresses architectural pattern, challenges, standards, scale</gate>
+  <gate>At least 2 viable options researched per major technology category</gate>
+  <gate>Each option has complete XML structure with all required fields</gate>
+  <gate>Comparative matrices with weighted scoring for each category</gate>
+  <gate>Primary recommendation with comprehensive justification</gate>
+  <gate>Alternative recommendation with different trade-offs</gate>
+  <gate>Anti-recommendations (what NOT to use and why)</gate>
+  <gate>Integration strategy addressing existing stack</gate>
+  <gate>Risk assessment with mitigations and contingencies</gate>
+  <gate>Best practices with sources</gate>
+  <gate>All references listed with URLs</gate>
+  <gate>User confirmed completeness</gate>
+</completeness_check>
 
-- [ ] Step-back analysis addresses architectural pattern, challenges, standards, scale
-- [ ] At least 2 viable options researched per major technology category
-- [ ] Each option has complete XML structure with all required fields
-- [ ] Comparative matrices with weighted scoring for each category
-- [ ] Primary recommendation with comprehensive justification
-- [ ] Alternative recommendation with different trade-offs
-- [ ] Anti-recommendations (what NOT to use and why)
-- [ ] Integration strategy addressing existing stack
-- [ ] Risk assessment with mitigations
-- [ ] Best practices with sources
-- [ ] All references listed with URLs
-- [ ] User confirmed completeness
+<quality_check>
+  <gate>All factual claims source-grounded with "According to..." pattern</gate>
+  <gate>No hallucinated features or capabilities</gate>
+  <gate>Version recommendations current and accurate (checked against official releases)</gate>
+  <gate>Performance claims cite specific benchmarks with URLs</gate>
+  <gate>No "cool tech" bias without compelling requirement-based justification</gate>
+  <gate>Requirements alignment explicitly shown with FR/NFR IDs</gate>
+  <gate>Learning curve assessments reference team context from existing stack</gate>
+  <gate>Cost analysis includes infrastructure + operational costs</gate>
+</quality_check>
 
-**Quality Gates**:
-
-- [ ] All factual claims source-grounded ("According to...")
-- [ ] No hallucinated features or capabilities
-- [ ] Version recommendations are current and accurate
-- [ ] Performance claims cite specific benchmarks
-- [ ] No "cool tech" bias without justification
-- [ ] Requirements alignment explicitly shown with FR/NFR IDs
-- [ ] Learning curve assessments reference team context
-- [ ] Cost analysis includes infrastructure + operational costs
-
-**Evidence Gates**:
-
-- [ ] Every strength/weakness has source citation
-- [ ] Every performance metric cites benchmark or official docs
-- [ ] Every best practice has source URL
-- [ ] Integration assessments reference current tech baseline
-- [ ] Risk mitigations are specific and actionable
-
-## Error Handling
-
-**Agent Returns Incomplete Analysis**:
-
-```
-If missing required sections or options:
-  - Report: "Tech analysis incomplete - missing {sections/categories}"
-  - Re-invoke agent with specific instruction to complete missing parts
-  - Do NOT accept incomplete output
+<evidence_check>
+  <gate>Every strength/weakness has source citation or logical reasoning</gate>
+  <gate>Every performance metric cites benchmark or official documentation</gate>
+  <gate>Every best practice has source URL</gate>
+  <gate>Integration assessments reference current tech baseline</gate>
+  <gate>Risk mitigations are specific, actionable, and testable</gate>
+</evidence_check>
+</final_quality_gates>
 ```
 
-**Agent Makes Ungrounded Claims**:
+**Observation 10**: [Final quality gates status - all PASS required to declare success]
 
+**Thought 11**: All quality gates passed. Technology research is complete and artifact is ready for next phase.
+
+**Action 11**: Report success to user
 ```
-If spot-checking finds unsourced claims:
-  - Identify specific claims lacking sources
-  - Re-invoke agent: "Please provide source citations for: {claims}"
-  - Do NOT accept ungrounded analysis
+✓ TECHNOLOGY RESEARCH COMPLETE
+
+ARTIFACT: .claude/memory/tech-analysis-{slug}.md
+
+RESEARCH SUMMARY:
+- Categories evaluated: {count}
+- Technologies researched: {count}
+- Sources cited: {count}
+- Requirements mapped: {count FR + count NFR}
+
+RECOMMENDED STACK:
+{Brief summary of primary recommendations per category}
+
+KEY INSIGHTS:
+- {Insight 1}
+- {Insight 2}
+- {Insight 3}
+
+NEXT STEPS:
+Run /plan-implementation {feature-slug} to create detailed implementation plan based on this technology analysis.
 ```
 
-**Missing Prerequisites**:
+**Observation 11**: [User informed of successful completion]
 
+## Error Handling Protocols
+
+### Error: Missing Prerequisites
+
+**Thought**: Cannot research without requirements.
+**Action**: Report error and recommend prerequisite command.
 ```
-If requirements-{feature}.md not found:
-  - Cannot research without requirements
-  - Recommend: /gather-requirements {feature} first
-  - Exit with error message
+ERROR: Requirements not found for feature: {slug}
+
+Technology research requires validated requirements to guide evaluation criteria.
+
+RECOMMENDED ACTION:
+Run: /gather-requirements {slug}
+
+This will create requirements-{slug}.md which provides:
+- Functional requirements (FR-XXX)
+- Non-functional requirements (NFR-XXX)
+- Constraints and priorities
+
+After requirements are gathered, re-run: /research-tech {slug}
 ```
 
-**User Unable to Clarify Constraints**:
+### Error: Agent Returns Incomplete Analysis
 
+**Thought**: Analysis missing required sections violates quality gates.
+**Action**: Identify gaps and re-invoke agent with specific completion instructions.
 ```
-If user doesn't know tech constraints:
-  - Document as open question with HIGH priority
-  - Research based on general best practices
-  - Note assumption in tech analysis
+Analysis incomplete. Missing: {list of missing sections/categories}
+
+Re-invoking agent with instruction to complete: {specific missing parts}
+
+Do NOT accept incomplete output.
 ```
 
-**Validation Fails**:
+### Error: Agent Makes Ungrounded Claims
 
+**Thought**: Ungrounded claims violate evidence-based methodology and risk hallucination.
+**Action**: Identify unsourced claims and demand source citations.
 ```
-If orchestrator validation checklist fails:
-  - Identify specific failures
-  - Re-invoke agent with corrective instructions
-  - Do NOT write to memory until validation passes
+Validation failed: Found {count} ungrounded claims:
+- {Claim 1} - No source cited
+- {Claim 2} - No source cited
+
+Re-invoking agent with instruction:
+"Please provide source citations (URLs) for the following claims: {list claims}
+For each claim, either cite a URL or explain the logical reasoning if it's a deduction."
+
+Do NOT accept ungrounded analysis.
+```
+
+### Error: User Unable to Clarify Constraints
+
+**Thought**: Lack of clarity on constraints creates risk but shouldn't block research.
+**Action**: Document as open questions, proceed with general best practices, note assumptions.
+```
+User unable to clarify: {constraint type}
+
+PROCEEDING WITH ASSUMPTIONS:
+- {Assumption 1} - based on: {reasoning}
+- {Assumption 2} - based on: {reasoning}
+
+DOCUMENTED IN ANALYSIS:
+- open_questions section: HIGH priority for clarification before implementation
+- Assumption impacts: {which recommendations depend on assumptions}
+
+Note: Recommendations may need revision once constraints clarified.
+```
+
+### Error: Orchestrator Validation Fails
+
+**Thought**: Validation failure indicates quality issues that could impact downstream implementation planning.
+**Action**: Identify specific failures, provide corrective guidance, re-invoke agent.
+```
+Orchestrator validation failed on {count} checks:
+
+VALIDATION FAILURE 1: {description}
+- What's wrong: {specific issue}
+- Required correction: {what agent must fix}
+
+VALIDATION FAILURE 2: {description}
+- What's wrong: {specific issue}
+- Required correction: {what agent must fix}
+
+Re-invoking agent with corrective instructions.
+
+Do NOT write to memory until all validations pass.
+```
+
+### Error: Technology Research Inconclusive
+
+**Thought**: If research doesn't yield clear recommendations, multiple paths may be viable.
+**Action**: Present multiple viable options with equal weight, defer decision to user.
+```
+Research inconclusive - multiple technologies have similar fitness scores:
+
+OPTION A: {Technology}
+- Score: {X.XX}
+- Best for: {scenario}
+- Trade-offs: {trade-offs}
+
+OPTION B: {Technology}
+- Score: {X.XX}
+- Best for: {scenario}
+- Trade-offs: {trade-offs}
+
+RECOMMENDATION:
+Both options are viable. Decision depends on:
+{Key decision factors}
+
+USER INPUT NEEDED:
+{Specific questions to guide final selection}
 ```
 
 ## Success Criteria
 
-Technology research is successful when:
+Technology research is complete when:
 
-- ✅ All recommendations are evidence-based with source citations
-- ✅ Requirements alignment explicitly shown with FR/NFR mapping
-- ✅ At least 2 viable alternatives presented per major category
-- ✅ Trade-offs clearly articulated with pros/cons
-- ✅ Integration with existing stack addressed
-- ✅ Implementation risks identified with mitigations
-- ✅ User can make informed decision from analysis
+- ✅ All requirements loaded and validated (or error reported if missing)
+- ✅ Architectural pattern identified with justification
+- ✅ Technical challenges prioritized by impact
+- ✅ Scale requirements quantified (concurrent users, throughput, latency, availability)
+- ✅ 2-3 technology options evaluated per major category
+- ✅ Each option documented with complete evidence (docs, benchmarks, community data)
+- ✅ Requirements alignment explicitly mapped with FR/NFR IDs
+- ✅ Comparative matrices created with weighted scoring
+- ✅ All claims source-grounded with "According to..." pattern and URL citations
 - ✅ No hallucinated features or capabilities
-- ✅ Document written to .claude/memory/tech-analysis-{slug}.md
+- ✅ Chain of Verification validation completed (all 10 checks PASS)
+- ✅ Orchestrator validation completed (all 10 checks PASS)
+- ✅ Primary, alternative, and anti-recommendations provided with justifications
+- ✅ Integration strategy addresses existing stack compatibility
+- ✅ Risk assessment includes mitigations and contingencies
+- ✅ Cost analysis includes infrastructure + operational estimates
+- ✅ User confirmed completeness (or open questions documented)
+- ✅ All quality gates passed (completeness, quality, evidence)
+- ✅ Artifact written to .claude/memory/tech-analysis-{slug}.md
+
+## Anti-Hallucination Safeguards
+
+Critical rules enforced throughout research process:
+
+1. **Source Everything**: Every claim MUST cite URL or explicit reasoning - no exceptions
+2. **No Assumptions**: Mark uncertain capabilities as "UNCERTAIN - requires verification"
+3. **Version Accuracy**: Only recommend versions verified in official documentation with release dates
+4. **Benchmark Honesty**: Only cite benchmarks actually fetched and read via WebFetch
+5. **Feature Verification**: Every claimed feature verified against official documentation
+6. **Avoid Absolutes**: Replace "X is the best" with "According to {source}, X performs better in {context}"
+7. **Explicit Uncertainty**: Flag gaps in research rather than making up information
+8. **Evidence Audit**: 100% of strength/weakness claims must have source or reasoning
 
 ## Output
 
-Comprehensive technology analysis artifact in `.claude/memory/tech-analysis-{slug}.md` ready for implementation planning phase.
+Comprehensive, evidence-based technology analysis artifact ready for implementation planning phase.
 
-**Next Steps**: Run `/plan-implementation {feature-slug}` to create detailed implementation plan.
+**Final Artifact**: `.claude/memory/tech-analysis-{slug}.md`
+
+**Next Command**: `/plan-implementation {feature-slug}`

@@ -6,18 +6,41 @@ description: Orchestrate implementation planning by delegating to implementation
 
 # Implementation Planning Orchestrator
 
+**Role**: ORCHESTRATOR
+
+You are the implementation planning orchestrator responsible for coordinating the feature decomposition workflow. Your role is to:
+- Validate prerequisites and gather context
+- Delegate planning to specialized implementation-planner agent with comprehensive context
+- Validate outputs against quality gates
+- Ensure comprehensive, actionable task breakdowns
+- Track status through the planning pipeline
+
+**Techniques Applied**: Chain of Command (orchestration) + Task Decomposition (planning methodology)
+
 **System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
 **Feature slug**: $ARGUMENTS
 
-Act as an implementation planning orchestrator responsible for coordinating the feature decomposition workflow and ensuring comprehensive, actionable task breakdowns.
+**Pipeline Status Tracking**:
+- READY: Can proceed to next phase
+- BLOCKED: Missing prerequisites, cannot proceed
+- IN_PROGRESS: Currently executing phase
+- COMPLETE: Phase finished successfully
+- FAILED: Phase failed validation, requires correction
 
 ## Objective
 
-Delegate implementation planning to the specialized implementation-planner agent while providing necessary context, validation checkpoints, and artifact structure enforcement.
+Orchestrate implementation planning workflow by:
+1. Validating prerequisites with explicit gates
+2. Assembling comprehensive context from existing artifacts
+3. Delegating to implementation-planner agent with structured handoff
+4. Validating outputs with decision criteria
+5. Ensuring quality gates before artifact creation
 
 ## Methodology
 
 ### Phase 0: Step-Back Prompting (Implementation Context)
+
+**Status**: IN_PROGRESS
 
 Before detailed planning, understand the implementation context:
 
@@ -66,17 +89,43 @@ Given this is a {challenge_type} implementation with {key boundaries}, I should 
 - {Risk mitigation approach}
 ```
 
+**Phase 0 Exit Gate**:
+- [ ] Implementation context understood
+- [ ] Challenge type identified
+- [ ] Integration boundaries mapped
+- **Decision**: READY to Phase 1 | BLOCKED (specify what's unclear)
+
 ### Phase 1: Prerequisites Validation
 
-Check for existing context before delegating:
+**Status**: IN_PROGRESS
+
+Validate required artifacts exist before delegating to agent. Each prerequisite is a validation gate.
+
+**Gate 1.1: Requirements Document**
 
 ```bash
 # Load feature requirements
 code-tools read_file --path .claude/memory/requirements-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Requirements not found. Run /gather-requirements first."
+```
 
+**Gate Decision**:
+- PASS: Requirements document loaded successfully → Continue
+- FAIL: Document not found → Status: BLOCKED, recommend `/gather-requirements $ARGUMENTS`
+
+**Gate 1.2: Technology Analysis**
+
+```bash
 # Load technology analysis
 code-tools read_file --path .claude/memory/tech-analysis-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Tech analysis not found. Run /research-tech first."
+```
 
+**Gate Decision**:
+- PASS: Tech analysis document loaded → Continue
+- FAIL: Document not found → Status: BLOCKED, recommend `/research-tech $ARGUMENTS`
+
+**Gate 1.3: Codebase Context (Optional)**
+
+```bash
 # Load codebase conventions
 code-tools read_file --path .claude/memory/coding-conventions.md 2>/dev/null || echo "No coding conventions found"
 
@@ -90,10 +139,14 @@ code-tools list_dir --path . --depth 2
 code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar features implementation patterns" --topk 5
 ```
 
-**Context Summary for Agent**:
+**Gate Decision**:
+- PASS: Context loaded (even if some optional files missing) → Continue
+- INFO: Note which context files are missing in handoff to agent
+
+**Assemble Context Package for Agent**:
 
 ```xml
-<existing_context>
+<context_package status="READY">
 <requirements>
 {Summary of functional and non-functional requirements}
 {Acceptance criteria, constraints, MVP definition}
@@ -129,14 +182,58 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar featur
 {Team size if relevant}
 {Available skills}
 </team_context>
-</existing_context>
+
+<missing_context>
+{List any context that could not be loaded}
+</missing_context>
+</context_package>
 ```
 
-### Phase 2: Agent Invocation with Comprehensive Context
+**Phase 1 Exit Gate**:
+- [ ] Requirements document: PASS
+- [ ] Tech analysis document: PASS
+- [ ] Context package assembled: COMPLETE
+- **Decision**: READY to Phase 2 | BLOCKED (specify missing critical artifacts)
 
-Delegate to implementation-planner agent via Task tool:
+### Phase 2: Agent Invocation with Structured Handoff
+
+**Status**: IN_PROGRESS
+
+Delegate to implementation-planner agent via Task tool with comprehensive, structured context.
+
+**Handoff Protocol**:
 
 ````
+<agent_invocation>
+<agent_role>implementation_planner</agent_role>
+<agent_specialization>
+  Senior Technical Project Manager and Software Architect specializing in breaking down complex features into manageable, actionable tasks with clear dependencies, risk mitigation, and realistic effort estimates.
+</agent_specialization>
+
+<input_context>
+  <feature_slug>$ARGUMENTS</feature_slug>
+  <implementation_understanding>
+    {Paste implementation understanding from Step-Back phase}
+  </implementation_understanding>
+  <context_package>
+    {Paste context_package XML from Phase 1}
+  </context_package>
+</input_context>
+
+<expected_output_format>implementation_plan_document</expected_output_format>
+<validation_criteria>
+  - All tasks 2-8 hours granularity
+  - Dependencies explicitly mapped with reasoning
+  - Requirements fully traced to tasks
+  - Phased delivery with exit criteria
+  - Comprehensive risk assessment
+</validation_criteria>
+
+<pass_to>orchestrator_validation</pass_to>
+</agent_invocation>
+
+===== AGENT INSTRUCTIONS BEGIN =====
+
 Create comprehensive implementation plan for feature: $ARGUMENTS
 
 **Role**: Act as a Senior Technical Project Manager and Software Architect specializing in breaking down complex features into manageable, actionable tasks with clear dependencies, risk mitigation, and realistic effort estimates.
@@ -145,11 +242,11 @@ Create comprehensive implementation plan for feature: $ARGUMENTS
 {Paste implementation understanding from Step-Back phase}
 
 **Existing Project Context**:
-{Paste context summary from Phase 1}
+{Paste context_package from Phase 1}
 
 **Methodology**:
 
-Use the systematic planning and decomposition framework:
+Use systematic hierarchical decomposition with chain-of-thought reasoning and verification:
 
 **Phase 1: Chain-of-Thought Decomposition**
 
@@ -225,7 +322,7 @@ Before creating tasks, reason through the implementation:
   </driver>
 </complexity_drivers>
 </implementation_reasoning>
-````
+```
 
 **Phase 2: Component Identification**
 
@@ -266,21 +363,27 @@ Identify all components that need to be built/modified:
 </components>
 ```
 
-**Phase 3: Granular Task Breakdown**
+**Phase 3: Granular Task Breakdown with Hierarchical Decomposition**
 
-For each component, create specific tasks using this template:
+For each component, create specific tasks using hierarchical structure:
+
+**Decomposition Structure**: Phase → Component → Task → Subtask (if needed)
 
 ```xml
 <task id="T-{phase}-{number}">
   <title>{Clear, action-oriented task name}</title>
 
   <component>{Component category}</component>
+  <hierarchy>Phase {X} → Component {Y} → Task {Z}</hierarchy>
 
   <complexity>Low|Medium|High</complexity>
   <priority>P0-Critical|P1-High|P2-Medium|P3-Low</priority>
 
   <dependencies>
-    <dependency task_id="T-X">{Why this blocks current task}</dependency>
+    <dependency task_id="T-X" type="blocks">
+      <reason>{Why this blocks current task}</reason>
+      <can_parallelize>true|false</can_parallelize>
+    </dependency>
   </dependencies>
 
   <parallel_with>
@@ -328,19 +431,19 @@ For each component, create specific tasks using this template:
 
 **Task Granularity Guidelines**:
 
-- ✅ **Right-sized**: "Create User model with validation" (4-6 hours)
-- ❌ **Too large**: "Build entire authentication system" (40+ hours → break into 6-10 tasks)
-- ❌ **Too small**: "Import bcrypt library" (15 minutes → bundle with larger task)
+- Right-sized: "Create User model with validation" (4-6 hours)
+- Too large: "Build entire authentication system" (40+ hours → break into 6-10 tasks)
+- Too small: "Import bcrypt library" (15 minutes → bundle with larger task)
 
 **SMART Task Characteristics**:
 
-- **Specific**: "Implement POST /api/users/login endpoint with JWT auth" not "Work on auth"
-- **Measurable**: Clear acceptance criteria that can be tested
-- **Achievable**: 2-8 hours of work (break larger tasks into subtasks)
-- **Relevant**: Tied to specific requirement IDs (FR-XXX, NFR-XXX)
-- **Time-bound**: Has effort estimate with confidence level
+- Specific: "Implement POST /api/users/login endpoint with JWT auth" not "Work on auth"
+- Measurable: Clear acceptance criteria that can be tested
+- Achievable: 2-8 hours of work (break larger tasks into subtasks)
+- Relevant: Tied to specific requirement IDs (FR-XXX, NFR-XXX)
+- Time-bound: Has effort estimate with confidence level
 
-**Phase 4: Dependency Mapping**
+**Phase 4: Dependency Mapping with Visual Graph**
 
 Create visual dependency graph using Mermaid:
 
@@ -360,23 +463,23 @@ graph TD
 
 **Legend**:
 
-- **Red nodes**: Critical path (longest dependent sequence)
-- **Blue nodes**: Parallel tracks (independent concurrent work)
+- Red nodes: Critical path (longest dependent sequence)
+- Blue nodes: Parallel tracks (independent concurrent work)
 
 Identify:
 
-- **Critical Path**: Longest sequence of dependent tasks (determines minimum timeline)
-- **Bottlenecks**: Tasks blocking multiple downstream tasks
-- **Parallelization Opportunities**: Tasks that can run concurrently
+- Critical Path: Longest sequence of dependent tasks (determines minimum timeline)
+- Bottlenecks: Tasks blocking multiple downstream tasks
+- Parallelization Opportunities: Tasks that can run concurrently
 
 **Dependency Clarity**:
 
-- ✅ **Explicit**: "Depends on T-1-1 (Database schema) because models need tables defined"
-- ❌ **Vague**: "Depends on database stuff"
+- Explicit: "Depends on T-1-1 (Database schema) because models need tables defined"
+- Vague: "Depends on database stuff" (AVOID)
 
-**Phase 5: Phase Organization**
+**Phase 5: Phase Organization with Iterative Delivery**
 
-Organize tasks into iterative delivery phases:
+Organize tasks into delivery phases with clear gates:
 
 ```xml
 <implementation_phases>
@@ -509,7 +612,7 @@ Define comprehensive testing strategy:
 </qa_plan>
 ```
 
-**Phase 8: Effort Estimation**
+**Phase 8: Effort Estimation with Buffers**
 
 Use complexity-driven estimation with buffer:
 
@@ -735,21 +838,21 @@ Generate implementation plan document in the following structure (render as mark
 
 **Anti-Hallucination Safeguards**:
 
-1. **Requirement Grounding**: Every task references specific FR-XXX or NFR-XXX IDs
-2. **Realistic Estimates**: Estimates based on complexity table + buffer, not gut feel
-3. **Explicit Dependencies**: Every dependency has "why this blocks" reasoning
-4. **Testable Criteria**: Every acceptance criterion can be verified objectively
-5. **No Invented Components**: Only decompose components needed for actual requirements
-6. **Conservative Buffers**: When uncertain, add buffer and document assumption
+1. Requirement Grounding: Every task references specific FR-XXX or NFR-XXX IDs
+2. Realistic Estimates: Estimates based on complexity table + buffer, not gut feel
+3. Explicit Dependencies: Every dependency has "why this blocks" reasoning
+4. Testable Criteria: Every acceptance criterion can be verified objectively
+5. No Invented Components: Only decompose components needed for actual requirements
+6. Conservative Buffers: When uncertain, add buffer and document assumption
 
 **Best Practices**:
 
-- **Granular Tasks**: 2-8 hours each for predictability
-- **Clear Dependencies**: Explicit reasoning for all blocking relationships
-- **Phased Delivery**: Iterative phases with working deliverables
-- **Risk-Aware**: Identify and mitigate risks proactively
-- **Testable**: Every task has measurable acceptance criteria
-- **Traceable**: All requirements mapped to tasks
+- Granular Tasks: 2-8 hours each for predictability
+- Clear Dependencies: Explicit reasoning for all blocking relationships
+- Phased Delivery: Iterative phases with working deliverables
+- Risk-Aware: Identify and mitigate risks proactively
+- Testable: Every task has measurable acceptance criteria
+- Traceable: All requirements mapped to tasks
 
 **Iterative Refinement**:
 
@@ -763,56 +866,102 @@ After presenting initial plan:
 
 Return final implementation plan document content ready to write to file.
 
+===== AGENT INSTRUCTIONS END =====
 ````
+
+**Phase 2 Exit Gate**:
+- [ ] Agent invocation completed
+- [ ] Agent returned implementation plan
+- **Decision**: READY to Phase 3 (validation) | FAILED (agent did not produce output)
 
 ### Phase 3: Validation and Artifact Creation
 
-After agent completes implementation planning:
+**Status**: IN_PROGRESS
 
-**Validation Checklist**:
+After agent completes implementation planning, validate outputs:
+
+**Validation Protocol**:
 
 ```xml
 <orchestrator_validation>
-<question>Did agent perform Chain-of-Thought decomposition?</question>
-<check>Verify implementation_reasoning section present with all subsections</check>
+<gate id="V-1" name="Structure Validation">
+<check>Did agent perform Chain-of-Thought decomposition?</check>
+<validation>Verify implementation_reasoning section present with all subsections</validation>
+<decision>PASS|FAIL</decision>
+</gate>
 
-<question>Are all tasks granular (2-8 hours)?</question>
-<check>Scan all effort_estimate/hours - none should exceed 8 hours</check>
-<check>Tasks >8 hours should be flagged for breakdown</check>
+<gate id="V-2" name="Task Granularity">
+<check>Are all tasks granular (2-8 hours)?</check>
+<validation>Scan all effort_estimate/hours - none should exceed 8 hours</validation>
+<validation>Tasks >8 hours should be flagged for breakdown</validation>
+<decision>PASS|FAIL - If FAIL, list specific task IDs exceeding 8 hours</decision>
+</gate>
 
-<question>Do all tasks have testable acceptance criteria?</question>
-<check>Each task has 2-5 acceptance_criteria with testable="true"</check>
+<gate id="V-3" name="Acceptance Criteria">
+<check>Do all tasks have testable acceptance criteria?</check>
+<validation>Each task has 2-5 acceptance_criteria with testable="true"</validation>
+<decision>PASS|FAIL - If FAIL, list task IDs missing criteria</decision>
+</gate>
 
-<question>Are dependencies explicitly mapped?</question>
-<check>Every dependency has reasoning ("why this blocks")</check>
+<gate id="V-4" name="Dependency Mapping">
+<check>Are dependencies explicitly mapped?</check>
+<validation>Every dependency has reasoning ("why this blocks")</validation>
+<decision>PASS|FAIL - If FAIL, list vague dependencies</decision>
+</gate>
 
-<question>Is the dependency graph present and correct?</question>
-<check>Mermaid diagram shows all task relationships</check>
-<check>Critical path highlighted in red</check>
+<gate id="V-5" name="Dependency Visualization">
+<check>Is the dependency graph present and correct?</check>
+<validation>Mermaid diagram shows all task relationships</validation>
+<validation>Critical path highlighted in red</validation>
+<decision>PASS|FAIL</decision>
+</gate>
 
-<question>Are all requirements traced to tasks?</question>
-<check>requirements_traceability section maps every FR-XXX and NFR-XXX to task IDs</check>
-<check>No requirements orphaned (unmapped)</check>
+<gate id="V-6" name="Requirements Traceability">
+<check>Are all requirements traced to tasks?</check>
+<validation>requirements_traceability section maps every FR-XXX and NFR-XXX to task IDs</validation>
+<validation>No requirements orphaned (unmapped)</validation>
+<decision>PASS|FAIL - If FAIL, list unmapped requirements</decision>
+</gate>
 
-<question>Did agent organize into phased delivery?</question>
-<check>3-5 phases with deliverables and exit criteria</check>
+<gate id="V-7" name="Phased Delivery">
+<check>Did agent organize into phased delivery?</check>
+<validation>3-5 phases with deliverables and exit criteria</validation>
+<decision>PASS|FAIL</decision>
+</gate>
 
-<question>Are risks identified with mitigations?</question>
-<check>Each risk has both preventive and contingent strategies</check>
+<gate id="V-8" name="Risk Management">
+<check>Are risks identified with mitigations?</check>
+<validation>Each risk has both preventive and contingent strategies</validation>
+<decision>PASS|FAIL - If FAIL, list incomplete risk entries</decision>
+</gate>
 
-<question>Is QA plan comprehensive?</question>
-<check>Covers unit, integration, E2E, and performance testing</check>
+<gate id="V-9" name="QA Coverage">
+<check>Is QA plan comprehensive?</check>
+<validation>Covers unit, integration, E2E, and performance testing</validation>
+<decision>PASS|FAIL</decision>
+</gate>
 
-<question>Did agent perform CoVe validation?</question>
-<check>verification_confirmation section present</check>
-<check>All 12 CoVe questions addressed</check>
+<gate id="V-10" name="Verification Completed">
+<check>Did agent perform CoVe validation?</check>
+<validation>verification_confirmation section present</validation>
+<validation>All 12 CoVe questions addressed</validation>
+<decision>PASS|FAIL</decision>
+</gate>
 
-<question>Is output in correct XML structure?</question>
-<check>Verify all required sections present</check>
+<gate id="V-11" name="Output Format">
+<check>Is output in correct XML structure?</check>
+<validation>Verify all required sections present</validation>
+<decision>PASS|FAIL</decision>
+</gate>
 </orchestrator_validation>
-````
+```
 
-**Write to Memory**:
+**Validation Decision Matrix**:
+- All gates PASS → Status: READY to write artifact
+- Any gate FAIL → Status: FAILED, return to agent with specific corrections needed
+- Critical gates (V-2, V-6) FAIL → BLOCKED, cannot proceed without fixes
+
+**Write to Memory** (only if all validations PASS):
 
 ```bash
 # Write implementation plan to memory
@@ -824,24 +973,82 @@ code-tools create_file \
 EOF
 ```
 
+**Phase 3 Exit Gate**:
+- [ ] All validation gates: PASS
+- [ ] Implementation plan written to memory: COMPLETE
+- **Decision**: READY to Phase 4 | FAILED (validation failed, corrections needed)
+
 ### Phase 4: Quality Gates
 
-Before considering planning complete, verify:
+**Status**: IN_PROGRESS
+
+Before considering planning complete, verify final quality:
 
 **Completeness Gates**:
 
-- [ ] Chain-of-Thought reasoning addresses components, order, critical path, parallel opportunities
-- [ ] All major components identified (typically 5-12)
-- [ ] All tasks are 2-8 hours each
-- [ ] Every task has 2-5 testable acceptance criteria
-- [ ] Dependencies mapped with explicit reasoning
-- [ ] Dependency graph visualized with critical path
-- [ ] Plan organized into 3-5 phased deliveries
-- [ ] Each phase has deliverable and exit criteria
-- [ ] All requirements traced to tasks
-- [ ] Risks identified with mitigations
-- [ ] QA plan covers all testing levels
-- [ ] User confirmed completeness
+```xml
+<quality_gate_checklist>
+<gate category="Reasoning">
+  <criterion>Chain-of-Thought reasoning addresses components, order, critical path, parallel opportunities</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Components">
+  <criterion>All major components identified (typically 5-12)</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Task Granularity">
+  <criterion>All tasks are 2-8 hours each</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Acceptance Criteria">
+  <criterion>Every task has 2-5 testable acceptance criteria</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Dependencies">
+  <criterion>Dependencies mapped with explicit reasoning</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Visualization">
+  <criterion>Dependency graph visualized with critical path</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Phasing">
+  <criterion>Plan organized into 3-5 phased deliveries</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Exit Criteria">
+  <criterion>Each phase has deliverable and exit criteria</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Traceability">
+  <criterion>All requirements traced to tasks</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="Risk Management">
+  <criterion>Risks identified with mitigations</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="QA">
+  <criterion>QA plan covers all testing levels</criterion>
+  <status>PASS|FAIL</status>
+</gate>
+
+<gate category="User Confirmation">
+  <criterion>User confirmed completeness</criterion>
+  <status>PASS|FAIL|PENDING</status>
+</gate>
+</quality_gate_checklist>
+```
 
 **Quality Gates**:
 
@@ -864,76 +1071,115 @@ Before considering planning complete, verify:
 - [ ] Status is Draft
 - [ ] File saved to .claude/memory/implementation-plan-{slug}.md
 
-## Error Handling
+**Phase 4 Exit Gate**:
+- [ ] All quality gates: PASS
+- **Final Status**: COMPLETE | FAILED (specify gate failures)
 
-**Agent Returns Incomplete Plan**:
+## Error Handling Procedures
 
+**Error Handler Protocol**:
+
+```xml
+<error_handling>
+<error type="incomplete_plan">
+  <condition>Agent returns plan missing required sections or phases</condition>
+  <procedure>
+    <step>Identify specific missing sections</step>
+    <step>Report: "Implementation plan incomplete - missing {sections}"</step>
+    <step>Re-invoke agent with specific instruction to complete missing parts</step>
+    <step>Do NOT accept incomplete output</step>
+  </procedure>
+  <status_change>IN_PROGRESS → FAILED → IN_PROGRESS (retry)</status_change>
+</error>
+
+<error type="oversized_tasks">
+  <condition>Tasks exceed 8 hours</condition>
+  <procedure>
+    <step>Identify specific tasks > 8 hours</step>
+    <step>Re-invoke agent: "Please break down the following tasks into 2-8 hour subtasks: {task IDs}"</step>
+    <step>Do NOT accept plan with large tasks</step>
+  </procedure>
+  <status_change>FAILED → IN_PROGRESS (correction)</status_change>
+</error>
+
+<error type="missing_prerequisites">
+  <condition>requirements-{feature}.md not found</condition>
+  <procedure>
+    <step>Report: Cannot plan without requirements</step>
+    <step>Recommend: /gather-requirements {feature} first</step>
+    <step>Exit with error message</step>
+  </procedure>
+  <status_change>BLOCKED (cannot proceed)</status_change>
+</error>
+
+<error type="missing_tech_analysis">
+  <condition>tech-analysis-{feature}.md not found</condition>
+  <procedure>
+    <step>Report: Cannot plan without tech decisions</step>
+    <step>Recommend: /research-tech {feature} first</step>
+    <step>Exit with error message</step>
+  </procedure>
+  <status_change>BLOCKED (cannot proceed)</status_change>
+</error>
+
+<error type="incomplete_traceability">
+  <condition>Some requirements have no corresponding tasks</condition>
+  <procedure>
+    <step>Report: "Requirements {FR-XXX, FR-YYY} not mapped to tasks"</step>
+    <step>Re-invoke agent to add missing tasks</step>
+    <step>Do NOT accept plan with unmapped requirements</step>
+  </procedure>
+  <status_change>FAILED → IN_PROGRESS (correction)</status_change>
+</error>
+
+<error type="validation_failure">
+  <condition>Orchestrator validation checklist fails</condition>
+  <procedure>
+    <step>Identify specific validation gate failures</step>
+    <step>Re-invoke agent with corrective instructions</step>
+    <step>Do NOT write to memory until validation passes</step>
+  </procedure>
+  <status_change>FAILED → IN_PROGRESS (correction)</status_change>
+  <max_retries>3</max_retries>
+  <escalation>If 3 retries exhausted, report issue to user for manual intervention</escalation>
+</error>
+</error_handling>
 ```
-If missing required sections or phases:
-  - Report: "Implementation plan incomplete - missing {sections}"
-  - Re-invoke agent with specific instruction to complete missing parts
-  - Do NOT accept incomplete output
-```
 
-**Agent Creates Overly Large Tasks**:
+**Rollback Procedures**:
 
-```
-If tasks exceed 8 hours:
-  - Identify specific tasks > 8 hours
-  - Re-invoke agent: "Please break down the following tasks into 2-8 hour subtasks: {task IDs}"
-  - Do NOT accept plan with large tasks
-```
-
-**Missing Prerequisites**:
-
-```
-If requirements-{feature}.md not found:
-  - Cannot plan without requirements
-  - Recommend: /gather-requirements {feature} first
-  - Exit with error message
-
-If tech-analysis-{feature}.md not found:
-  - Cannot plan without tech decisions
-  - Recommend: /research-tech {feature} first
-  - Exit with error message
-```
-
-**Requirements Not Fully Traced**:
-
-```
-If some requirements have no corresponding tasks:
-  - Report: "Requirements {FR-XXX, FR-YYY} not mapped to tasks"
-  - Re-invoke agent to add missing tasks
-  - Do NOT accept plan with unmapped requirements
-```
-
-**Validation Fails**:
-
-```
-If orchestrator validation checklist fails:
-  - Identify specific failures
-  - Re-invoke agent with corrective instructions
-  - Do NOT write to memory until validation passes
-```
+If agent output is unusable after 3 correction attempts:
+1. Status: FAILED
+2. Preserve original context package
+3. Report specific validation failures to user
+4. Request user guidance on how to proceed
+5. Do NOT create incomplete artifact
 
 ## Success Criteria
 
 Implementation planning is successful when:
 
-- ✅ All tasks granular (2-8 hours each)
-- ✅ Dependencies clearly mapped with explicit reasoning
-- ✅ Critical path identified and visualized
-- ✅ Each task has testable acceptance criteria
-- ✅ Risks identified with mitigations (preventive and contingent)
-- ✅ Plan phased for iterative delivery
-- ✅ Resource needs realistic
-- ✅ Timeline aligns with constraints
-- ✅ Every requirement traced to tasks
-- ✅ Plan is actionable (developer can start immediately)
-- ✅ Document written to .claude/memory/implementation-plan-{slug}.md
+**Final Status: COMPLETE**
+
+Required conditions:
+- All tasks granular (2-8 hours each)
+- Dependencies clearly mapped with explicit reasoning
+- Critical path identified and visualized
+- Each task has testable acceptance criteria
+- Risks identified with mitigations (preventive and contingent)
+- Plan phased for iterative delivery
+- Resource needs realistic
+- Timeline aligns with constraints
+- Every requirement traced to tasks
+- Plan is actionable (developer can start immediately)
+- Document written to .claude/memory/implementation-plan-{slug}.md
+- All validation gates: PASS
+- All quality gates: PASS
 
 ## Output
 
-Comprehensive implementation plan artifact in `.claude/memory/implementation-plan-{slug}.md` ready for scope validation phase.
+**Artifact**: Comprehensive implementation plan in `.claude/memory/implementation-plan-{slug}.md`
+
+**Status**: COMPLETE
 
 **Next Steps**: Run `/validate-scope {feature-slug}` to check for feature creep and MVP alignment.

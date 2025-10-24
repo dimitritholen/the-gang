@@ -6,7 +6,7 @@ description: Clean up temporary handoff files from .claude/memory/
 
 # Memory Cleanup Utility
 
-Clean up temporary handoff files (.tmp-\*) from `.claude/memory/` directory.
+Clean up temporary handoff files (.tmp-*) from `.claude/memory/` directory using a verified, safety-first approach.
 
 ## Purpose
 
@@ -16,222 +16,340 @@ During workflows like `/gather-requirements`, temporary handoff files are create
 - Error occurred during cleanup
 - Workflow validation failed
 
-This command helps manually clean up those temporary files.
+This command helps manually clean up those temporary files with built-in safety verification.
 
-## Usage
+## Task Decomposition
 
-**Clean up specific feature:**
+This command breaks down the cleanup operation into verifiable sub-tasks to ensure safe, thorough execution.
 
-```bash
-/cleanup-memory expense-tracking
-```
+### Task 1: Scan and Identify
 
-**Clean up all temporary files:**
+Locate all temporary files in the memory directory.
 
-```bash
-/cleanup-memory
-```
-
-## Execution
-
-### Step 1: Identify Temporary Files
+**Execution:**
 
 ```bash
-echo "Scanning .claude/memory/ for temporary files..."
+echo "Task 1: Scanning .claude/memory/ for temporary files..."
 
 # List all .tmp-* files
 TEMP_FILES=$(ls .claude/memory/.tmp-* 2>/dev/null || echo "")
 
 if [ -z "$TEMP_FILES" ]; then
-  echo "✓ No temporary files found - memory is clean"
+  echo "RESULT: No temporary files found - memory is clean"
   exit 0
 fi
 
-echo "Found temporary files:"
+echo "RESULT: Found temporary files"
 ls -lh .claude/memory/.tmp-*
 echo ""
 ```
 
-### Step 2: Filter by Feature Slug (if provided)
+**Verification checkpoint:**
+- Confirm: Are we only looking at .tmp-* pattern?
+- Confirm: Is search limited to .claude/memory/ directory?
+- Risk check: Could this accidentally match permanent files?
+
+### Task 2: Filter by Scope
+
+Apply feature-slug filter if specified by user.
+
+**Execution:**
 
 ```bash
+echo "Task 2: Filtering by scope..."
+
 FEATURE_SLUG="$ARGUMENTS"
 
 if [ -n "$FEATURE_SLUG" ]; then
-  echo "Filtering for feature: $FEATURE_SLUG"
+  echo "Scope: Filtering for feature '$FEATURE_SLUG'"
 
   # Find files matching this feature slug
   MATCHING_FILES=$(ls .claude/memory/.tmp-*${FEATURE_SLUG}* 2>/dev/null || echo "")
 
   if [ -z "$MATCHING_FILES" ]; then
-    echo "✓ No temporary files found for feature: $FEATURE_SLUG"
+    echo "RESULT: No temporary files found for feature: $FEATURE_SLUG"
     exit 0
   fi
 
-  echo "Found files for $FEATURE_SLUG:"
+  echo "RESULT: Found files for $FEATURE_SLUG"
   ls -lh .claude/memory/.tmp-*${FEATURE_SLUG}*
   echo ""
+else
+  echo "Scope: All temporary files (no filter)"
 fi
 ```
 
-### Step 3: Show File Details
+**Verification checkpoint:**
+- Confirm: Does the filter pattern correctly match feature naming?
+- Confirm: Are we providing clear user feedback about scope?
+- Edge case check: What if FEATURE_SLUG contains special characters?
+
+### Task 3: Inspect and Classify
+
+Show detailed file information to confirm deletion targets.
+
+**Execution:**
 
 ```bash
-echo "File details:"
-echo "============="
+echo "Task 3: Inspecting file details..."
+echo "================================="
 
 if [ -n "$FEATURE_SLUG" ]; then
-  # Show specific feature files
+  # Inspect specific feature files
   for file in .claude/memory/.tmp-*${FEATURE_SLUG}*; do
     if [ -f "$file" ]; then
-      echo "📄 $(basename $file)"
-      echo "   Size: $(du -h "$file" | cut -f1)"
-      echo "   Modified: $(stat -c %y "$file" 2>/dev/null || stat -f %Sm "$file")"
+      echo "File: $(basename $file)"
+      echo "  Size: $(du -h "$file" | cut -f1)"
+      echo "  Modified: $(stat -c %y "$file" 2>/dev/null || stat -f %Sm "$file")"
 
       # Show first 3 lines to identify content
-      echo "   Preview:"
-      head -n 3 "$file" | sed 's/^/   | /'
+      echo "  Content preview:"
+      head -n 3 "$file" | sed 's/^/    | /'
       echo ""
     fi
   done
 else
-  # Show all temporary files
+  # Inspect all temporary files
   for file in .claude/memory/.tmp-*; do
     if [ -f "$file" ]; then
-      echo "📄 $(basename $file)"
-      echo "   Size: $(du -h "$file" | cut -f1)"
-      echo "   Modified: $(stat -c %y "$file" 2>/dev/null || stat -f %Sm "$file")"
+      echo "File: $(basename $file)"
+      echo "  Size: $(du -h "$file" | cut -f1)"
+      echo "  Modified: $(stat -c %y "$file" 2>/dev/null || stat -f %Sm "$file")"
 
       # Show first 3 lines to identify content
-      echo "   Preview:"
-      head -n 3 "$file" | sed 's/^/   | /'
+      echo "  Content preview:"
+      head -n 3 "$file" | sed 's/^/    | /'
       echo ""
     fi
   done
 fi
 ```
 
-### Step 4: Confirm Deletion
+**Verification checkpoint:**
+- Confirm: Does preview show enough info to verify these are temp files?
+- Confirm: Are we handling both Linux/Mac stat command differences?
+- Safety check: Are we definitely NOT matching permanent artifacts?
+
+### Task 4: Pre-deletion Verification
+
+Validate deletion safety before proceeding.
+
+**Verification round:**
+
+Check each concern:
+
+1. **Pattern safety**: Are we ONLY matching .tmp-* pattern?
+   - Yes: Pattern is explicit and restrictive
+   - No permanent files match this pattern
+
+2. **Scope correctness**: Have we correctly identified the target files?
+   - Review the file list from Task 3
+   - Confirm all files shown are temporary handoffs
+   - Verify no requirements-*.md or other artifacts listed
+
+3. **User awareness**: Does user understand what will be deleted?
+   - Present clear file list
+   - Show content previews
+   - Explain what these files contain
+
+4. **Reversibility**: Can we recover if something goes wrong?
+   - No: Deletion is permanent
+   - Action: Require explicit user confirmation
 
 **Present confirmation to user:**
 
 ```
-⚠️  Ready to delete temporary files
+Ready to delete temporary files
+================================
 
 These files will be permanently deleted:
-{List of files to delete}
+{List of files from Task 3}
 
-These files contain:
+These files typically contain:
 - Questions generated by agents
 - Answers provided during workflows
-- Other temporary handoff data
+- Temporary handoff data between agents
 
-Permanent artifacts (requirements-*.md, etc.) will NOT be deleted.
+PROTECTED (will NOT be deleted):
+- requirements-*.md
+- tech-analysis-*.md
+- implementation-plan-*.md
+- Any other permanent artifacts
 
-Do you want to proceed with deletion?
+Do you want to proceed with deletion? (yes/no)
 ```
+
+### Task 5: Execute Deletion
+
+Perform verified deletion with progress tracking.
 
 **If user confirms:**
 
-### Step 5: Delete Files
-
 ```bash
-echo "Deleting temporary files..."
+echo "Task 5: Executing deletion..."
 
 DELETED_COUNT=0
+FAILED_COUNT=0
 
 if [ -n "$FEATURE_SLUG" ]; then
   # Delete specific feature files
   for file in .claude/memory/.tmp-*${FEATURE_SLUG}*; do
     if [ -f "$file" ]; then
-      rm "$file"
-      echo "✓ Deleted: $(basename $file)"
-      DELETED_COUNT=$((DELETED_COUNT + 1))
+      if rm "$file" 2>/dev/null; then
+        echo "SUCCESS: Deleted $(basename $file)"
+        DELETED_COUNT=$((DELETED_COUNT + 1))
+      else
+        echo "FAILED: Could not delete $(basename $file)"
+        FAILED_COUNT=$((FAILED_COUNT + 1))
+      fi
     fi
   done
 else
   # Delete all temporary files
   for file in .claude/memory/.tmp-*; do
     if [ -f "$file" ]; then
-      rm "$file"
-      echo "✓ Deleted: $(basename $file)"
-      DELETED_COUNT=$((DELETED_COUNT + 1))
+      if rm "$file" 2>/dev/null; then
+        echo "SUCCESS: Deleted $(basename $file)"
+        DELETED_COUNT=$((DELETED_COUNT + 1))
+      else
+        echo "FAILED: Could not delete $(basename $file)"
+        FAILED_COUNT=$((FAILED_COUNT + 1))
+      fi
     fi
   done
 fi
 
 echo ""
-echo "✅ Cleanup complete: $DELETED_COUNT file(s) deleted"
+echo "RESULT: Deleted $DELETED_COUNT file(s)"
+if [ $FAILED_COUNT -gt 0 ]; then
+  echo "WARNING: Failed to delete $FAILED_COUNT file(s)"
+fi
 ```
 
-### Step 6: Verify Cleanup
+**Verification checkpoint:**
+- Confirm: Are we tracking both successes and failures?
+- Confirm: Are errors being caught and reported?
+- Recovery check: Can user retry if some deletions fail?
+
+### Task 6: Post-deletion Validation
+
+Verify cleanup completed successfully.
+
+**Execution:**
 
 ```bash
-# Verify no temporary files remain
-REMAINING=$(ls .claude/memory/.tmp-* 2>/dev/null || echo "")
+echo "Task 6: Validating cleanup..."
+echo "=============================="
 
-if [ -z "$REMAINING" ]; then
-  echo "✓ All temporary files removed"
+# Verify no temporary files remain (or only unmatched ones)
+if [ -n "$FEATURE_SLUG" ]; then
+  REMAINING=$(ls .claude/memory/.tmp-*${FEATURE_SLUG}* 2>/dev/null || echo "")
+  if [ -z "$REMAINING" ]; then
+    echo "SUCCESS: All temporary files removed for feature: $FEATURE_SLUG"
+  else
+    echo "WARNING: Some files remain for $FEATURE_SLUG:"
+    ls -lh .claude/memory/.tmp-*${FEATURE_SLUG}*
+  fi
 else
-  echo "⚠️  Some temporary files remain:"
-  ls -lh .claude/memory/.tmp-*
+  REMAINING=$(ls .claude/memory/.tmp-* 2>/dev/null || echo "")
+  if [ -z "$REMAINING" ]; then
+    echo "SUCCESS: All temporary files removed"
+  else
+    echo "WARNING: Some temporary files remain:"
+    ls -lh .claude/memory/.tmp-*
+  fi
 fi
 
-# Show permanent artifacts that remain
+# Show permanent artifacts that remain (verification they weren't touched)
 echo ""
-echo "Permanent artifacts in memory:"
-ls -lh .claude/memory/*.md 2>/dev/null | grep -v ".tmp-" || echo "None"
+echo "Permanent artifacts (protected, still present):"
+ls -lh .claude/memory/*.md 2>/dev/null | grep -v ".tmp-" || echo "None found"
 ```
+
+**Final verification questions:**
+
+1. Did we delete ONLY temporary files?
+   - Check: No permanent artifacts in deletion list
+   - Check: Permanent artifacts still present in validation
+
+2. Did we handle all edge cases?
+   - Empty directory
+   - Permission errors
+   - Feature-slug with no matches
+
+3. Is the user clearly informed of results?
+   - Success/failure counts
+   - Remaining files (if any)
+   - Confirmation of protected files
+
+4. Could this command be run safely again?
+   - Yes: Idempotent operation
+   - Re-running on clean directory safely reports "no files found"
 
 ## Safety Features
 
+**Pattern Protection:**
+- ONLY deletes files matching `.tmp-*` pattern
+- Pattern is explicit, not glob-based matching of permanent files
+
+**Scope Validation:**
+- Shows file previews before deletion
+- Requires explicit user confirmation
+- Tracks and reports failures
+
 **Protected Files:**
+- Never matches requirements-*.md
+- Never matches tech-analysis-*.md
+- Never matches implementation-plan-*.md
+- Only targets temporary handoff files
 
-- Only deletes files matching `.tmp-*` pattern
-- Never deletes permanent artifacts (requirements-_.md, tech-analysis-_.md, etc.)
-- Shows file preview before deletion
-- Requires user confirmation
+**Error Handling:**
+- Catches deletion failures
+- Reports partial success
+- Allows retry after investigation
 
-**Dry Run Mode:**
-To preview what would be deleted without actually deleting:
+## Usage Examples
 
-```bash
-# Just list the files without running the full command
-ls -lh .claude/memory/.tmp-*
-```
-
-## Common Scenarios
-
-**After interrupted workflow:**
+**Clean specific feature:**
 
 ```bash
-# Find and remove leftover handoffs
 /cleanup-memory expense-tracking
 ```
 
-**Bulk cleanup after multiple workflows:**
+**Clean all temporary files:**
 
 ```bash
-# Remove all temporary files
 /cleanup-memory
 ```
 
-**Check what's taking up space:**
+**Dry run (preview only):**
 
 ```bash
-# Before cleanup, inspect
-du -h .claude/memory/.tmp-* 2>/dev/null
+# Just list files without running full command
+ls -lh .claude/memory/.tmp-*
 ```
 
 ## Exit Codes
 
 - `0`: Success (files deleted or none found)
-- `1`: Error during deletion
+- `1`: Error during deletion (partial failure possible)
 - `2`: User cancelled deletion
+
+## Common Scenarios
+
+**After interrupted workflow:**
+Files remain from incomplete agent orchestration - cleanup specific feature.
+
+**Bulk cleanup after multiple workflows:**
+Multiple features tested, clean all temporary artifacts at once.
+
+**Pre-deployment cleanup:**
+Ensure no temporary files committed to version control.
 
 ## Notes
 
-- Temporary files are prefixed with `.tmp-` for easy identification
-- Hidden files (starting with `.`) won't appear in normal file listings
-- Safe to run anytime - won't affect permanent artifacts
-- Automatic cleanup happens during normal workflow execution
+- Temporary files prefixed with `.tmp-` for identification
+- Hidden files (starting with `.`) don't appear in normal listings
+- Safe to run anytime - idempotent operation
+- Automatic cleanup normally happens during workflow execution
+- Manual cleanup needed only for interrupted/failed workflows
