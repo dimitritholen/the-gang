@@ -1,483 +1,587 @@
 ---
-allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch, mcp__sequential-thinking__sequentialthinking
+allowed-tools: Task, Read, Write
 argument-hint: [project idea or path to prd]
-description: Transform project plans into create designs with strict verification gates
+description: Transform project plans into designs via multi-agent pipeline with strict verification
 ---
 
-# Role
+# Design Pipeline Orchestrator
 
-You are a professional frontend designer with 15+ years experience designing user friendly and aesthetically pleasing designs that have excellent performance and will captivate the user.
+Execute 6-stage design pipeline with STRICT VERIFICATION GATES using specialized sub-agents.
 
-Execute a 6-stage design pipeline with **STRICT VERIFICATION GATES**. Agents must pass verification before proceeding.
+Each stage operates in its own context window, reading handoff documents from previous stages.
+This prevents context exhaustion while maintaining knowledge continuity.
 
-## STAGE 1: SECTOR RESEARCH
+## Input
 
-Agent: Business Analyst
-Input: User's project plan/PRD
-Tasks:
+User's project plan/PRD: $ARGUMENTS
 
-- Analyze project documentation
-- Identify sector/niche classification
-- Define target audience
-- List 8-12 competitor websites for analysis
+## Architecture
 
-Output: sector_analysis.json
+```
+Stage 1: Sector Research (business-analyst)
+  Input: User's PRD
+  Output: sector_analysis.json
 
-```json
-{
-  "sector": "string",
-  "niche": "string",
-  "target_audience": "string",
-  "competitor_urls": ["array"],
-  "business_context": "string"
-}
+Stage 2: Design Research (design-researcher)
+  Input: sector_analysis.json
+  Output: design_research.json
+
+Stage 3: Quality Checklist (qa-specialist)
+  Input: design_research.json
+  Output: quality_checklist.json
+
+Stage 4: Design Variants (VERIFICATION LOOP)
+  4A: Initial Design (design-strategist)
+    Input: design_research.json, quality_checklist.json
+    Output: design_specs_draft.json
+
+  4B: Design Audit (quality-auditor)
+    Input: design_specs_draft.json, quality_checklist.json
+    Output: audit_report_v1.json
+
+  4C: Revision Loop (design-strategist, max 3 iterations)
+    IF audit FAIL: Fix violations, re-audit
+    IF audit PASS: Proceed to Stage 5
+
+  Output: design_specs_final.json
+
+Stage 5: HTML Implementation (VERIFICATION LOOP)
+  5A: Initial HTML (implementation-engineer)
+    Input: design_specs_final.json
+    Output: 6 HTML files, implementation_manifest.json
+
+  5B: Code Audit (code-auditor)
+    Input: HTML files, quality_checklist.json, design_specs_final.json
+    Output: code_audit_report_v1.json
+
+  5C: Fix Loop (implementation-engineer, max 3 iterations)
+    IF audit FAIL: Fix violations, re-audit
+    IF audit PASS: Proceed to Stage 6
+
+  Output: Approved HTML files
+
+Stage 6: Documentation (documentation-specialist)
+  Input: design_specs_final.json, HTML files
+  Output: design_system_1.md, design_system_2.md, design_system_3.md
 ```
 
-Pass to: Stage 2
+## Execution Protocol
 
-## STAGE 2: COMPETITOR DESIGN RESEARCH
+**CRITICAL RULES**:
 
-Agent: Design Researcher
-Input: sector_analysis.json from Stage 1
-Tasks:
+1. Each stage waits for previous stage completion
+2. Verification loops (4B-4C, 5B-5C) are MANDATORY
+3. Auditor agents have VETO power - cannot skip verification
+4. Max 3 revision iterations per verification loop
+5. If verification fails after 3 iterations, ESCALATE with details
+6. All pain point checks are BINARY (pass/fail)
 
-- Visit and analyze each competitor website
-- Document layout patterns, visual mood, typography, colors
-- Extract sector-specific design conventions
-- Synthesize dominant design style for this niche
+---
 
-Output: design_research.json
+## Stage 1: Sector Research
 
-```json
-{
-  "dominant_style": "descriptive string",
-  "layout_patterns": ["array"],
-  "mood_assessment": "1-10 scale: corporate to creative",
-  "typography_patterns": {
-    "common_fonts": ["array"],
-    "heading_styles": {},
-    "body_styles": {}
-  },
-  "color_patterns": {
-    "common_palettes": ["hex arrays"],
-    "color_psychology": "string"
-  },
-  "whitespace_strategy": "string",
-  "sector_conventions": ["array"]
-}
-```
+Invoke business-analyst to analyze project and identify competitors.
 
-Pass to: Stage 3
+<stage_1>
+Use Task tool to invoke business-analyst:
 
-## STAGE 3: PAIN POINT IDENTIFICATION
+subagent_type: business-analyst
+description: Analyze project and identify sector competitors
+prompt: |
+  Analyze the following project plan/PRD and identify the sector, target audience, and 8-12 competitor websites for design research.
 
-Agent: Quality Assurance Specialist
-Input: design_research.json from Stage 2
-Tasks:
+  Project Plan/PRD:
+  $ARGUMENTS
 
-- Research **AI-generated UI failures**
-- Create **CONCRETE**, TESTABLE rejection criteria
-- Map **pain points** to this sector
+  Your tasks:
 
-Output: quality_checklist.json with TWO sections:
+  1. Read and analyze the project documentation
+  2. Identify sector/niche classification
+  3. Define target audience clearly
+  4. Research and list 8-12 competitor websites with strong design
+  5. Provide comprehensive business context
 
-### FORBIDDEN_PATTERNS (Binary checklist - ANY violation = REJECT)
+  Write your findings to: sector_analysis.json
 
-```json
-[
+  Use this structure:
   {
-    "pattern": "Gradient backgrounds",
-    "test": "Check CSS for linear-gradient() or radial-gradient() in hero/primary sections",
-    "why_forbidden": "Generic AI aesthetic"
-  },
-  {
-    "pattern": "Blue (#0066FF-#0099FF) or Purple (#6600FF-#9966FF) primary colors",
-    "test": "Extract primary brand color from palette, check hex range",
-    "why_forbidden": "Most overused AI color choice"
-  },
-  {
-    "pattern": "Generic hero with centered text over image",
-    "test": "Check if hero section has position:relative image + centered overlay text",
-    "why_forbidden": "Template syndrome"
-  },
-  {
-    "pattern": "Sans-serif only typography",
-    "test": "Verify font-family declarations include serif or distinctive sans",
-    "why_forbidden": "Lacks typographic character"
-  },
-  {
-    "pattern": "Symmetric layouts exclusively",
-    "test": "Check grid structures - must include asymmetric elements",
-    "why_forbidden": "Predictable, lacks visual interest"
-  },
-  {
-    "pattern": "White/light gray (#F5F5F5-#FFFFFF) backgrounds only",
-    "test": "Check body/section backgrounds - must have color or texture",
-    "why_forbidden": "Generic, no atmosphere"
-  },
-  {
-    "pattern": "Uniform rounded corners (border-radius: 8-12px everywhere)",
-    "test": "Check border-radius usage - must vary or be 0/sharp somewhere",
-    "why_forbidden": "Border-radius fatigue"
-  },
-  {
-    "pattern": "Generic CTAs ('Get Started', 'Learn More')",
-    "test": "Check button text for context-free phrases",
-    "why_forbidden": "Lacks specificity"
-  },
-  {
-    "pattern": "Card grids as only layout pattern",
-    "test": "Verify layout diversity beyond card components",
-    "why_forbidden": "Monotonous structure"
-  },
-  {
-    "pattern": "No sector-specific visual language",
-    "test": "Cross-reference against Stage 2 sector_conventions",
-    "why_forbidden": "Doesn't reflect research"
+    "sector": "Primary industry sector",
+    "niche": "Specific niche within sector",
+    "target_audience": "Detailed audience description",
+    "competitor_urls": ["https://competitor1.com", ...8-12 URLs],
+    "business_context": "Comprehensive market context"
   }
-]
-```
 
-### REQUIRED_ELEMENTS (Must have ALL)
+Wait for business-analyst to complete and write sector_analysis.json.
+</stage_1>
 
-```json
-[
-  {
-    "requirement": "Colors derived from Stage 2 competitor analysis",
-    "test": "Palette must reference design_research.json color_patterns"
-  },
-  {
-    "requirement": "Typography reflects competitor patterns",
-    "test": "Font choices must align with typography_patterns from Stage 2"
-  },
-  {
-    "requirement": "At least 2 unexpected/asymmetric layout choices",
-    "test": "Identify non-standard grid/layout decisions"
-  },
-  {
-    "requirement": "Sector-appropriate visual density",
-    "test": "Density matches mood_assessment from Stage 2"
-  },
-  {
-    "requirement": "Distinctive component treatments",
-    "test": "Components must have unique styling, not default/generic"
-  }
-]
-```
+After Stage 1 completion, proceed to Stage 2.
 
-Pass to: Stage 4A
+---
 
-## STAGE 4: DESIGN VARIANT GENERATION (WITH VERIFICATION LOOP)
+## Stage 2: Design Research
 
-### STAGE 4A: Initial Design Generation
+Invoke design-researcher to analyze competitor designs.
 
-Agent: Design Strategist
-Input: design_research.json + quality_checklist.json
-Tasks:
+<stage_2>
+Use Task tool to invoke design-researcher:
 
-- Create 3 variants of SAME base style (from Stage 2 dominant_style)
-- Variants differ by: layout, typography choices, color palette, spacing
-- All variants stay within researched design language
+subagent_type: design-researcher
+description: Research competitor designs and extract patterns
+prompt: |
+  Analyze competitor websites from sector research to extract design patterns and sector conventions.
 
-Output: design_specs_draft.json (3 variant objects)
-Each variant:
+  Read from: sector_analysis.json (in current working directory)
 
-```json
-{
-  "variant_id": 1,
-  "differentiation_strategy": "how this differs from other 2",
-  "layout_approach": "detailed structure",
-  "typography": {
-    "font_families": ["must align with Stage 2"],
-    "scale": {},
-    "weights": {}
-  },
-  "color_palette": {
-    "primary": "hex (NOT blue/purple range)",
-    "secondary": "hex",
-    "accent": "hex",
-    "backgrounds": ["must have color/texture"]
-  },
-  "spacing_system": {},
-  "component_inventory": [],
-  "pages": {
-    "main_page": "wireframe description",
-    "detail_page": "wireframe description"
-  }
-}
-```
+  Your tasks:
 
-Pass to: Stage 4B
+  1. Visit each competitor URL from sector_analysis.json
+  2. Document layout patterns, visual mood, typography, colors
+  3. Extract sector-specific design conventions
+  4. Synthesize dominant design style for this niche
 
-### STAGE 4B: Design Specification Audit
+  Write your findings to: design_research.json
 
-Agent: Quality Auditor (VERIFICATION ROLE)
-Input: design_specs_draft.json + quality_checklist.json
-Tasks:
+  Include: dominant_style, layout_patterns, mood_assessment (1-10 scale),
+  typography_patterns, color_patterns, whitespace_strategy, sector_conventions
 
-- Check EACH variant against FORBIDDEN_PATTERNS checklist
-- Check EACH variant against REQUIRED_ELEMENTS checklist
-- Return PASS or FAIL with specific violations
+Wait for design-researcher to complete and write design_research.json.
+</stage_2>
 
-**Verification Process:**
+After Stage 2 completion, proceed to Stage 3.
 
-```
-FOR EACH VARIANT:
-  FOR EACH FORBIDDEN_PATTERN:
-    IF pattern detected: RECORD VIOLATION
-  FOR EACH REQUIRED_ELEMENT:
-    IF missing: RECORD VIOLATION
+---
 
-  IF violations > 0:
-    STATUS = FAIL
-    OUTPUT = {
-      "variant_id": X,
-      "status": "FAIL",
-      "violations": [
-        {"type": "FORBIDDEN", "pattern": "Blue primary color", "location": "color_palette.primary", "value": "#0066FF"},
-        {"type": "REQUIRED", "missing": "Unexpected layout choices"}
-      ]
+## Stage 3: Quality Checklist Creation
+
+Invoke qa-specialist to create testable validation criteria.
+
+<stage_3>
+Use Task tool to invoke qa-specialist:
+
+subagent_type: qa-specialist
+description: Create quality checklist with binary validation criteria
+prompt: |
+  Create a comprehensive quality checklist with CONCRETE, testable rejection criteria to prevent AI-generated design failures.
+
+  Read from: design_research.json (in current working directory)
+
+  Your tasks:
+
+  1. Research AI-generated UI common failures
+  2. Create CONCRETE, testable rejection criteria (not subjective)
+  3. Map pain points to this specific sector
+  4. Define FORBIDDEN_PATTERNS with binary tests
+  5. Define REQUIRED_ELEMENTS with validation criteria
+
+  Write your checklist to: quality_checklist.json
+
+  Include TWO sections:
+
+- FORBIDDEN_PATTERNS: Minimum 10 patterns with objective tests
+- REQUIRED_ELEMENTS: Minimum 5 requirements with validation criteria
+
+  Each forbidden pattern must include:
+
+- pattern: Name
+- test: Exact, objective test to perform
+- why_forbidden: Reason
+
+  Each required element must include:
+
+- requirement: Description
+- test: How to validate
+- sector_justification: Why it matters
+
+Wait for qa-specialist to complete and write quality_checklist.json.
+</stage_3>
+
+After Stage 3 completion, proceed to Stage 4.
+
+---
+
+## Stage 4: Design Variant Generation with Verification Loop
+
+### Stage 4A: Initial Design Generation
+
+Invoke design-strategist to create 3 design variants.
+
+<stage_4a>
+Use Task tool to invoke design-strategist:
+
+subagent_type: design-strategist
+description: Generate 3 design variants from research
+prompt: |
+  Create 3 design variants based on sector research while avoiding AI design cliches.
+
+  MODE: INITIAL GENERATION
+
+  Read from (current working directory):
+
+- design_research.json
+- quality_checklist.json
+
+  Your tasks:
+
+  1. Create 3 variants of SAME base style (from dominant_style in design_research.json)
+  2. Variants differ by: layout, typography, color palette, spacing
+  3. All variants stay within researched design language
+  4. ALL variants must avoid EVERY forbidden pattern from quality_checklist.json
+  5. ALL variants must include EVERY required element from quality_checklist.json
+
+  Write to: design_specs_draft.json
+
+  Structure: Array of 3 variant objects, each with:
+
+- variant_id
+- differentiation_strategy
+- layout_approach
+- typography (font_families, scale, weights)
+- color_palette (primary, secondary, accent, backgrounds, text)
+- spacing_system
+- component_inventory
+- pages (main_page and detail_page wireframes)
+
+  CRITICAL: Primary colors must NOT be in blue (#0000FF-#0099FF) or purple (#6600FF-#9966FF) ranges.
+  CRITICAL: Backgrounds must include colored/textured options (not all white).
+
+Wait for design-strategist to complete and write design_specs_draft.json.
+</stage_4a>
+
+### Stage 4B: Design Specification Audit
+
+Invoke quality-auditor to validate designs against checklist.
+
+<stage_4b_iteration>
+iteration = 1
+current_spec_file = "design_specs_draft.json"
+
+LOOP (max 3 iterations):
+  Use Task tool to invoke quality-auditor:
+
+  subagent_type: quality-auditor
+  description: Audit design specifications iteration {iteration}
+  prompt: |
+    Audit design specifications against quality checklist with binary pass/fail validation.
+
+    Read from (current working directory):
+    - {current_spec_file}
+    - quality_checklist.json
+
+    Your tasks:
+    1. Check EACH variant against ALL forbidden patterns
+    2. Check EACH variant against ALL required elements
+    3. Record specific violations with exact locations
+    4. Determine PASS or FAIL for each variant
+    5. Determine overall decision: PROCEED or REVISE
+
+    Write to: audit_report_v{iteration}.json
+
+    For each variant, execute ALL tests from quality_checklist.json.
+    Record violations with: type, pattern/missing, location, value, fix.
+
+    Output structure:
+    {
+      "iteration": {iteration},
+      "variants": [
+        {"variant_id": 1, "status": "PASS/FAIL", "violations": [...]},
+        {"variant_id": 2, "status": "PASS/FAIL", "violations": [...]},
+        {"variant_id": 3, "status": "PASS/FAIL", "violations": [...]}
+      ],
+      "overall_decision": "PROCEED" or "REVISE",
+      "summary": "X variants passed, Y variants failed, Z total violations"
     }
+
+  Wait for quality-auditor to complete and write audit_report_v{iteration}.json.
+
+  Read audit_report_v{iteration}.json to check overall_decision.
+
+  IF overall_decision == "PROCEED":
+    Rename {current_spec_file} to design_specs_final.json
+    BREAK loop
+    Proceed to Stage 5
+
+  ELSE IF iteration < 3:
+    ### Stage 4C: Design Revision
+    Use Task tool to invoke design-strategist:
+
+    subagent_type: design-strategist
+    description: Revise design specifications based on audit feedback
+    prompt: |
+      Revise design specifications to address violations from audit report.
+
+      MODE: REVISION
+
+      Read from (current working directory):
+      - {current_spec_file}
+      - audit_report_v{iteration}.json
+      - quality_checklist.json
+
+      Your tasks:
+      1. Address SPECIFIC violations listed in audit report
+      2. Fix ONLY cited problems (no unrelated changes)
+      3. Ensure fixes don't create new violations
+      4. Maintain differentiation between variants
+      5. Preserve successful elements
+
+      Write to: design_specs_revised.json
+
+      For each failing variant:
+      - Review violations array
+      - Fix each violation specifically
+      - Ensure required elements now present
+      - Remove/replace forbidden patterns
+
+    Wait for design-strategist to complete and write design_specs_revised.json.
+
+    current_spec_file = "design_specs_revised.json"
+    iteration++
+    Continue loop (re-audit)
+
   ELSE:
-    STATUS = PASS
-```
+    ESCALATE TO USER with violations from audit_report_v3.json
+    EXIT pipeline
+</stage_4b_iteration>
 
-**Output:** audit_report_v1.json
+After Stage 4 completion (design_specs_final.json created), proceed to Stage 5.
 
-```json
-{
-  "iteration": 1,
-  "variants": [
-    {"variant_id": 1, "status": "PASS/FAIL", "violations": []},
-    {"variant_id": 2, "status": "PASS/FAIL", "violations": []},
-    {"variant_id": 3, "status": "PASS/FAIL", "violations": []}
-  ],
-  "overall_decision": "PROCEED / REVISE"
-}
-```
+---
 
-IF overall_decision = "PROCEED": Pass to Stage 5A
-IF overall_decision = "REVISE": Pass to Stage 4C
+## Stage 5: HTML Implementation with Verification Loop
 
-### STAGE 4C: Design Revision (Iteration Loop)
+### Stage 5A: Initial HTML Generation
 
-Agent: Design Strategist (Revision Mode)
-Input: design_specs_draft.json + audit_report_v1.json
-Tasks:
+Invoke implementation-engineer to generate HTML files.
 
-- For EACH failing variant, address SPECIFIC violations
-- Revise ONLY the elements cited in audit report
-- Do NOT introduce new violations while fixing
+<stage_5a>
+Use Task tool to invoke implementation-engineer:
 
-Output: design_specs_revised.json
+subagent_type: implementation-engineer
+description: Generate production HTML/CSS for 3 variants
+prompt: |
+  Generate production-quality HTML files implementing the approved design specifications.
 
-Pass back to: Stage 4B (re-audit)
+  MODE: INITIAL GENERATION
 
-LOOP CONDITIONS:
+  Read from: design_specs_final.json (in current working directory)
 
-- Max 3 iterations (4A→4B→4C loop)
-- Each iteration tracked: audit_report_v2.json, audit_report_v3.json
-- If STILL failing after 3 iterations: ESCALATE TO USER with violation details
+  Your tasks:
 
-### STAGE 4D: Final Design Specifications
+  1. For each of 3 variants, generate 2 HTML files (main page + detail page)
+  2. Implement responsive layouts matching specs exactly
+  3. Use semantic HTML5
+  4. Inline CSS in <style> tag with CSS custom properties
+  5. Apply typography, colors, spacing from design specs
+  6. NO placeholder Lorem Ipsum unless clearly demo context
+  7. Create implementation_manifest.json
 
-Once audit_report shows ALL variants PASS:
-Output: design_specs_final.json (approved variants)
+  Write to current working directory:
 
-Pass to: Stage 5A
+- main_1.html (Variant 1, main page)
+- detail_1.html (Variant 1, detail page)
+- main_2.html (Variant 2, main page)
+- detail_2.html (Variant 2, detail page)
+- main_3.html (Variant 3, main page)
+- detail_3.html (Variant 3, detail page)
+- implementation_manifest.json
 
-## STAGE 5: HTML IMPLEMENTATION (WITH VERIFICATION LOOP)
-
-### STAGE 5A: Initial HTML Generation
-
-Agent: Implementation Engineer
-Input: design_specs_final.json
-Tasks:
-
-- For each variant, generate 2 production HTML files
-- Implement responsive layouts matching specs exactly
-- Use semantic HTML5
-- Inline CSS in <style> tag
-- Apply typography, colors, spacing from design specs
-- NO placeholder Lorem Ipsum unless demo context clear
-- Save as: main_1.html, detail_1.html, main_2.html, detail_2.html, main_3.html, detail_3.html
-
-Quality Requirements:
+  Quality requirements:
 
 - Clean, readable code
 - Responsive (mobile, tablet, desktop)
 - Semantic markup
-- Consistent implementation per variant
+- Exact color hex values from design_specs_final.json
+- Font families from specifications
+- Spacing system applied consistently
 
-Output: 6 HTML files (draft) + implementation_manifest.json
+Wait for implementation-engineer to complete and write all 7 files.
+</stage_5a>
 
-```json
-{
-  "files": [
-    {"variant": 1, "type": "main", "path": "main_1.html"},
-    {"variant": 1, "type": "detail", "path": "detail_1.html"}
-  ]
-}
-```
+### Stage 5B: Code Audit
 
-Pass to: Stage 5B
+Invoke code-auditor to validate HTML/CSS implementation.
 
-### STAGE 5B: Code Audit (HTML/CSS Verification)
+<stage_5b_iteration>
+iteration = 1
 
-Agent: Code Auditor (VERIFICATION ROLE)
-Input: 6 HTML files + quality_checklist.json + design_specs_final.json
-Tasks:
+LOOP (max 3 iterations):
+  Use Task tool to invoke code-auditor:
 
-- Inspect ACTUAL HTML/CSS code for FORBIDDEN_PATTERNS
-- Verify implementation matches design_specs_final.json
-- Check for violations that may have crept in during coding
+  subagent_type: code-auditor
+  description: Audit HTML/CSS code iteration {iteration}
+  prompt: |
+    Audit actual HTML/CSS code against quality checklist with binary pass/fail validation.
 
-Verification Process:
+    Read from (current working directory):
+    - main_1.html, detail_1.html, main_2.html, detail_2.html, main_3.html, detail_3.html
+    - quality_checklist.json
+    - design_specs_final.json
 
-```
-FOR EACH HTML FILE:
-  PARSE CSS:
-    - Check for linear-gradient / radial-gradient in backgrounds
-    - Extract all color hex values, check for blue/purple range
-    - Check border-radius values for uniformity
-    - Verify background colors (not all white/light gray)
+    Your tasks:
+    1. Inspect ACTUAL HTML/CSS code in each file
+    2. Check for forbidden patterns in real code (parse CSS, extract colors, check layout)
+    3. Verify implementation matches design_specs_final.json
+    4. Record violations with file names and line numbers
+    5. Determine PASS or FAIL for each file
+    6. Determine overall decision: PROCEED or REVISE
 
-  PARSE HTML STRUCTURE:
-    - Check hero section structure (generic centered overlay?)
-    - Verify layout diversity (not all card grids)
-    - Check button text (generic CTAs?)
+    Write to: code_audit_report_v{iteration}.json
 
-  CROSS-REFERENCE design_specs_final.json:
-    - Typography matches spec?
-    - Color palette matches spec?
-    - Layout approach matches spec?
+    Execute code inspection tests:
+    - Parse CSS for gradients, extract hex colors, check forbidden ranges
+    - Inspect hero section HTML structure
+    - Extract font-family declarations
+    - Analyze layout code for asymmetry
+    - Check background-color values
+    - Find border-radius patterns
+    - Search button text for generic CTAs
+    - Compare colors to design_specs_final.json
 
-  IF violations found:
-    RECORD with file location and line number
-```
-
-Output: code_audit_report_v1.json
-
-```json
-{
-  "iteration": 1,
-  "files": [
+    For each violation provide:
     {
-      "file": "main_1.html",
-      "status": "PASS/FAIL",
-      "violations": [
-        {"line": 45, "issue": "Uses linear-gradient(135deg, #667eea 0%, #764ba2 100%)", "fix": "Use solid color from approved palette"},
-        {"line": 78, "issue": "Primary color is #0066FF (blue)", "fix": "Change to approved primary from design_specs_final.json"}
-      ]
+      "file": "filename.html",
+      "line": line_number,
+      "issue": "Specific code pattern found",
+      "forbidden_pattern": "Pattern name",
+      "fix": "Exact fix needed"
     }
-  ],
-  "overall_decision": "PROCEED / REVISE"
-}
-```
 
-IF overall_decision = "PROCEED": Pass to Stage 6
-IF overall_decision = "REVISE": Pass to Stage 5C
+    Output structure:
+    {
+      "iteration": {iteration},
+      "files": [
+        {"file": "main_1.html", "status": "PASS/FAIL", "violations": [...]},
+        ...all 6 files
+      ],
+      "overall_decision": "PROCEED" or "REVISE",
+      "summary": "X files passed, Y files failed, Z total violations"
+    }
 
-### STAGE 5C: Code Revision (Iteration Loop)
+  Wait for code-auditor to complete and write code_audit_report_v{iteration}.json.
 
-Agent: Implementation Engineer (Fix Mode)
-Input: HTML files + code_audit_report_v1.json + design_specs_final.json
-Tasks:
+  Read code_audit_report_v{iteration}.json to check overall_decision.
 
-- For EACH failing file, fix SPECIFIC violations
-- Update code at line numbers cited
-- Re-verify against design_specs_final.json
-- Do NOT introduce new violations
+  IF overall_decision == "PROCEED":
+    BREAK loop
+    Proceed to Stage 6
 
-Output: Updated HTML files
+  ELSE IF iteration < 3:
+    ### Stage 5C: Code Revision
+    Use Task tool to invoke implementation-engineer:
 
-Pass back to: Stage 5B (re-audit)
+    subagent_type: implementation-engineer
+    description: Fix HTML/CSS violations from audit
+    prompt: |
+      Fix HTML/CSS code violations based on audit report.
 
-LOOP CONDITIONS:
+      MODE: FIX MODE
 
-- Max 3 iterations (5A→5B→5C loop)
-- Each iteration tracked: code_audit_report_v2.json, code_audit_report_v3.json
-- If STILL failing after 3 iterations: ESCALATE TO USER with violation details
+      Read from (current working directory):
+      - main_1.html through detail_3.html (existing files)
+      - code_audit_report_v{iteration}.json
+      - design_specs_final.json (for reference)
 
-### STAGE 5D: Final HTML Files
+      Your tasks:
+      1. Read audit report violations for each file
+      2. Fix violations at specified line numbers
+      3. Do NOT make unrelated changes
+      4. Ensure fixes match design_specs_final.json
+      5. Preserve working code
 
-Once code_audit_report shows ALL files PASS:
-Output: 6 approved HTML files
+      For each file with violations:
+      - Navigate to line numbers cited
+      - Fix ONLY the specific issues:
+        * Remove gradients
+        * Change colors to match design_specs_final.json
+        * Fix generic CTAs to context-specific text
+        * Add missing elements
+        * Fix border-radius uniformity
 
-Pass to: Stage 6
+      Write updated HTML files to current working directory (overwrite existing).
 
-## STAGE 6: DESIGN SYSTEM DOCUMENTATION
+    Wait for implementation-engineer to complete and write updated HTML files.
 
-Agent: Documentation Specialist
-Input: design_specs_final.json + approved HTML files
-Tasks:
+    iteration++
+    Continue loop (re-audit)
 
-- For each variant, create comprehensive design system doc
-- Document all design tokens
-- Explain design rationale and differentiation
-- Provide component patterns
-- Save as: design_system_1.md, design_system_2.md, design_system_3.md
+  ELSE:
+    ESCALATE TO USER with violations from code_audit_report_v3.json
+    EXIT pipeline
+</stage_5b_iteration>
 
-Output Format per variant:
+After Stage 5 completion (all HTML files pass audit), proceed to Stage 6.
 
-```markdown
-# Design System - Variant {X}
+---
 
-## Overview
-- Design philosophy
-- How this variant differs from other 2
-- Sector context and research basis
+## Stage 6: Design System Documentation
 
-## Design Tokens
-### Colors
-- Primary: #XXXXXX (rationale)
-- Secondary: #XXXXXX
-- Accent: #XXXXXX
-- Backgrounds: [colors with rationale]
+Invoke documentation-specialist to create comprehensive docs.
 
-### Typography
-- Font families: [list with usage]
-- Scale: [sizes]
-- Weights: [usage guidelines]
-- Line heights
+<stage_6>
+Use Task tool to invoke documentation-specialist:
 
-### Spacing
-- Scale: [values]
-- Application patterns
+subagent_type: documentation-specialist
+description: Create design system documentation for all variants
+prompt: |
+  Create comprehensive design system documentation for each of the 3 approved design variants.
 
-## Component Patterns
-[Reusable patterns from HTML implementation]
+  Read from (current working directory):
 
-## Layout Guidelines
-[Grid systems, breakpoints, responsive strategy]
+- design_specs_final.json
+- main_1.html through detail_3.html (approved implementation)
 
-## Accessibility Notes
-[Color contrast ratios, semantic markup patterns]
+  Your tasks:
 
-## Why This Avoids AI Pain Points
-[Explicit explanation of how design decisions counter generic AI aesthetics]
-```
+  1. For EACH variant, create comprehensive design system documentation
+  2. Document all design tokens (colors, typography, spacing)
+  3. Explain design rationale and differentiation
+  4. Provide component patterns with examples
+  5. Document layout guidelines and responsive strategy
+  6. Include accessibility notes
+  7. Explain how design avoids AI pain points
 
-Output: 3 design system markdown files
+  Write to current working directory:
 
-COMPLETE: All deliverables ready
+- design_system_1.md
+- design_system_2.md
+- design_system_3.md
 
-## EXECUTION PROTOCOL
+  Each file must include sections:
 
-1. **CRITICAL** Each stage waits for previous stage approval
-2. Verification loops (4B-4C, 5B-5C) are **MANDATORY**
-3. Auditor agents have VETO power - **cannot skip verification**
-4. Max 3 revision iterations per verification loop
-5. If verification fails after 3 iterations, ESCALATE with details
-6. All pain point checks are BINARY (pass/fail), not subjective
-7. Final deliverables: 6 HTML files + 3 markdown docs = 9 files
+- Overview (philosophy, differentiation, sector context)
+- Design Tokens (colors with hex, typography with fonts, spacing)
+- Component Patterns (extracted from HTML with usage guidelines)
+- Layout Guidelines (grid, breakpoints, responsive strategy)
+- Accessibility Notes (contrast ratios, semantic markup)
+- Why This Avoids AI Pain Points (explicit explanation)
 
-## CRITICAL SUCCESS FACTORS
+  Be comprehensive but readable. Provide concrete examples.
+  Calculate contrast ratios. Reference sector research findings.
 
-- Concrete, testable verification criteria (not subjective "avoid generic")
-- Separate auditor agents with verification-only authority
-- Specific violation reporting with file locations/line numbers
-- Iterative refinement until ALL violations eliminated
-- Escalation path prevents infinite loops
+Wait for documentation-specialist to complete and write all 3 markdown files.
+</stage_6>
 
-START: Provide your project plan/PRD to begin Stage 1.
+---
+
+## Completion
+
+All deliverables ready:
+
+**Handoff Documents**:
+
+- sector_analysis.json
+- design_research.json
+- quality_checklist.json
+- design_specs_final.json
+- audit_report_v*.json files
+- code_audit_report_v*.json files
+- implementation_manifest.json
+
+**Final Deliverables**:
+
+- main_1.html, detail_1.html (Variant 1)
+- main_2.html, detail_2.html (Variant 2)
+- main_3.html, detail_3.html (Variant 3)
+- design_system_1.md, design_system_2.md, design_system_3.md
+
+Present summary to user with file locations and next steps (e.g., open HTML files in browser to review variants).

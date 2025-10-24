@@ -13,9 +13,14 @@ $ARGUMENTS
 
 ## Task Decomposition
 
+First check if the path works for `./.claude/promptengineering/`.
+If not, check if the path works for `~/.claude/promptengineering/`
+
+Save the path that works in $PE_PATH
+
 ### Task 1: Load Technique Database
 
-- Read .claude/promptengineering/prompts.json
+- Read $PE_PATH/prompts.json
 - Parse all available techniques with their metadata
 - Extract: id, technique name, description, whenToUse conditions, canCombineWith array, exampleFile path
 - Output: In-memory technique catalog for matching
@@ -105,4 +110,11 @@ $ARGUMENTS
   END RESULT:
   [What this enhanced prompt will accomplish better than original]
 
-  Then ask: "Should I execute this enhanced prompt now? (yes/no)
+## FINALLY
+
+Ask the user the following questions in an interactive way:
+
+<questions>
+  <question>Run this prompt now?</question>
+  <question>Save this prompt to a file?</question>
+</questions>
