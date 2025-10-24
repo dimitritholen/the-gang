@@ -186,6 +186,7 @@ specific findings in defined format.
 ```
 
 **Usage**:
+
 ```
 User: Research best practices for implementing microservices authentication
 
@@ -774,6 +775,7 @@ Stage 4: Validate
 ---
 
 **See Also**:
+
 - [commands.md](./commands.md) - Building command components
 - [agents.md](./agents.md) - Creating specialized agents
 - [hooks.md](./hooks.md) - Event-driven integration

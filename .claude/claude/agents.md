@@ -11,6 +11,7 @@
 Sub-agents are specialized AI assistants that operate with their own context window, domain expertise, and tool access controls. They enable focused, complex reasoning for specific tasks while maintaining separation from the main conversation.
 
 **When to create a sub-agent**:
+
 - Task requires specialized expertise or domain knowledge
 - Complex multi-step reasoning is needed
 - Different tool access patterns are required
@@ -23,24 +24,28 @@ Sub-agents are specialized AI assistants that operate with their own context win
 Sub-agents are built on these core principles:
 
 ### Separate Context Window
+
 - **Clean slate**: Agent starts with only its prompt and user's task
 - **No main conversation history**: Reduces noise and token usage
 - **Focused context**: Only relevant information provided
 - **Independent reasoning**: Not influenced by prior conversation
 
 ### Domain Expertise
+
 - **Specialized knowledge**: Deep expertise in specific area
 - **Consistent approach**: Follows defined methodology
 - **Best practices**: Embeds domain-specific patterns
 - **Reliable output**: Predictable results for task type
 
 ### Tool Access Control
+
 - **Security**: Limit tools to necessary subset
 - **Efficiency**: Faster execution with fewer options
 - **Safety**: Prevent unintended operations
 - **Clarity**: Clear boundaries for agent capabilities
 
 ### Coordinated Workflows
+
 - **Composable**: Agents can invoke other agents
 - **Parallel execution**: Multiple agents work simultaneously
 - **Result synthesis**: Combine outputs coherently
@@ -87,6 +92,7 @@ When approaching tasks:
 **File naming**: `agent-name.md` → invoked via Task tool or automatic matching
 
 **Location**:
+
 - Project: `.claude/agents/`
 - User global: `~/.claude/agents/`
 
@@ -206,6 +212,7 @@ Choose the right model based on task complexity and requirements.
 ### Haiku (Fast, Simple Tasks)
 
 **Best for**:
+
 - File formatting and simple transformations
 - Basic validation and checks
 - Quick analysis tasks
@@ -213,12 +220,14 @@ Choose the right model based on task complexity and requirements.
 - Style consistency enforcement
 
 **Characteristics**:
+
 - Fastest execution
 - Lower token cost
 - Simpler reasoning
 - Pattern-based decisions
 
 **Example use case**:
+
 ```markdown
 ---
 name: style-checker
@@ -236,6 +245,7 @@ Check code follows project style guide. Focus on:
 ### Sonnet (Standard Development)
 
 **Best for**:
+
 - Code generation and modification
 - Testing and debugging
 - Documentation creation
@@ -243,12 +253,14 @@ Check code follows project style guide. Focus on:
 - API integration
 
 **Characteristics**:
+
 - Balanced speed/capability
 - Good code understanding
 - Reliable for common tasks
 - Cost-effective default
 
 **Example use case**:
+
 ```markdown
 ---
 name: feature-developer
@@ -263,6 +275,7 @@ Generate tests, documentation, and implementation.
 ### Opus (Complex Reasoning)
 
 **Best for**:
+
 - Architecture design and analysis
 - Security auditing
 - Complex problem solving
@@ -270,12 +283,14 @@ Generate tests, documentation, and implementation.
 - Multi-step analysis
 
 **Characteristics**:
+
 - Most capable reasoning
 - Deep context understanding
 - Best for novel problems
 - Higher cost/latency
 
 **Example use case**:
+
 ```markdown
 ---
 name: system-architect
@@ -305,6 +320,7 @@ tools: Read
 ```
 
 **Use when**:
+
 - Analyzing code without modifications
 - Security auditing
 - Documentation review
@@ -321,6 +337,7 @@ tools: Read, Grep, Glob
 ```
 
 **Use when**:
+
 - Code exploration and understanding
 - Pattern identification
 - Dependency analysis
@@ -337,6 +354,7 @@ tools: Read, Write, Edit, Bash
 ```
 
 **Use when**:
+
 - Feature implementation
 - Bug fixing
 - Refactoring
@@ -353,6 +371,7 @@ tools: Read, Write, Edit, Bash
 ```
 
 **Use when**:
+
 - Complex workflows requiring flexibility
 - Orchestration agents
 - Trusted, well-tested agents
@@ -769,6 +788,7 @@ Preferred Patterns:
 ---
 
 **See Also**:
+
 - [commands.md](./commands.md) - Creating slash commands
 - [hooks.md](./hooks.md) - Validating agent behavior
 - [patterns.md](./patterns.md) - Multi-agent coordination workflows

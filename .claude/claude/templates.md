@@ -279,9 +279,11 @@ router.[method]('/api/[endpoint-name]', async (req: Request, res: Response) => {
   }
 });
 ```
+
 </implementation>
 
 Generate API endpoint: $1 using method: ${2:-"GET"}
+
 ```
 
 #### Database Migration Generator
@@ -331,14 +333,17 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('table_name');
 }
 ```
+
 </template_structure>
 
 Create migration: $ARGUMENTS
 
 After creation:
+
 - Remind user to review migration
 - Suggest testing on dev database first
 - Note any special deployment considerations
+
 ```
 
 ---
@@ -958,6 +963,7 @@ except Exception as e:
     print(f"Hook warning: {e}")
     sys.exit(0)  # Allow operation despite error
 ```
+
 ```
 
 **Problem**: Performance impact from hooks
