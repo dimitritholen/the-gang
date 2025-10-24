@@ -1,12 +1,12 @@
 ---
-allowed-tools: Bash(code-tools:*), Read
+allowed-tools: Bash(code-tools:*), Read, Grep
 argument-hint: [feature-slug]
 description: Validate new feature plan against existing codebase conventions and architectural decisions using systematic comparison with Chain of Verification
 ---
 
 # Consistency Validation Command
 
-**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
+**System date assertion**: Retrieve current system date before proceeding
 **Feature slug**: $1
 
 Act as a product manager and scope management specialist with deep expertise in maintaining codebase consistency, enforcing architectural decisions, and preventing technical debt accumulation.
@@ -86,13 +86,10 @@ Execute validation across all dimensions:
 
 **Dimension A: File Naming & Directory Structure**
 
-```bash
-# Extract file paths from implementation plan
-grep -E "files_affected|file.*path" .claude/memory/implementation-plan-$1.md
+Use Grep tool to extract file paths from implementation plan and compare against convention patterns:
 
-# Compare against convention patterns
-grep -E "file.*naming|directory.*structure" .claude/memory/coding-conventions.md
-```
+- Search implementation plan for "files_affected|file.\*path"
+- Search coding conventions for "file.*naming|directory.*structure"
 
 **Validation questions**:
 
@@ -103,13 +100,10 @@ grep -E "file.*naming|directory.*structure" .claude/memory/coding-conventions.md
 
 **Dimension B: Architectural Pattern Compliance**
 
-```bash
-# Extract architectural patterns from plan
-grep -E "architecture|layer|pattern|design" .claude/memory/implementation-plan-$1.md
+Use Grep tool to extract architectural patterns from plan and compare against ADRs:
 
-# Compare against ADRs
-grep -E "ADR-|decision|pattern" .claude/memory/architecture-decisions.md
-```
+- Search implementation plan for "architecture|layer|pattern|design"
+- Search architecture decisions for "ADR-|decision|pattern"
 
 **Validation questions**:
 
@@ -121,13 +115,10 @@ grep -E "ADR-|decision|pattern" .claude/memory/architecture-decisions.md
 
 **Dimension C: Technology & Dependency Validation**
 
-```bash
-# Extract dependencies from tech analysis
-grep -E "dependency|library|framework|package" .claude/memory/tech-analysis-$1.md
+Use Grep tool to extract dependencies from tech analysis and compare against baseline:
 
-# Compare against baseline
-grep -E "approved|prohibited|dependency" .claude/memory/tech-stack-baseline.md
-```
+- Search tech analysis for "dependency|library|framework|package"
+- Search tech stack baseline for "approved|prohibited|dependency"
 
 **Validation questions**:
 
@@ -139,13 +130,10 @@ grep -E "approved|prohibited|dependency" .claude/memory/tech-stack-baseline.md
 
 **Dimension D: Error Handling Pattern Validation**
 
-```bash
-# Extract error handling from plan
-grep -E "error.*handl|exception|catch|throw" .claude/memory/implementation-plan-$1.md
+Use Grep tool to extract error handling from plan and compare against convention:
 
-# Compare against convention
-grep -E "error.*pattern|exception.*handling" .claude/memory/coding-conventions.md
-```
+- Search implementation plan for "error.\*handl|exception|catch|throw"
+- Search coding conventions for "error.*pattern|exception.*handling"
 
 **Validation questions**:
 
@@ -156,13 +144,10 @@ grep -E "error.*pattern|exception.*handling" .claude/memory/coding-conventions.m
 
 **Dimension E: Testing Strategy Validation**
 
-```bash
-# Extract testing strategy
-grep -E "test|coverage|unit|integration|e2e" .claude/memory/implementation-plan-$1.md
+Use Grep tool to extract testing strategy from plan and compare against convention:
 
-# Compare against convention
-grep -E "test.*strategy|coverage|pyramid" .claude/memory/coding-conventions.md
-```
+- Search implementation plan for "test|coverage|unit|integration|e2e"
+- Search coding conventions for "test.\*strategy|coverage|pyramid"
 
 **Validation questions**:
 
@@ -173,13 +158,10 @@ grep -E "test.*strategy|coverage|pyramid" .claude/memory/coding-conventions.md
 
 **Dimension F: API Design Validation**
 
-```bash
-# Extract API design
-grep -E "endpoint|route|api|rest|graphql" .claude/memory/implementation-plan-$1.md
+Use Grep tool to extract API design from plan and compare against convention:
 
-# Compare against convention
-grep -E "api.*design|endpoint.*pattern|rest" .claude/memory/coding-conventions.md
-```
+- Search implementation plan for "endpoint|route|api|rest|graphql"
+- Search coding conventions for "api.*design|endpoint.*pattern|rest"
 
 **Validation questions**:
 
@@ -190,13 +172,10 @@ grep -E "api.*design|endpoint.*pattern|rest" .claude/memory/coding-conventions.m
 
 **Dimension G: State Management Validation**
 
-```bash
-# Extract state management
-grep -E "state|redux|context|store" .claude/memory/implementation-plan-$1.md
+Use Grep tool to extract state management from plan and compare against convention:
 
-# Compare against convention
-grep -E "state.*management|store|context" .claude/memory/coding-conventions.md
-```
+- Search implementation plan for "state|redux|context|store"
+- Search coding conventions for "state.\*management|store|context"
 
 **Validation questions**:
 

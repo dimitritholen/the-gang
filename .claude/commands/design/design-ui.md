@@ -47,8 +47,8 @@ Step 1.1: Load and analyze requirements
 Step 1.2: Load and analyze tech stack
 
 - Read tech-analysis-$ARGUMENTS.md
-- Extract frontend framework, component library, styling approach
-- Reason: What UI constraints does our tech stack impose? What capabilities does it enable?
+- Identify frontend framework, component library, styling approach from tech analysis
+- Reason: What UI constraints does the detected tech stack impose? What capabilities does it enable?
 
 Step 1.3: Load optional context (if available)
 
@@ -58,7 +58,7 @@ Step 1.3: Load optional context (if available)
 
 Step 1.4: Search for existing UI patterns
 
-- Use code search to find similar UI components in codebase
+- Use Grep and Glob tools to find similar UI components in codebase
 - Reason: What established patterns should we follow for consistency?
 
 Output structured context summary:
@@ -73,10 +73,10 @@ Requirements Analysis:
 - Implied constraints: [accessibility, performance, mobile requirements]
 
 Tech Stack Constraints:
-- Frontend framework: [name + version]
-- Component library: [name + available components]
-- Styling approach: [CSS-in-JS, Tailwind, etc.]
-- Design system: [if one exists in codebase]
+- Frontend framework: [detected framework + version from tech analysis]
+- Component library: [detected library + available components]
+- Styling approach: [detected approach from tech analysis]
+- Design system: [if one exists in codebase, discovered via Glob/Grep]
 
 Scope Boundaries:
 - MVP features: [what we're designing now]
@@ -84,9 +84,9 @@ Scope Boundaries:
 - Phase considerations: [any phased rollout implications]
 
 Existing Patterns:
-- Similar components: [list found in codebase]
-- Established conventions: [navigation, layouts, interactions]
-- Reusable elements: [buttons, forms, modals we should match]
+- Similar components: [list found via Glob/Grep search]
+- Established conventions: [navigation, layouts, interactions discovered in codebase]
+- Reusable elements: [buttons, forms, modals we should match, found via code search]
 ```
 
 </context_analysis>
@@ -374,8 +374,8 @@ Present to the user:
 
 **Technical Grounding**:
 
-- Framework: [Name from tech stack]
-- Components used: [List actual components from library]
+- Framework: [Detected from tech analysis]
+- Components used: [List actual components from detected library]
 - Custom components needed: [List if any]
 
 **Verification Summary**:
@@ -417,7 +417,7 @@ If design phase encounters issues:
 
 **Issue: Tech stack missing component library**
 
-- Design from first principles using framework primitives
+- Design from first principles using detected framework primitives
 - Document which components need custom development
 - Flag to Implementation Planner for task breakdown
 - Provide design guidance for custom component development
@@ -451,7 +451,7 @@ If design phase encounters issues:
 1. **Always load context first** - Never design in vacuum, ground in requirements and tech
 2. **Enforce prerequisites** - No design without requirements and tech analysis
 3. **Use verification checkpoints** - Catch issues early through systematic verification
-4. **Reference tech stack** - Designs must be implementable with stated technology
+4. **Reference tech stack** - Designs must be implementable with detected technology from tech analysis
 5. **Prioritize accessibility** - WCAG 2.1 AA is minimum, not optional or negotiable
 6. **Document thoroughly** - Developers should have zero ambiguity in specifications
 7. **Stay in scope** - Only design MVP features, flag scope creep immediately

@@ -36,12 +36,11 @@ code-tools read_file --path .claude/memory/tech-stack-baseline.md 2>/dev/null ||
 # Load architecture decisions
 code-tools read_file --path .claude/memory/architecture-decisions.md 2>/dev/null || echo "No ADRs found"
 
-# Detect current stack
-code-tools search_file --glob "package.json" --limit 1
-code-tools search_file --glob "requirements.txt" --limit 1
-code-tools search_file --glob "pom.xml" --limit 1
-code-tools search_file --glob "Cargo.toml" --limit 1
-code-tools search_file --glob "go.mod" --limit 1
+# Detect current stack (language/framework agnostic discovery)
+# Search for common dependency/package manager files across ecosystems
+for pattern in "package.json" "requirements.txt" "pom.xml" "Cargo.toml" "go.mod" "build.gradle" "composer.json" "Gemfile" "mix.exs" "pubspec.yaml" "*.csproj"; do
+  code-tools search_file --glob "$pattern" --limit 1 2>/dev/null || true
+done
 
 # Search for related tech analysis
 code-tools search_memory --dir .claude/memory --query "$ARGUMENTS technology stack dependencies" --topk 5

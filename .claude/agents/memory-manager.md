@@ -1,7 +1,7 @@
 ---
 name: memory-manager
 description: Context management, artifact synthesis, knowledge retrieval with Chain-of-Thought reasoning and Chain-of-Verification quality assurance
-tools: Read, Write, Grep, Bash
+tools: Read, Write, Grep, Glob
 model: sonnet
 color: orange
 ---
@@ -82,15 +82,16 @@ Reason through what to collect:
 
 **Step 1.2: Gather artifacts systematically**
 
-```bash
+```
 # List all memory artifacts for this feature
-code-tools search_file --glob ".claude/memory/*{feature}*" --limit 20
+Use Glob tool with pattern: .claude/memory/*{feature}*
 
 # Read each critical artifact
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
-code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
-code-tools read_file --path .claude/memory/scope-validation-{feature}.md
+Use Read tool for:
+- .claude/memory/requirements-{feature}.md
+- .claude/memory/tech-analysis-{feature}.md
+- .claude/memory/implementation-plan-{feature}.md
+- .claude/memory/scope-validation-{feature}.md
 ```
 
 **Step 1.3: Initial verification of artifact collection**
@@ -631,11 +632,18 @@ Think through search scenarios:
 
 **Step 5.2: Test semantic search**
 
-```bash
+```
 # Test semantic search for this feature
-code-tools search_memory --dir .claude/memory --query "{feature keywords}" --topk 5
-code-tools search_memory --dir .claude/memory --query "{technical keywords}" --topk 5
-code-tools search_memory --dir .claude/memory --query "{domain keywords}" --topk 5
+Use Grep tool with:
+- path: .claude/memory
+- pattern: "{feature keywords}"
+- output_mode: files_with_matches
+
+Repeat with different keyword sets:
+- "{technical keywords}"
+- "{domain keywords}"
+
+For content analysis, use output_mode: content
 ```
 
 **Step 5.3: Optimize if needed**
@@ -1093,20 +1101,26 @@ Create these files after verification passes:
 
 1. **Feature Brief**: `.claude/memory/feature-brief-{feature}.md`
 
-   ```bash
-   code-tools create_file --file .claude/memory/feature-brief-{feature}.md --content @feature-brief.txt
+   ```
+   Use Write tool to create:
+   - file_path: .claude/memory/feature-brief-{feature}.md
+   - content: {synthesized feature brief}
    ```
 
 2. **Implementation Checklist**: `.claude/memory/checklist-{feature}.md`
 
-   ```bash
-   code-tools create_file --file .claude/memory/checklist-{feature}.md --content @checklist.txt
+   ```
+   Use Write tool to create:
+   - file_path: .claude/memory/checklist-{feature}.md
+   - content: {implementation checklist}
    ```
 
 3. **Quick Reference Card**: `.claude/memory/quick-ref-{feature}.md`
 
-   ```bash
-   code-tools create_file --file .claude/memory/quick-ref-{feature}.md --content @quick-ref.txt
+   ```
+   Use Write tool to create:
+   - file_path: .claude/memory/quick-ref-{feature}.md
+   - content: {quick reference}
    ```
 
 ## Memory Organization Best Practices

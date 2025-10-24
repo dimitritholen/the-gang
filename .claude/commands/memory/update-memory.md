@@ -6,7 +6,7 @@ description: Incrementally update memory artifacts after codebase changes withou
 
 # Memory Update Command
 
-**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
+**System date assertion**: Retrieve current system date before proceeding
 
 Act as a memory management specialist with expertise in incremental analysis, change detection, and artifact preservation.
 
@@ -16,7 +16,7 @@ Re-analyze specific aspects of the codebase after changes (new dependencies, ref
 
 ## Usage
 
-```bash
+```
 /update-memory "tech-stack"      # After adding/removing dependencies
 /update-memory "conventions"     # After establishing new patterns or refactoring
 /update-memory "architecture"    # After architectural changes or ADR additions
@@ -33,66 +33,44 @@ Break the update workflow into independent, parallelizable sub-tasks:
 
 **Sub-task 1.1: Parse and validate aspect argument**
 
-```bash
-ASPECT="$ARGUMENTS"
+Validate aspect argument against supported values:
 
-case "$ASPECT" in
-  tech-stack|conventions|architecture|features|project-context|all)
-    # Valid aspect
-    ;;
-  *)
-    echo "Error: Unknown aspect '$ASPECT'"
-    echo "Supported aspects: tech-stack, conventions, architecture, features, project-context, all"
-    exit 1
-    ;;
-esac
-```
+- tech-stack
+- conventions
+- architecture
+- features
+- project-context
+- all
+
+If invalid, report error with supported options.
 
 **Sub-task 1.2: Map aspect to artifact filename**
 
-```bash
-case "$ASPECT" in
-  tech-stack)      ARTIFACT_FILE="tech-stack-baseline.md" ;;
-  conventions)     ARTIFACT_FILE="coding-conventions.md" ;;
-  architecture)    ARTIFACT_FILE="architecture-decisions.md" ;;
-  features)        ARTIFACT_FILE="feature-inventory.md" ;;
-  project-context) ARTIFACT_FILE="project-context.md" ;;
-  all)             ARTIFACT_FILE="" ;;
-esac
-```
+Mapping:
+
+- tech-stack → tech-stack-baseline.md
+- conventions → coding-conventions.md
+- architecture → architecture-decisions.md
+- features → feature-inventory.md
+- project-context → project-context.md
+- all → (process all aspects sequentially)
 
 **Sub-task 1.3: Handle "all" aspect with sequential delegation**
 
-```bash
-if [ "$ASPECT" = "all" ]; then
-  for CURRENT_ASPECT in tech-stack conventions architecture features project-context; do
-    /update-memory "$CURRENT_ASPECT"
-  done
-  exit 0
-fi
-```
+If aspect is "all", sequentially invoke update for each individual aspect:
+tech-stack, conventions, architecture, features, project-context
 
 ### Task 2: Load Existing Artifact and Validate Preconditions
 
 **Sub-task 2.1: Check artifact existence**
 
-```bash
-ARTIFACT_PATH=".claude/memory/$ARTIFACT_FILE"
-
-if [ ! -f "$ARTIFACT_PATH" ]; then
-  echo "Error: Cannot update non-existent artifact: $ARTIFACT_FILE"
-  echo "Recommendation: Run /generate-memory first to create initial artifacts"
-  exit 1
-fi
-```
+Check if artifact file exists at `.claude/memory/{ARTIFACT_FILE}`.
+If not found, report error and recommend running `/generate-memory` first.
 
 **Sub-task 2.2: Load artifact for baseline comparison**
 
-Store current artifact state for diff generation:
-
-```bash
-code-tools read_file --path "$ARTIFACT_PATH" > /tmp/old-artifact-$ASPECT.md
-```
+Use Read tool to load current artifact state from `.claude/memory/{ARTIFACT_FILE}` for diff generation.
+Store content as baseline for comparison.
 
 **Sub-task 2.3: Parse artifact structure**
 
@@ -126,15 +104,15 @@ Perform incremental tech stack analysis for memory update.
 **Scope**: Technology dependencies and stack baseline only
 
 **Focus**:
-- Package dependencies (package.json, requirements.txt, go.mod, etc.)
+- Package dependencies (detect dependency files: package.json, requirements.txt, go.mod, Cargo.toml, composer.json, etc.)
 - Framework versions and configurations
 - Database systems and versions
 - External service integrations
 - Build tools and CI/CD
 
 **Comparison Context**:
-Load existing tech-stack-baseline.md:
-{Paste old artifact content from /tmp/old-artifact-tech-stack.md}
+Load existing tech-stack-baseline.md using Read tool:
+{Paste old artifact content from baseline}
 
 **Output Requirements**:
 1. Generate fresh tech stack analysis using same structure as existing artifact
@@ -167,16 +145,16 @@ Perform incremental coding conventions analysis for memory update.
 - Import/export styles
 
 **Comparison Context**:
-Load existing coding-conventions.md:
-{Paste old artifact content from /tmp/old-artifact-conventions.md}
+Load existing coding-conventions.md using Read tool:
+{Paste old artifact content from baseline}
 
 **Pattern Mining Integration**:
 If pattern mining reports exist, use them:
-- code-tools list_dir --path .claude/memory --depth 1 | grep "pattern-analysis"
-- Load pattern-analysis-*.md files for quantitative data
+- Use Glob tool to find pattern analysis files: pattern="pattern-analysis-*.md" in .claude/memory/
+- Load pattern-analysis-*.md files using Read tool for quantitative data
 
 **Output Requirements**:
-1. Re-analyze patterns with fresh grep/glob searches
+1. Re-analyze patterns using Grep and Glob tools
 2. Update percentages if conformance changed
 3. Note new patterns detected
 4. Preserve convention text unless dominant pattern shifted
@@ -204,12 +182,12 @@ Perform incremental architecture analysis for memory update.
 - Architectural constraints
 
 **Comparison Context**:
-Load existing architecture-decisions.md:
-{Paste old artifact content from /tmp/old-artifact-architecture.md}
+Load existing architecture-decisions.md using Read tool:
+{Paste old artifact content from baseline}
 
 **Output Requirements**:
 1. Re-analyze system architecture with fresh analysis
-2. Identify new ADRs (check docs/ or ADR directory)
+2. Identify new ADRs using Glob tool (check docs/, ADR directory, common ADR locations)
 3. Detect refactoring that changes architecture
 4. Preserve existing ADRs unless superseded
 5. Note architectural evolution (old → new)
@@ -236,15 +214,17 @@ Perform incremental feature inventory analysis for memory update.
 - Completed vs in-progress features
 
 **Comparison Context**:
-Load existing feature-inventory.md:
-{Paste old artifact content from /tmp/old-artifact-features.md}
+Load existing feature-inventory.md using Read tool:
+{Paste old artifact content from baseline}
 
 **Cross-Reference**:
-Check for feature-specific artifacts:
-- code-tools list_dir --path .claude/memory --depth 1 | grep -E "requirements-|implementation-plan-|implementation-summary-"
+Check for feature-specific artifacts using Glob tool:
+- Search pattern: "requirements-*.md" in .claude/memory/
+- Search pattern: "implementation-plan-*.md" in .claude/memory/
+- Search pattern: "implementation-summary-*.md" in .claude/memory/
 
 **Output Requirements**:
-1. Re-scan codebase for feature modules
+1. Re-scan codebase for feature modules using Glob tool
 2. Add new features completed since last update
 3. Mark deprecated/removed features
 4. Update feature status (in-progress → complete)
@@ -272,15 +252,15 @@ Perform incremental project context analysis for memory update.
 - Project maturity and status
 
 **Comparison Context**:
-Load existing project-context.md:
-{Paste old artifact content from /tmp/old-artifact-project-context.md}
+Load existing project-context.md using Read tool:
+{Paste old artifact content from baseline}
 
 **Output Requirements**:
-1. Re-analyze project README, docs, package.json metadata
+1. Re-analyze project README, docs, and dependency file metadata using Read tool
 2. Update technology stack summary if major changes
 3. Refresh project structure if directory layout changed
 4. Preserve project purpose unless pivoted
-5. Note significant milestones (if git tags or releases)
+5. Note significant milestones (check for version tags or release notes)
 
 **Change Detection**:
 - Project description updates (README changes)
@@ -291,10 +271,7 @@ Load existing project-context.md:
 
 **Sub-task 3.3: Store re-analysis output**
 
-```bash
-# Store new analysis for diff generation
-{agent_output} > /tmp/new-artifact-$ASPECT.md
-```
+Store new analysis output for diff generation and comparison.
 
 ### Task 4: Generate Diff and Detect Changes
 
@@ -379,7 +356,7 @@ For each section in (old_sections ∪ new_sections):
 
     <removed_section id="{section_name}">
       <old_content>{Content removed}</old_content>
-      <reason>{Why removed - e.g., "Dependency removed from package.json"}</reason>
+      <reason>{Why removed - e.g., "Dependency removed from dependency file"}</reason>
     </removed_section>
   </changes>
 
@@ -467,18 +444,13 @@ For each section:
 
 **Sub-task 5.3: Write updated artifact**
 
-```bash
-code-tools edit_file \
-  --file "$ARTIFACT_PATH" \
-  --patch @- <<EOF
-{Generate patch that:
-1. Updates Last Updated timestamp
-2. Adds changelog entry
-3. Merges changed sections
-4. Preserves unchanged sections
-5. Adds update history row}
-EOF
-```
+Use Edit or Write tool to update artifact file at `.claude/memory/{ARTIFACT_FILE}` with:
+
+1. Updated Last Updated timestamp
+2. New changelog entry
+3. Merged changed sections
+4. Preserved unchanged sections
+5. New update history row
 
 ### Task 6: Chain of Verification
 
@@ -498,7 +470,7 @@ Before finalizing, systematically verify the update:
 
 **Verification Question 3**: Are confidence levels accurately assigned?
 
-- Check: HIGH confidence only for direct evidence (file contents, package.json)
+- Check: HIGH confidence only for direct evidence (file contents, dependency files)
 - Check: MEDIUM confidence for inferred patterns
 - Check: LOW confidence for speculative analysis
 
@@ -581,7 +553,7 @@ If >3 HIGH-confidence conflicts detected:
 | Old HIGH confidence, new MEDIUM/LOW contradicts                   | FLAG      | Requires manual review       |
 | Section out of scope for current aspect                           | PRESERVE  | Prevent scope creep          |
 | Section changed with equal/higher confidence                      | OVERWRITE | New evidence supersedes      |
-| Evidence shows clear change (e.g., dependency in package.json)    | OVERWRITE | Verifiable change            |
+| Evidence shows clear change (e.g., dependency in dependency file) | OVERWRITE | Verifiable change            |
 | List section with items added/removed                             | MERGE     | Combine old + new            |
 | HIGH confidence old vs HIGH confidence new (different conclusion) | FLAG      | Conflict requires resolution |
 | Significant change (>50% of section modified)                     | FLAG      | Review before overwriting    |
@@ -590,7 +562,7 @@ If >3 HIGH-confidence conflicts detected:
 
 **HIGH Confidence** (evidence-based, verifiable):
 
-- Extracted from file contents (package.json, README.md, source code)
+- Extracted from file contents (dependency files, README.md, source code)
 - Direct observation (file exists, function defined, import present)
 - Quantitative data (X% conformance from pattern mining)
 
@@ -614,7 +586,7 @@ If >3 HIGH-confidence conflicts detected:
 
 3. **No Scope Drift**: Only analyze and update specified aspect. Do NOT update unrelated sections "while we're at it".
 
-4. **Cite Re-Analysis Method**: For each change, note how it was detected (e.g., "grep found new dependency", "package.json line 45 added").
+4. **Cite Re-Analysis Method**: For each change, note how it was detected (e.g., "Grep tool found new dependency", "dependency file line 45 added").
 
 5. **Conflict Transparency**: If old and new contradict, do NOT silently overwrite. Flag conflict with both versions.
 

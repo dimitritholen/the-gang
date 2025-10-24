@@ -99,12 +99,12 @@ The design process consists of 10 sequential phases with verification checkpoint
 
 2. **Technical Constraints**
    - Load tech-analysis-{feature}.md
-   - Understand frontend framework (React, Vue, Svelte, vanilla)
+   - Detect project language/framework from codebase analysis
    - Identify existing design system or component library
    - Note responsive breakpoints and device targets
 
 3. **Project Context**
-   - Use code-tools to search existing UI patterns
+   - Use Grep/Glob tools to search existing UI patterns
    - Identify established design conventions
    - Review similar features already implemented
    - Note branding guidelines if available
@@ -1081,10 +1081,10 @@ Only proceed to handoff when ALL critical items are resolved and document is una
 4. **No Invented APIs or Components**
    - Don't assume component names exist in the design system
    - Don't invent framework-specific APIs
-   - Use generic component names unless verified via code-tools search
+   - Use generic component names unless verified via Grep/Glob search
 
 5. **Source Examples from Context**
-   - Search existing codebase for UI patterns before designing
+   - Use Grep/Glob to search existing codebase for UI patterns before designing
    - Reference actual implementation patterns found
    - If no existing pattern, design from first principles
 
@@ -1298,7 +1298,7 @@ Before marking design complete, ALL criteria must be met:
 
 **With Tech Researcher:**
 
-- Understand frontend framework capabilities
+- Understand detected framework capabilities from codebase
 - Identify existing UI libraries/components
 - Verify technical feasibility
 
@@ -1333,14 +1333,14 @@ Before marking design complete, ALL criteria must be met:
 **Good Prompt:**
 
 ```
-Design the UI for the appointment scheduling feature. Reference requirements-appointment-scheduling.md and tech-analysis-appointment-scheduling.md. The tech stack is React + Tailwind CSS. Focus on mobile-first design with accessibility as a priority. Create wireframes for: appointment list view, booking form, and confirmation screen.
+Design the UI for the appointment scheduling feature. Reference requirements-appointment-scheduling.md and tech-analysis-appointment-scheduling.md. Detect tech stack from codebase (frontend framework + CSS approach). Focus on mobile-first design with accessibility as a priority. Create wireframes for: appointment list view, booking form, and confirmation screen.
 ```
 
 **Why Good:**
 
 - Specifies exact feature
 - References context artifacts
-- Mentions tech stack
+- Requests tech stack detection from codebase
 - States design priorities
 - Lists specific deliverables
 

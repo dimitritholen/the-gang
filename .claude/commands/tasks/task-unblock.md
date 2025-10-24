@@ -280,6 +280,21 @@ Expected response:
 }
 ```
 
+## Tool Usage Guidelines
+
+This command focuses on workflow orchestration and verification. When examining task files, manifests, or project structure:
+
+- Use **Read** tool for known file paths (.tasks/{feature}/{task}.xml, manifests)
+- Use **Glob** tool for discovering task files by pattern (e.g., "\*.xml" in task directories)
+- Use **Grep** tool for searching task content (e.g., finding blocked tasks, blocker reasons)
+- Avoid terminal commands (grep, find, jq) - use native code tools instead
+
+Language/framework detection:
+
+- Do NOT hardcode assumptions about project language or framework
+- Detect from project files (package.json, requirements.txt, Cargo.toml, etc.)
+- Use prompts like "detected language" or "project framework" in workflows
+
 ## Related Commands
 
 - `/task-block {task} {feature} "reason"` - Block a task with reason

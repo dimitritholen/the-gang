@@ -25,7 +25,7 @@ Example: `/task-block T02 01-user-authentication "Missing API credentials"`
 ## Output Format
 
 ```
-Task Blocked: {TASK_ID} - {TASK_TITLE} 🚫
+Task Blocked: {TASK_ID} - {TASK_TITLE} [BLOCKED]
 
 Feature: {FEATURE_ID}-{FEATURE_SLUG}
 Blocked: {DATE_TIME}
@@ -57,7 +57,7 @@ Alternative Work:
   No other tasks can proceed. Focus on resolving this blocker.
 
 Feature Progress: {N}/{TOTAL} tasks
-⚠️  1 task blocked
+[WARNING] 1 task blocked
 ━━━━━━━━ {XX}%
 ```
 

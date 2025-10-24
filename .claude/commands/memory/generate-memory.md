@@ -29,8 +29,8 @@ Generate 5 memory artifacts documenting:
 **Optional**:
 
 - Git repository (for commit history analysis)
-- Package manifests (package.json, requirements.txt, etc.)
-- Configuration files (tsconfig, eslint, etc.)
+- Package manifests (package.json, requirements.txt, Cargo.toml, go.mod, pom.xml, etc.)
+- Configuration files (language/framework-specific linters, formatters, build configs)
 
 </instructions>
 
@@ -88,23 +88,18 @@ fi
 
 **Sub-task 1.2: Detect Codebase Type**
 
-Use Glob and Grep to:
+Use Glob and Grep tools to:
 
-- Check if monorepo (pnpm-workspace.yaml, lerna.json, nx.json)
+- Check if monorepo (pnpm-workspace.yaml, lerna.json, nx.json, Cargo.toml workspace, etc.)
 - Check if microservices (multiple service directories)
 - Detect primary language (count file extensions)
 - Estimate size (LOC, file count)
 
-```bash
-# Detect project type
-glob pattern="package.json" path="."
-glob pattern="**/package.json" path="."
+Use Glob tool for file pattern discovery:
 
-# Detect languages
-glob pattern="**/*.ts" path="."
-glob pattern="**/*.py" path="."
-glob pattern="**/*.java" path="."
-```
+- Search for configuration files indicating project type
+- Count files by extension to determine language distribution
+- Identify build/package manifests across ecosystems
 
 **Sub-task 1.3: Present Scope Summary**
 
@@ -114,7 +109,7 @@ Output:
 ## Codebase Scope Detected
 
 **Type**: [Monorepo|Microservices|Monolith]
-**Languages**: [Primary language] ([X]%), [Secondary] ([Y]%)
+**Languages**: [Detected primary language] ([X]%), [Secondary] ([Y]%)
 **Size**: ~[X] LOC across [Y] files
 **Packages**: [N] ([list package names])
 
@@ -539,18 +534,11 @@ fi
 
 **Sub-task 4.1.2: Content Quality Validation**
 
-```bash
-# Check for evidence citations
-grep -c "According to" .claude/memory/*.md
-grep -c "Evidence:" .claude/memory/*.md
+Use Grep tool to validate artifact quality:
 
-# Check for confidence levels
-grep -c "Confidence: High" .claude/memory/*.md
-grep -c "Confidence: Medium" .claude/memory/*.md
-
-# Check for placeholders
-grep "TODO\|FIXME\|XXX" .claude/memory/*.md
-```
+- Check for evidence citations ("According to", "Evidence:")
+- Check for confidence levels ("Confidence: High", "Confidence: Medium")
+- Detect placeholders (TODO, FIXME, XXX)
 
 #### Sub-task 4.2: Generate Summary Report
 
@@ -597,7 +585,7 @@ Present comprehensive summary:
 ### Key Findings
 
 **Architecture**: [Pattern detected]
-**Dominant Language**: [Language] ([X]% of code)
+**Dominant Language**: [Detected language] ([X]% of code)
 **Testing Coverage**: [X]% (estimated)
 **Code Quality**: [High | Medium | Low]
 **Consistency Score**: [X]% across naming, style, patterns

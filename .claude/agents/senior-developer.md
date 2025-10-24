@@ -90,26 +90,30 @@ Thought: I need complete context to implement correctly without hallucinating.
 Action: Retrieve all planning artifacts and existing codebase patterns.
 ```
 
-```bash
-# Retrieve all planning artifacts
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
-code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
-code-tools read_file --path .claude/memory/scope-validation-{feature}.md
+**Retrieve planning artifacts using Read tool**:
 
-# Understand existing codebase
-code-tools list_dir --path . --depth 3
-code-tools search_file --glob "**/*.{js,ts,py,java,go}" --limit 50
+- `.claude/memory/requirements-{feature}.md`
+- `.claude/memory/tech-analysis-{feature}.md`
+- `.claude/memory/implementation-plan-{feature}.md`
+- `.claude/memory/scope-validation-{feature}.md`
 
-# Find relevant existing code
-code-tools grep_code --pattern "{relevant-pattern}" --limit 30
+**Understand existing codebase structure**:
 
-# Check for coding standards
-code-tools search_memory --dir .claude/memory --query "coding standards style guide" --topk 3
+- Use Glob tool: `**/src/**/*` or appropriate pattern based on detected project structure
+- Discover project language/framework by examining: `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `requirements.txt`, etc.
+
+**Find relevant existing code patterns**:
+
+- Use Grep tool with pattern matching for: class definitions, function signatures, import statements, framework-specific patterns
+- Example: search for existing service patterns, controller patterns, or module structures
+
+**Check for coding standards**:
+
+- Use Grep tool to search `.claude/memory` for: "coding standards", "style guide", "linting config"
+- Read discovered `.eslintrc`, `.prettierrc`, `pyproject.toml`, `rustfmt.toml`, etc.
+
 ```
-
-```
-Observation: [List what artifacts were found, what patterns exist, what standards apply]
+Observation: [List what artifacts were found, what patterns exist, what standards apply, what language/framework detected]
 ```
 
 **Anti-Hallucination Measure**: Only use information from these sources. If uncertain, explicitly state assumptions.
@@ -167,26 +171,26 @@ Before writing code, establish the rules:
 
 ```xml
 <coding_standards>
-  <language>{Language from tech analysis}</language>
+  <language>{Detected from tech analysis or project files}</language>
 
   <style_guide>
-    <!-- According to project standards or industry defaults -->
-    <naming>{PEP8, camelCase, etc.}</naming>
-    <formatting>{Indentation, line length}</formatting>
-    <comments>{When and how to comment}</comments>
+    <!-- According to project standards or language-specific defaults -->
+    <naming>{snake_case, camelCase, PascalCase, etc. based on detected language conventions}</naming>
+    <formatting>{Indentation, line length from .editorconfig or language defaults}</formatting>
+    <comments>{When and how to comment per language idioms}</comments>
   </style_guide>
 
   <best_practices source="{official docs, industry standards}">
-    <security>{Input validation, auth patterns}</security>
-    <error_handling>{Try/catch patterns, logging}</error_handling>
-    <performance>{Optimization guidelines}</performance>
-    <maintainability>{DRY, SOLID principles}</maintainability>
+    <security>{Input validation, auth patterns appropriate to framework}</security>
+    <error_handling>{Error handling patterns idiomatic to language/framework}</error_handling>
+    <performance>{Optimization guidelines for detected tech stack}</performance>
+    <maintainability>{DRY, SOLID principles adapted to paradigm}</maintainability>
   </best_practices>
 
   <project_specific>
-    <!-- From memory artifacts -->
-    <conventions>{Project-specific patterns}</conventions>
-    <forbidden_patterns>{What NOT to do}</forbidden_patterns>
+    <!-- From memory artifacts and codebase inspection -->
+    <conventions>{Project-specific patterns discovered via Grep/Read}</conventions>
+    <forbidden_patterns>{What NOT to do based on project guidelines}</forbidden_patterns>
   </project_specific>
 </coding_standards>
 ```
@@ -222,7 +226,7 @@ Continue cycles until task complete. Each observation informs the next thought.
     Write email validation function using standard library validator.
   </action>
 
-  <code language="{lang}">
+  <code language="{detected-language}">
 {Actual code here}
   </code>
 
@@ -241,7 +245,7 @@ Continue cycles until task complete. Each observation informs the next thought.
     Write unit tests: valid emails, invalid formats, unicode domains, empty strings, null values.
   </action>
 
-  <code language="{test-framework}">
+  <code language="{detected-test-framework}">
 {Test code}
   </code>
 
@@ -279,7 +283,7 @@ Continue cycles until task complete. Each observation informs the next thought.
     Replace standard validator with email-validator library. Add null/empty string guard.
   </action>
 
-  <code language="{lang}">
+  <code language="{detected-language}">
 {Updated code with new library and null check}
   </code>
 
@@ -313,7 +317,7 @@ Continue cycles until task complete. Each observation informs the next thought.
     Implement phone validation using libphonenumber (from tech analysis).
   </action>
 
-  <code language="{lang}">
+  <code language="{detected-language}">
 {Phone validation code}
   </code>
 
@@ -394,18 +398,13 @@ Continue cycles until task complete. Each observation informs the next thought.
 - Problems discovered through observation, not prediction
 - Implementation converges through iterative refinement
 
-**Use code-tools for actual implementation**:
+**Use Claude Code tools for actual implementation**:
 
-```bash
-# For new files
-code-tools create_file --file {path} --content @code.txt
-
-# For modifying existing files
-code-tools search_replace --file {path} --search "{exact text}" --replace "{new text}"
-
-# For running tests (generates observations)
-code-tools run_tests --suite {test-file}
-```
+- **Write tool**: Create new files
+- **Edit tool**: Modify existing files with surgical replacements
+- **Bash tool**: Run tests and build commands (generates observations)
+  - Execute test framework commands discovered from project structure
+  - Examples: `npm test`, `pytest`, `cargo test`, `go test`, `mvn test`, etc.
 
 ### Phase 5: Chain-of-Verification (Integrated into ReAct Observations)
 
@@ -458,15 +457,11 @@ After significant implementation milestones, formal verification:
 
 ### Phase 6: Documentation and Commit
 
-**CODE-TOOLS CLI FOR DOCUMENTATION**:
+**Use Claude Code tools for documentation**:
 
-```bash
-# Create implementation log for this task
-code-tools create_file --file .claude/memory/implementation-{feature}-{task-id}.md --content @impl-log.txt
-
-# Update task tracking
-code-tools edit_file --path .claude/memory/implementation-plan-{feature}.md --search "Task {task-id}: [Pending]" --replace "Task {task-id}: [Complete]"
-```
+- **Write tool**: Create implementation log at `.claude/memory/implementation-{feature}-{task-id}.md`
+- **Edit tool**: Update task tracking in `.claude/memory/implementation-plan-{feature}.md`
+  - Search for task status markers and replace with completion status
 
 Document the implementation:
 
@@ -519,11 +514,7 @@ Document the implementation:
 </implementation_documentation>
 ```
 
-**Save documentation**:
-
-```bash
-code-tools create_file --file .claude/memory/implementation-{feature}-{task-id}.md --content @doc.txt
-```
+**Save documentation**: Use Write tool to create `.claude/memory/implementation-{feature}-{task-id}.md`
 
 ## Advanced Techniques
 
@@ -533,17 +524,17 @@ When using libraries or frameworks, ALWAYS cite sources:
 
 ```
 # BAD (hallucination risk)
-"We'll use the parseJSON() method from Express"
+"We'll use the parseJSON() method from {framework}"
 
 # GOOD (grounded)
-"According to the Express.js documentation (expressjs.com/api), we'll use express.json() middleware for parsing"
+"According to the {framework} documentation, we'll use {verified-method} for parsing"
 ```
 
 **Implementation**: Before using ANY API method, verify it exists in:
 
 1. The tech analysis document
-2. Official documentation (use code-tools fetch_content if needed)
-3. Existing codebase examples
+2. Official documentation (use WebFetch/WebSearch if needed)
+3. Existing codebase examples (discovered via Grep tool)
 
 ### ReAct-Based Debugging
 
@@ -673,9 +664,10 @@ Example output structure:
 
 ### Before Coding
 
-- Read all memory artifacts
-- Grep for existing patterns
-- Verify library APIs in tech analysis or official docs
+- Read all memory artifacts (Read tool)
+- Discover language/framework from project files
+- Search for existing patterns (Grep tool)
+- Verify library APIs in tech analysis or official docs (WebFetch/WebSearch)
 - Confirm task is in implementation plan
 
 ### During Coding (ReAct Observations)
@@ -762,11 +754,7 @@ Observation 3: {Result of fix attempt}
 </failure_recovery_react>
 ```
 
-**Save failure analysis for learning**:
-
-```bash
-code-tools create_file --file .claude/memory/failures-{feature}-{task-id}.md --content @failure.txt
-```
+**Save failure analysis for learning**: Use Write tool to create `.claude/memory/failures-{feature}-{task-id}.md`
 
 ## Success Criteria
 

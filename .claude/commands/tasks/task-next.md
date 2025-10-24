@@ -1,9 +1,9 @@
 ---
-allowed-tools: Bash(code-tools:*)
+allowed-tools: Bash(code-tools:*), Glob, Grep, Read
 description: Get the next task to work on
 ---
 
-You are helping the user identify the next task to work on.
+You are helping the user identify the next available task to work on.
 
 **Task**: Display detailed information about the next available task for a feature.
 
@@ -13,7 +13,7 @@ User provides: `/task-next {feature-id}-{slug}`
 
 ## Actions
 
-Use CLI tools for efficient task discovery:
+Use code tools and file system tools for efficient task discovery:
 
 ```bash
 # Feature slug from arguments
@@ -24,7 +24,7 @@ FEATURE_DIR=".tasks/${FEATURE_SLUG}"
 NEXT_TASK=$(code-tools find_next_task --manifest "${FEATURE_DIR}/manifest.json")
 
 # Check if task available
-HAS_NEXT=$(echo "$NEXT_TASK" | jq -r '.data.has_next')
+HAS_NEXT=$(echo "$NEXT_TASK" | code-tools extract_json_field --field 'data.has_next')
 
 if [ "$HAS_NEXT" = "false" ]; then
     # All tasks completed - show completion message
@@ -34,23 +34,26 @@ if [ "$HAS_NEXT" = "false" ]; then
 fi
 
 # Get next task details
-TASK_ID=$(echo "$NEXT_TASK" | jq -r '.data.task_id')
-TASK_FILE=$(echo "$NEXT_TASK" | jq -r '.data.task_file')
+TASK_ID=$(echo "$NEXT_TASK" | code-tools extract_json_field --field 'data.task_id')
+TASK_FILE=$(echo "$NEXT_TASK" | code-tools extract_json_field --field 'data.task_file')
+```
 
+**Alternative using file system tools**: Use Read tool to access task XML content and Grep tool to extract specific XML elements.
+
+```bash
 # Read task XML for full details
-TASK_XML=$(cat "$TASK_FILE")
+# Use Read tool with TASK_FILE path
 
-# Extract task details using simple parsing
-TITLE=$(echo "$TASK_XML" | grep -oP '<title>\K[^<]+')
-PRIORITY=$(echo "$TASK_XML" | grep -oP '<priority>\K[^<]+')
-COMPLEXITY=$(echo "$TASK_XML" | grep -oP '<complexity>\K[^<]+')
-ESTIMATE=$(echo "$TASK_XML" | grep -oP '<estimate hours="\K[^"]+')
+# Extract task details using Grep tool with XML patterns
+# TITLE: pattern '<title>([^<]+)</title>'
+# PRIORITY: pattern '<priority>([^<]+)</priority>'
+# COMPLEXITY: pattern '<complexity>([^<]+)</complexity>'
+# ESTIMATE: pattern '<estimate hours="([^"]+)"'
 
 # Get feature metadata
-FEATURE_DATA=$(echo "$MANIFEST_DATA" | jq -r '.data.manifest.feature')
-FEATURE_NAME=$(echo "$FEATURE_DATA" | jq -r '.name')
-
-# Display full task details using Output Format below
+# Use code-tools or Read tool to access manifest.json
+# FEATURE_DATA: extract from manifest using code-tools extract_json_field
+# FEATURE_NAME: extract 'data.manifest.feature.name'
 ```
 
 ## Output Format
@@ -73,11 +76,11 @@ Estimated: {N} hours (confidence: {HIGH|MEDIUM|LOW})
 ## Dependencies
 
 {If no dependencies:}
-✓ No dependencies - ready to start!
+Ready - no dependencies
 
 {If dependencies exist:}
-✓ {DEP1_ID} - {DEP1_TITLE} (completed {DATE})
-✓ {DEP2_ID} - {DEP2_TITLE} (completed {DATE})
+[x] {DEP1_ID} - {DEP1_TITLE} (completed {DATE})
+[x] {DEP2_ID} - {DEP2_TITLE} (completed {DATE})
 
 ## Acceptance Criteria
 
@@ -98,7 +101,7 @@ Estimated: {N} hours (confidence: {HIGH|MEDIUM|LOW})
 
 ## Risks & Mitigations
 
-⚠️  **{SEVERITY}**: {Risk description}
+WARNING - {SEVERITY}: {Risk description}
    Mitigation: {How to mitigate}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -115,7 +118,7 @@ Output will be saved to: .tasks/{NN}-{slug}/{TASK_ID}-output.md
 If nextTask is null:
 
 ```
-All Tasks Completed! 🎉
+All Tasks Completed
 
 Feature: {FEATURE_ID}-{FEATURE_SLUG}
 Status: COMPLETED
@@ -125,15 +128,15 @@ Completed: {DATE}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Completed Tasks:
-✓ {TASK_ID} - {TASK_TITLE} (completed {DATE})
-✓ {TASK_ID} - {TASK_TITLE} (completed {DATE})
-✓ {TASK_ID} - {TASK_TITLE} (completed {DATE})
+[x] {TASK_ID} - {TASK_TITLE} (completed {DATE})
+[x] {TASK_ID} - {TASK_TITLE} (completed {DATE})
+[x] {TASK_ID} - {TASK_TITLE} (completed {DATE})
 ...
 
 Feature deliverables:
-  📄 .tasks/{NN}-{slug}/requirements-{slug}.md
-  📄 .tasks/{NN}-{slug}/tech-analysis-{slug}.md
-  📁 {N} task outputs (TNN-output.md)
+  - .tasks/{NN}-{slug}/requirements-{slug}.md
+  - .tasks/{NN}-{slug}/tech-analysis-{slug}.md
+  - {N} task outputs (TNN-output.md)
 
 Next steps:
   - Review feature deliverables
@@ -153,14 +156,14 @@ Status: NOT_STARTED
 Dependencies: NOT MET
 
 Blocked By:
-  ⏳ {DEP1_ID} - {DEP1_TITLE} (status: IN_PROGRESS)
-  ⏸️  {DEP2_ID} - {DEP2_TITLE} (status: NOT_STARTED)
+  PENDING {DEP1_ID} - {DEP1_TITLE} (status: IN_PROGRESS)
+  PENDING {DEP2_ID} - {DEP2_TITLE} (status: NOT_STARTED)
 
 This task cannot start until the dependencies above are completed.
 
 Alternative tasks available:
   {If alternative tasks with met dependencies exist:}
-  → {ALT_TASK_ID} - {ALT_TASK_TITLE}
+  -> {ALT_TASK_ID} - {ALT_TASK_TITLE}
     Run: `/task-next {ALT_TASK_ID}`
 
   {If no alternatives:}

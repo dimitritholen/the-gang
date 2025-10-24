@@ -1,12 +1,12 @@
 ---
-allowed-tools: Task, Bash(code-tools:*), Read
+allowed-tools: Task, Read, Grep, Glob
 argument-hint: [feature-slug]
 description: Orchestrate scope validation and feature creep prevention by delegating to scope-guardian agent
 ---
 
 # Scope Validation Orchestrator
 
-**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
+**System date assertion**: Retrieve current system date before proceeding
 **Feature slug**: $ARGUMENTS
 
 Act as a scope validation orchestrator responsible for coordinating the scope management workflow and ensuring ruthless MVP prioritization.
@@ -91,19 +91,12 @@ Given this solves {user problem} as a {category} with {constraints}, MVP scope s
 
 **Task 1.2.1: Load existing artifacts**
 
-```bash
-# Load feature requirements
-code-tools read_file --path .claude/memory/requirements-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Requirements not found. Run /gather-requirements first."
+Use Read tool to load existing artifacts:
 
-# Load technology analysis
-code-tools read_file --path .claude/memory/tech-analysis-$ARGUMENTS.md 2>/dev/null || echo "WARN: Tech analysis not found. Limited scope validation possible."
-
-# Load implementation plan
-code-tools read_file --path .claude/memory/implementation-plan-$ARGUMENTS.md 2>/dev/null || echo "WARN: Implementation plan not found. Limited scope validation possible."
-
-# Search for related scope decisions
-code-tools search_memory --dir .claude/memory --query "$ARGUMENTS mvp scope priorities" --topk 5
-```
+- Read `.claude/memory/requirements-$ARGUMENTS.md` (ERROR if not found: "Requirements not found. Run /gather-requirements first.")
+- Read `.claude/memory/tech-analysis-$ARGUMENTS.md` (WARN if not found: "Tech analysis not found. Limited scope validation possible.")
+- Read `.claude/memory/implementation-plan-$ARGUMENTS.md` (WARN if not found: "Implementation plan not found. Limited scope validation possible.")
+- Use Grep to search for related scope decisions in `.claude/memory` with pattern containing feature slug and "mvp|scope|priorities"
 
 **Task 1.2.2: Extract and summarize context**
 
@@ -999,19 +992,11 @@ Verify evidence-based validation:
 
 **Task 4.1.1: Persist scope validation document**
 
-```bash
-# Write scope validation to memory
-code-tools create_file \
-  --file .claude/memory/scope-validation-$ARGUMENTS.md \
-  --content @- \
-  --add-last-line-newline <<EOF
-{Agent's scope validation document content}
-EOF
-```
+Use Write tool to create `.claude/memory/scope-validation-$ARGUMENTS.md` with agent's scope validation document content.
 
 **Task 4.1.2: Verify write success**
 
-Confirm file created and readable.
+Use Read tool to confirm file created and readable.
 
 **Deliverable 4.1**: Scope validation artifact at `.claude/memory/scope-validation-{slug}.md`
 

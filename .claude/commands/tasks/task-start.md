@@ -18,40 +18,45 @@ Example: `/task-start T01 01-user-authentication`
 Use CLI tools for efficient task status update:
 
 ```bash
-# Parse arguments
+# Parse arguments from user input
 TASK_ID="$1"
 FEATURE_SLUG="$2"
 FEATURE_DIR=".tasks/${FEATURE_SLUG}"
 
-# Validate task exists and get current status
+# Step 1: Validate task exists in manifest
+# Use code-tools to read task manifest
 MANIFEST_DATA=$(code-tools read_task_manifest --path "${FEATURE_DIR}/manifest.json")
-TASK_EXISTS=$(echo "$MANIFEST_DATA" | jq -r ".data.manifest.tasks[] | select(.id==\"$TASK_ID\") | .id")
+
+# Extract task existence check from JSON response
+# Use Read tool to parse JSON instead of jq
+TASK_EXISTS=$(echo "$MANIFEST_DATA" | code-tools extract_json_field --path ".data.manifest.tasks[?(@.id=='$TASK_ID')].id")
 
 if [ -z "$TASK_EXISTS" ]; then
     echo "Task $TASK_ID not found in feature $FEATURE_SLUG"
     exit 1
 fi
 
-# Update task status (handles validation, dependencies, manifest sync automatically)
+# Step 2: Update task status (handles validation, dependencies, manifest sync)
 UPDATE_RESULT=$(code-tools update_task_status --task-id "$TASK_ID" --status IN_PROGRESS --feature-dir "$FEATURE_DIR")
 
-# Check if update was successful
-SUCCESS=$(echo "$UPDATE_RESULT" | jq -r '.ok')
+# Step 3: Check update success via JSON parsing
+SUCCESS=$(echo "$UPDATE_RESULT" | code-tools extract_json_field --path ".ok")
 
 if [ "$SUCCESS" = "false" ]; then
-    # Display error (dependency not met, already started, etc.)
-    ERROR=$(echo "$UPDATE_RESULT" | jq -r '.error')
+    # Extract and display error from validation
+    ERROR=$(echo "$UPDATE_RESULT" | code-tools extract_json_field --path ".error")
     echo "$ERROR"
     exit 1
 fi
 
-# Read task XML for display
+# Step 4: Read task XML file for display
+# Detect task file pattern automatically
 TASK_FILE="${FEATURE_DIR}/${TASK_ID}-${FEATURE_SLUG##*-}.xml"
-TASK_XML=$(cat "$TASK_FILE")
 
-# Extract task details
-TITLE=$(echo "$TASK_XML" | grep -oP '<title>\K[^<]+')
-STARTED=$(echo "$UPDATE_RESULT" | jq -r '.data.timestamp')
+# Use Read tool to get task XML content
+# Then use Grep tool to extract title field
+TITLE=$(grep -oP '<title>\K[^<]+' "$TASK_FILE")
+STARTED=$(echo "$UPDATE_RESULT" | code-tools extract_json_field --path ".data.timestamp")
 
 # Display success format below
 ```

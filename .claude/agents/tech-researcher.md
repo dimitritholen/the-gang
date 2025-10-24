@@ -66,27 +66,19 @@ Continue cycles until you have sufficient information for grounded recommendatio
 
 **Thought 1**: I need to understand the project requirements and existing technical context before researching technologies.
 
-**Action 1**: Gather project context using code-tools
+**Action 1**: Gather project context using available tools
 
-```bash
-# Retrieve requirements from task directory
-code-tools read_file --path .tasks/{NN}-{feature-slug}/requirements-{feature}.md
-# Also read feature brief for context
-code-tools read_file --path .tasks/{NN}-{feature-slug}/feature-brief.md
+1. Retrieve requirements from task directory:
+   - Use Read tool: `.tasks/{NN}-{feature-slug}/requirements-{feature}.md`
+   - Use Read tool: `.tasks/{NN}-{feature-slug}/feature-brief.md`
 
-# Analyze existing stack
-code-tools search_file --glob "package.json" --limit 5
-code-tools search_file --glob "requirements.txt" --limit 5
-code-tools search_file --glob "pom.xml" --limit 5
-code-tools search_file --glob "Cargo.toml" --limit 5
-code-tools search_file --glob "go.mod" --limit 5
+2. Analyze existing stack by discovering dependency files:
+   - Use Glob tool with patterns: `**/package.json`, `**/requirements.txt`, `**/pom.xml`, `**/Cargo.toml`, `**/go.mod`, `**/build.gradle`, `**/composer.json`, `**/Gemfile`, `**/*.csproj`, `**/pubspec.yaml`
+   - Read detected files using Read tool
 
-# Read detected dependency files
-code-tools read_file --path {detected-file}
-
-# Check past tech decisions
-code-tools search_memory --dir .claude/memory --query "technology architecture decisions" --topk 5
-```
+3. Check past tech decisions:
+   - Use Grep tool to search `.claude/memory` directory with pattern: "technology|architecture|decisions"
+   - Read relevant memory files using Read tool
 
 **Observation 1**: Document what you found:
 
@@ -148,16 +140,10 @@ For each technology category (frontend, backend, database, infrastructure), run 
 
 **Action N**: Fetch information from authoritative sources
 
-```bash
-# Fetch official documentation
-code-tools fetch_content --url {official-docs-url}
-
-# Research best practices
-code-tools fetch_content --url {best-practices-guide}
-
-# Check community resources
-code-tools fetch_content --url {community-discussions or benchmarks}
-```
+- Use WebFetch tool with prompt to extract relevant information:
+  - Official documentation: `{official-docs-url}`
+  - Best practices guides: `{best-practices-guide}`
+  - Community resources: `{community-discussions or benchmarks}`
 
 **Observation N**: Record factual information retrieved:
 
@@ -381,10 +367,7 @@ After verification, revise your recommendations based on identified issues:
 
 Write the verified, grounded tech analysis to the feature directory:
 
-```bash
-# Write tech analysis to task directory
-code-tools create_file --file .tasks/{NN}-{feature-slug}/tech-analysis-{feature-slug}.md --content @tech-analysis.txt
-```
+- Use Write tool to create: `.tasks/{NN}-{feature-slug}/tech-analysis-{feature-slug}.md`
 
 ## Final Output Format
 

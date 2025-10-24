@@ -22,15 +22,12 @@ Transform the implementation plan into working, tested, production-ready code by
 
 ## Prerequisites Check
 
-Before starting implementation, verify all planning artifacts exist:
+Before starting implementation, verify all planning artifacts exist by reading:
 
-```bash
-# Check for required artifacts
-code-tools read_file --path .claude/memory/requirements-$1.md
-code-tools read_file --path .claude/memory/tech-analysis-$1.md
-code-tools read_file --path .claude/memory/implementation-plan-$1.md
-code-tools read_file --path .claude/memory/scope-validation-$1.md
-```
+- `.claude/memory/requirements-$1.md`
+- `.claude/memory/tech-analysis-$1.md`
+- `.claude/memory/implementation-plan-$1.md`
+- `.claude/memory/scope-validation-$1.md`
 
 If ANY artifact is missing, **STOP** and run the appropriate planning command first:
 
@@ -78,7 +75,7 @@ Load ALL context into working memory:
   </scope_boundaries>
 
   <coding_standards>
-    {Language-specific standards}
+    {Detected language/framework standards}
     {Project conventions}
     {Security requirements}
   </coding_standards>
@@ -147,42 +144,35 @@ For EACH task in execution order:
 
 #### Step 3.2: Invoke Senior Developer with Full Context
 
-For each task, delegate to the senior-developer agent with **strict code-tools enforcement**:
+For each task, delegate to the senior-developer agent with **strict tool enforcement**:
 
-```bash
-# Use the Task tool to invoke senior-developer agent
-# The invocation MUST include explicit code-tools CLI requirements
-```
-
-**CRITICAL REQUIREMENT**: The senior-developer agent invocation **MUST** include the following code-tools enforcement:
+**CRITICAL REQUIREMENT**: The senior-developer agent invocation **MUST** include the following tool enforcement:
 
 ```
 You are implementing task {TASK-ID}: {TASK-NAME}
 
-**MANDATORY CODE-TOOLS USAGE**:
-You MUST use code-tools CLI for ALL file operations:
+**MANDATORY TOOL USAGE**:
+You MUST use Claude Code tools for ALL file operations:
 
 File Reading:
-  code-tools read_file --path {file-path}
+  Read tool for specific files
 
-File Creation:
-  code-tools create_file --file {file-path} --content @content.txt
-
-File Editing:
-  code-tools edit_file --path {file-path} --search "old-content" --replace "new-content"
+File Creation/Editing:
+  Write tool for new files
+  Edit tool for modifications
 
 Code Search:
-  code-tools grep_code --pattern "{search-pattern}" --limit 10
-  code-tools search_file --glob "*.{ext}" --limit 5
+  Grep tool with pattern matching
+  Glob tool for file pattern discovery
 
 Directory Listing:
-  code-tools list_dir --path {dir-path} --depth 2
+  Bash tool with ls (for structure only, not file content)
 
 Context Retrieval:
-  code-tools search_memory --dir .claude/memory --query "{search-terms}" --topk 5
+  Read tool for memory artifacts in .claude/memory
 
-**FORBIDDEN**: Direct bash file operations (cat, echo >, sed, awk for file editing)
-**EXCEPTION**: Test runners (npm test, pytest, go test) may use native commands
+**ALLOWED**: Test runners and build tools via Bash (detected from project)
+**FORBIDDEN**: Bash for reading/writing file content (cat, echo >, sed, awk for editing)
 
 Context artifacts:
 - Requirements: {path-to-requirements}
@@ -194,11 +184,11 @@ Context artifacts:
 
 The senior-developer agent will:
 
-1. **Chain-of-Thought Reasoning**: Plan the implementation approach using code-tools
-2. **Grounded Implementation**: Write code using only verified APIs/patterns via code-tools
+1. **Chain-of-Thought Reasoning**: Plan the implementation approach using allowed tools
+2. **Grounded Implementation**: Write code using only verified APIs/patterns
 3. **Chain-of-Verification**: Self-check the implementation
 4. **Automated Testing**: Generate and run tests
-5. **Documentation**: Create implementation log using code-tools
+5. **Documentation**: Create implementation log using Write tool
 
 **Pass to agent**:
 
@@ -207,7 +197,7 @@ The senior-developer agent will:
 - Dependencies outputs (if any)
 - Acceptance criteria
 - Coding standards
-- **Code-tools CLI enforcement requirements (above)**
+- **Tool enforcement requirements (above)**
 
 **Receive from agent**:
 
@@ -282,26 +272,20 @@ After agent completes task, run quality gates:
 
 #### Step 3.4: Integration Verification
 
-After quality gate passes:
+After quality gate passes, run integration tests using the detected test framework:
 
-```bash
-# Run integration tests if this task connects to other components
-code-tools run_tests --suite integration --filter "{feature-name}"
-
-# Verify the system still works end-to-end
-code-tools run_tests --suite e2e --filter "{critical-flows}"
-```
+- Use Bash tool to execute test command (e.g., `npm test`, `pytest`, `go test`)
+- Filter to integration and e2e suites if supported by framework
+- Verify critical flows still work
 
 **If integration tests fail**: Investigate and fix before marking task complete.
 
 #### Step 3.5: Task Completion Documentation
 
-```bash
-# Mark task as complete in tracking
-code-tools create_file --file .claude/memory/tasks-$1.md --content @task-status.txt
+Use Write tool to update task tracking:
 
-# Update: Task T-X: [Complete] {timestamp}
-```
+- Create/update `.claude/memory/tasks-$1.md`
+- Mark: Task T-X: [Complete] {timestamp}
 
 ### Phase 4: Cross-Phase Validation
 
@@ -435,11 +419,10 @@ After all tasks complete, comprehensive validation:
 
 ### Phase 6: Implementation Summary and Handoff
 
-Create comprehensive summary document:
+Create comprehensive summary document using Write tool:
 
-```bash
-code-tools create_file --file .claude/memory/implementation-summary-$1.md --content @summary.txt
-```
+- File: `.claude/memory/implementation-summary-$1.md`
+- Use structure below
 
 #### Summary Document Structure
 
@@ -461,7 +444,7 @@ code-tools create_file --file .claude/memory/implementation-summary-$1.md --cont
 
 ### Components Delivered
 
-1. **{Component Name}** ({Language/Framework})
+1. **{Component Name}** ({Detected Language/Framework})
    - Files: {List of files}
    - Purpose: {What it does}
    - Tests: {Test count}
@@ -596,13 +579,8 @@ Throughout implementation, enforce these safeguards:
 
 Before using ANY API method:
 
-```bash
-# Check if it exists in official docs
-code-tools fetch_content --url {official-docs-url} | grep "{method-name}"
-
-# Or check if it's used in existing codebase
-code-tools grep_code --pattern "{method-name}" --limit 10
-```
+- Use WebFetch tool to verify against official documentation
+- Use Grep tool to check if method exists in current codebase: pattern="{method-name}"
 
 **If not found**: It's likely a hallucination. Use alternative or verify first.
 

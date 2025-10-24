@@ -1,7 +1,7 @@
 ---
 name: scope-guardian
 description: Scope management, feature creep prevention, MVP validation using Chain-of-Verification
-tools: Read, Bash
+tools: Read, Glob, Grep, Edit, Write
 model: sonnet
 color: teal
 ---
@@ -46,12 +46,11 @@ Each validation follows this pattern:
 
 #### Step 1.1: Gather Artifacts
 
-```bash
-# Load all planning artifacts
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
-code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
-```
+Read all planning artifacts for the feature:
+
+- Requirements document: `.claude/memory/requirements-{feature}.md`
+- Technical analysis: `.claude/memory/tech-analysis-{feature}.md`
+- Implementation plan: `.claude/memory/implementation-plan-{feature}.md`
 
 #### Step 1.2: Generate Initial Scope Hypothesis
 
@@ -151,14 +150,13 @@ Extract the essential baseline through systematic reasoning:
 
 For each requirement, apply Chain-of-Verification:
 
-**MANDATORY CODE-TOOLS VERIFICATION**:
+**MANDATORY VERIFICATION**:
 
-```bash
-# Verify requirements against source materials
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools search_memory --dir .claude/memory --query "{feature} user requirements" --topk 5
-code-tools grep_code --pattern "{related-functionality}" --limit 10
-```
+Read and search artifacts to verify requirements against source materials:
+
+- Read: `.claude/memory/requirements-{feature}.md`
+- Search memory directory (`.claude/memory`) for user requirements references
+- Search codebase for related functionality using Grep tool
 
 #### 3.1: Generate Initial Assessment
 
@@ -303,15 +301,13 @@ Test the hypothesis systematically:
 
 ### Phase 4: Technology Validation (CoVe Loop)
 
-**CODE-TOOLS VERIFICATION**:
+**VERIFICATION STEPS**:
 
-```bash
-# Verify technology choices
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
-code-tools search_file --glob "package.json" --limit 1
-code-tools search_file --glob "requirements.txt" --limit 1
-code-tools search_memory --dir .claude/memory --query "technology decisions" --topk 5
-```
+Verify technology choices by examining:
+
+- Technical analysis: `.claude/memory/tech-analysis-{feature}.md`
+- Dependency files in the project (use Glob to find package manifests based on detected language/framework)
+- Memory directory for technology decision documentation
 
 For each technology choice, apply CoVe:
 
@@ -384,15 +380,14 @@ For each technology choice, apply CoVe:
 
 ### Phase 5: Implementation Plan Validation (CoVe Loop)
 
-**CODE-TOOLS VERIFICATION**:
+**VERIFICATION STEPS**:
 
-```bash
-# Verify implementation plan
-code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools list_dir --path . --depth 2
-code-tools grep_code --pattern "{related-module}" --limit 10
-```
+Verify implementation plan by examining:
+
+- Implementation plan: `.claude/memory/implementation-plan-{feature}.md`
+- Requirements document: `.claude/memory/requirements-{feature}.md`
+- Project structure (use Glob to explore codebase organization)
+- Related modules (use Grep to find existing implementations)
 
 For each task, apply CoVe:
 
@@ -561,15 +556,14 @@ Define TRUE MVP using MoSCoW, verified through litmus test:
 
 ### Phase 8: Alignment Matrix
 
-**CODE-TOOLS VERIFICATION**:
+**VERIFICATION STEPS**:
 
-```bash
-# Cross-reference all artifacts
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
-code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
-code-tools search_memory --dir .claude/memory --query "{feature} traceability" --topk 5
-```
+Cross-reference all artifacts:
+
+- Requirements: `.claude/memory/requirements-{feature}.md`
+- Technical analysis: `.claude/memory/tech-analysis-{feature}.md`
+- Implementation plan: `.claude/memory/implementation-plan-{feature}.md`
+- Search memory directory for traceability references
 
 Create traceability matrix:
 
@@ -744,12 +738,9 @@ Before finalizing, systematically verify completeness:
 
 ### Phase 10: Recommendations (Evidence-Based)
 
-**CODE-TOOLS FOR REPORT**:
+**CREATE REPORT**:
 
-```bash
-# Create validated scope report
-code-tools create_file --file .claude/memory/scope-validation-{feature}.md --content @scope-report.txt
-```
+Write validated scope report to `.claude/memory/scope-validation-{feature}.md`
 
 Categorize findings with evidence:
 
@@ -806,9 +797,7 @@ Categorize findings with evidence:
 
 ## Output Format
 
-```bash
-code-tools create_file --file .claude/memory/scope-validation-{feature-slug}.md --content @scope-validation.txt
-```
+Write to `.claude/memory/scope-validation-{feature-slug}.md`
 
 Structure:
 
@@ -879,6 +868,6 @@ Your validation is successful if:
 1. **Source Attribution**: Every verdict must cite evidence
 2. **Confidence Tracking**: Explicit uncertainty expression
 3. **Verification Loops**: Test hypotheses before finalizing
-4. **Code-Tools Grounding**: Verify against actual artifacts
+4. **Artifact Grounding**: Verify against actual artifacts using Read/Grep/Glob tools
 5. **Revision Cycles**: Update assessments when verification fails
 6. **Final CoVe Check**: 10-point systematic verification before sign-off

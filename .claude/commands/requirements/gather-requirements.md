@@ -66,15 +66,15 @@ Given this is a {domain} feature, I should ensure requirements cover:
 
 Check for existing context before delegating:
 
-```bash
-# Load existing project context
-code-tools read_file --path .claude/memory/project-context.md 2>/dev/null || echo "No project context found"
+```
+# Use Read tool for project context
+Read .claude/memory/project-context.md (if exists)
 
-# Search for related requirements
-code-tools search_memory --dir .claude/memory --query "$ARGUMENTS related feature requirements" --topk 5
+# Use Grep tool to search for related requirements
+Grep --pattern "related feature requirements|$ARGUMENTS" --path .claude/memory --output_mode content
 
-# Check for similar features
-code-tools list_dir --path .claude/memory --depth 1 | grep -E "requirements-.*\.md"
+# Use Glob tool to find similar features
+Glob --pattern "requirements-*.md" --path .claude/memory
 ```
 
 **Context Summary for Agent**:
@@ -107,7 +107,7 @@ This phase uses a two-pass workflow to enable interactive requirements gathering
 
 **Invoke requirements-analyst agent in question generation mode:**
 
-```bash
+```
 # Use Task tool to invoke agent
 Task(
   subagent_type="requirements-analyst",
@@ -123,10 +123,10 @@ Task(
 {Paste domain context and existing project context from Phase 1}
 
 **Instructions:**
-1. Read available documentation (docs/idea.md, .claude/memory/*)
+1. Use Read tool for documentation (docs/idea.md, .claude/memory/*)
 2. Apply Chain-of-Thought reasoning to understand domain
 3. Generate 20-30 questions following the 5-Level Framework
-4. Write questions to: .claude/memory/.tmp-questions-{feature-slug}.md
+4. Use Write tool to save: .claude/memory/.tmp-questions-{feature-slug}.md
 5. Use YAML format for easy parsing
 6. Return confirmation message with question count
 
@@ -144,20 +144,12 @@ Follow MODE 1 workflow in your agent instructions.
 
 **Read and parse questions file:**
 
-```bash
-# Extract feature slug
-FEATURE_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')
+```
+# Extract feature slug (transform to kebab-case)
+FEATURE_SLUG = {lowercase($ARGUMENTS) with spaces→hyphens, alphanumeric+hyphen only}
 
-# Read questions file
-QUESTIONS_FILE=".claude/memory/.tmp-questions-${FEATURE_SLUG}.md"
-
-if [ ! -f "$QUESTIONS_FILE" ]; then
-  echo "ERROR: Questions file not found at $QUESTIONS_FILE"
-  exit 1
-fi
-
-# Display questions to orchestrator for parsing
-cat "$QUESTIONS_FILE"
+# Use Read tool
+Read .claude/memory/.tmp-questions-{FEATURE_SLUG}.md
 ```
 
 **Parse YAML questions and present to user:**
@@ -196,36 +188,34 @@ Use AskUserQuestion tool with questions from level5_acceptance section
 
 **Write answers file:**
 
-```bash
-# Create answers file in YAML format
-cat > .claude/memory/.tmp-answers-${FEATURE_SLUG}.md <<EOF
+```
+# Use Write tool to create answers file in YAML format
+Write .claude/memory/.tmp-answers-{FEATURE_SLUG}.md:
+---
 # Answers for {Feature Name}
 # AUTO-DELETE after requirements generated
-# Answered: $(date +%Y-%m-%d)
+# Answered: {current-date}
 
 answers:
   purpose-01: "{User's answer to purpose-01}"
   purpose-02: "{User's answer to purpose-02}"
   functional-01: "{User's answer to functional-01}"
   # ... continue for all questions
-EOF
-
-echo "✓ Answers written to .claude/memory/.tmp-answers-${FEATURE_SLUG}.md"
+---
 ```
 
 **Cleanup Phase 2a artifacts:**
 
-```bash
-# Delete questions file (no longer needed)
-rm .claude/memory/.tmp-questions-${FEATURE_SLUG}.md
-echo "✓ Cleaned up temporary questions file"
+```
+# Delete questions file (no longer needed) - use Bash tool
+Bash: rm .claude/memory/.tmp-questions-{FEATURE_SLUG}.md
 ```
 
 #### Phase 2c: Requirements Generation (Agent Pass 2)
 
 **Invoke requirements-analyst agent in requirements generation mode:**
 
-```bash
+```
 # Use Task tool to invoke agent
 Task(
   subagent_type="requirements-analyst",
@@ -238,11 +228,11 @@ Task(
 **Task:** Generate comprehensive requirements document from user answers
 
 **Instructions:**
-1. Read answers from: .claude/memory/.tmp-answers-{feature-slug}.md
+1. Use Read tool for: .claude/memory/.tmp-answers-{feature-slug}.md
 2. Parse and analyze all user responses
 3. Apply Chain-of-Thought reasoning and Chain-of-Verification
 4. Generate complete requirements document
-5. Write to: .claude/memory/requirements-{feature-slug}.md
+5. Use Write tool to save: .claude/memory/requirements-{feature-slug}.md
 6. Return confirmation with summary statistics
 
 Follow MODE 2 workflow in your agent instructions.
@@ -263,22 +253,17 @@ Follow MODE 2 workflow in your agent instructions.
 
 **Cleanup Phase 2b artifacts:**
 
-```bash
-# Delete answers file (no longer needed)
-rm .claude/memory/.tmp-answers-${FEATURE_SLUG}.md
-echo "✓ Cleaned up temporary answers file"
+```
+# Delete answers file (no longer needed) - use Bash tool
+Bash: rm .claude/memory/.tmp-answers-{FEATURE_SLUG}.md
 ```
 
 **Verify final artifact:**
 
-```bash
-# Verify requirements document was created
-if [ ! -f ".claude/memory/requirements-${FEATURE_SLUG}.md" ]; then
-  echo "ERROR: Requirements document not found"
-  exit 1
-fi
-
-echo "✓ Requirements document verified at .claude/memory/requirements-${FEATURE_SLUG}.md"
+```
+# Use Glob tool to verify requirements document was created
+Glob --pattern "requirements-{FEATURE_SLUG}.md" --path .claude/memory
+# Should return exactly one match
 ```
 
 ### Phase 3: Validation
@@ -287,10 +272,9 @@ After requirements document is generated, perform validation:
 
 **Read and validate requirements document:**
 
-```bash
-# Read requirements document
-REQUIREMENTS_FILE=".claude/memory/requirements-${FEATURE_SLUG}.md"
-cat "$REQUIREMENTS_FILE"
+```
+# Use Read tool
+Read .claude/memory/requirements-{FEATURE_SLUG}.md
 ```
 
 **Validation Checklist**:
@@ -325,18 +309,20 @@ cat "$REQUIREMENTS_FILE"
 
 **If validation passes:**
 
-```bash
-echo "✅ Requirements validation passed"
-echo "✅ All temporary handoff files cleaned up"
-echo "✅ Requirements document ready: .claude/memory/requirements-${FEATURE_SLUG}.md"
+```
+Report:
+- Requirements validation passed
+- All temporary handoff files cleaned up
+- Requirements document ready: .claude/memory/requirements-{FEATURE_SLUG}.md
 ```
 
 **If validation fails:**
 
-```bash
-echo "❌ Validation failed: {specific issues}"
-echo "Action: Review requirements document and address issues"
-# Keep temporary files for debugging if validation fails
+```
+Report:
+- Validation failed: {specific issues}
+- Action: Review requirements document and address issues
+- Keep temporary files for debugging if validation fails
 ```
 
 ### Phase 4: Quality Gates and Completion
@@ -378,12 +364,12 @@ Before considering requirements complete, verify:
 **Present Summary to User**:
 
 ```
-✅ Requirements Gathering Complete
+Requirements Gathering Complete
 
-**Feature:** $ARGUMENTS
-**Artifact:** .claude/memory/requirements-{slug}.md
+Feature: $ARGUMENTS
+Artifact: .claude/memory/requirements-{slug}.md
 
-**Statistics:**
+Statistics:
 - Functional Requirements: {N}
 - Non-Functional Requirements: {N}
 - Constraints: {N}
@@ -391,12 +377,12 @@ Before considering requirements complete, verify:
 - Open Questions: {N}
 - Assumptions: {N}
 
-**Confidence:**
+Confidence:
 - High: {N}%
 - Medium: {N}%
 - Low: {N}%
 
-**Next Steps:**
+Next Steps:
 1. Review requirements document
 2. Resolve open questions if needed
 3. Run /research-tech {slug} for technology analysis
@@ -408,7 +394,7 @@ Before considering requirements complete, verify:
 
 ```
 If agent fails to generate questions:
-  - Check if docs/idea.md exists and is readable
+  - Use Read tool to verify docs/idea.md exists and is readable
   - Retry agent invocation with more explicit instructions
   - No cleanup needed (no files created yet)
 ```
@@ -467,19 +453,19 @@ If temporary files not deleted:
 
 Requirements gathering is successful when:
 
-- ✅ Agent successfully generated questions (Phase 2a)
-- ✅ All 20-30 questions asked to user (Phase 2b)
-- ✅ User provided answers to all questions (Phase 2b)
-- ✅ Agent successfully generated requirements document (Phase 2c)
-- ✅ All requirements are clear, testable, and unambiguous
-- ✅ No assumptions are undocumented
-- ✅ Acceptance criteria are measurable
-- ✅ Out-of-scope items are explicitly listed
-- ✅ MVP is clearly defined with MoSCoW
-- ✅ Domain-specific considerations included
-- ✅ Every requirement has source attribution
-- ✅ Temporary handoff files cleaned up
-- ✅ Final document at .claude/memory/requirements-{slug}.md
+- Agent successfully generated questions (Phase 2a)
+- All 20-30 questions asked to user (Phase 2b)
+- User provided answers to all questions (Phase 2b)
+- Agent successfully generated requirements document (Phase 2c)
+- All requirements are clear, testable, and unambiguous
+- No assumptions are undocumented
+- Acceptance criteria are measurable
+- Out-of-scope items are explicitly listed
+- MVP is clearly defined with MoSCoW
+- Domain-specific considerations included
+- Every requirement has source attribution
+- Temporary handoff files cleaned up
+- Final document at .claude/memory/requirements-{slug}.md
 
 ## Output
 

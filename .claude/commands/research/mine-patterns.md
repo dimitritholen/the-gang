@@ -1,12 +1,12 @@
 ---
-allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash
 argument-hint: --type [pattern-type]
 description: Extract and analyze recurring code patterns from codebase to document conventions and identify deviations
 ---
 
 # Pattern Mining Command
 
-**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
+**System date assertion**: Retrieve current system date before proceeding (via Bash tool if needed)
 
 Act as a code analysis specialist with expertise in pattern recognition, convention extraction, and codebase standardization.
 
@@ -29,6 +29,54 @@ Automatically identify dominant code patterns in specific areas (error handling,
 
 ## Task Decomposition
 
+### Task 0: Detect Language and Framework
+
+**Objective**: Identify project language and framework before pattern detection.
+
+**Sub-tasks**:
+
+0.1. Detect primary language
+
+- Use Glob to find language indicators:
+  - JavaScript/TypeScript: `**/package.json`, `**/*.{js,ts,jsx,tsx}`
+  - Python: `**/requirements.txt`, `**/setup.py`, `**/*.py`
+  - Go: `**/go.mod`, `**/*.go`
+  - Rust: `**/Cargo.toml`, `**/*.rs`
+  - Java: `**/pom.xml`, `**/build.gradle`, `**/*.java`
+  - C#: `**/*.csproj`, `**/*.cs`
+- Count files by extension to determine dominant language
+- Store in DETECTED_LANGUAGE variable
+
+  0.2. Detect framework (if applicable)
+
+- Read package.json/requirements.txt/etc. to identify frameworks
+- Common frameworks to detect:
+  - React, Vue, Svelte, Angular (JavaScript/TypeScript)
+  - FastAPI, Flask, Django (Python)
+  - Express, Fastify, Koa (Node.js)
+  - Gin, Echo, Chi (Go)
+  - Axum, Actix (Rust)
+- Store in DETECTED_FRAMEWORK variable
+
+  0.3. Determine source directories and exclusions
+
+- Language-specific source paths:
+  - JavaScript/TypeScript: src, lib, components, pages
+  - Python: src, app, lib
+  - Go: cmd, pkg, internal
+  - Rust: src
+  - Java: src/main/java
+- Language-specific exclusions:
+  - JavaScript/TypeScript: node_modules, dist, build
+  - Python: venv, **pycache**, .eggs
+  - Go: vendor, bin
+  - Rust: target
+  - Java: target, build
+
+**Output**: DETECTED_LANGUAGE, DETECTED_FRAMEWORK, source paths, exclusions
+
+---
+
 ### Task 1: Parse and Validate Arguments
 
 **Objective**: Extract pattern type from command arguments and validate against supported types.
@@ -48,25 +96,23 @@ Automatically identify dominant code patterns in specific areas (error handling,
 
 **Implementation**:
 
-```bash
-# Extract pattern type from arguments
-PATTERN_TYPE="$ARGUMENTS"
-# Remove --type prefix if present
-PATTERN_TYPE="${PATTERN_TYPE#--type }"
-PATTERN_TYPE="${PATTERN_TYPE#--type=}"
+Extract and validate pattern type:
 
-# Validate pattern type
-case "$PATTERN_TYPE" in
-  error-handling|state-management|api-design|testing-patterns|import-style|export-style|naming-conventions|styling-patterns)
-    # Valid pattern type
-    ;;
-  *)
-    echo "Error: Unknown pattern type '$PATTERN_TYPE'"
-    echo "Supported types: error-handling, state-management, api-design, testing-patterns, import-style, export-style, naming-conventions, styling-patterns"
-    exit 1
-    ;;
-esac
-```
+1. Parse arguments to extract pattern type (remove `--type` prefix if present)
+2. Validate against supported types list
+3. Exit with error message if invalid, showing list of supported types
+4. Store validated pattern type
+
+Supported types:
+
+- error-handling
+- state-management
+- api-design
+- testing-patterns
+- import-style
+- export-style
+- naming-conventions
+- styling-patterns
 
 **Output**: PATTERN_TYPE variable validated and ready for use
 
@@ -74,15 +120,23 @@ esac
 
 ### Task 2: Define Pattern Detection Strategy
 
-**Objective**: Configure grep/glob patterns specific to the requested pattern type.
+**Objective**: Configure search patterns specific to the requested pattern type.
+
+**Pre-requisite**: Detect project language/framework before defining patterns
+
+**Language Detection Strategy**:
+
+- Use Glob to find language indicators (package.json, requirements.txt, go.mod, Cargo.toml, etc.)
+- Read project files to determine dominant language and framework
+- Adapt pattern definitions based on detected ecosystem
 
 **Sub-tasks**:
 
 2.1. Load pattern-specific detection patterns
 
-- Map pattern type to search patterns
+- Map pattern type to search patterns for detected language/framework
 - Define regex patterns for each category
-- Specify file paths and extensions to scan
+- Specify file paths and extensions to scan (adapt to detected language)
 
   2.2. Configure category definitions
 
@@ -92,118 +146,195 @@ esac
 
   2.3. Set scope and exclusions
 
-- Include directories: src, lib, api, components, services
-- Exclude directories: node_modules, dist, build, coverage, .git
-- Filter by file types relevant to pattern
+- Include directories: src, lib, api, components, services (or language-specific equivalents)
+- Exclude directories: language-specific build/dependency dirs (node_modules, venv, target, dist, build, coverage, .git)
+- Filter by file types relevant to detected language and pattern
 
 **Pattern Definitions by Type**:
 
 #### Error Handling (error-handling)
 
-**Detection Patterns**:
+**Detection Patterns** (adapt based on detected language):
 
-```bash
-# Find catch blocks
-code-tools grep_code --pattern "catch\s*\(" --output-mode content -n --paths "src,lib"
+**Language-Agnostic Approach**:
 
-# Find throw statements
-code-tools grep_code --pattern "throw\s+" --output-mode content -n --paths "src,lib"
+1. Detect language first via Glob (_.js, _.py, _.go, _.rs, etc.)
+2. Adapt search patterns to language syntax
 
-# Find console.error
-code-tools grep_code --pattern "console\.error" --output-mode content -n --paths "src,lib"
+**Example Patterns by Language**:
 
-# Find toast/notification calls
-code-tools grep_code --pattern "toast\.|showNotification\(|alert\(" --output-mode content -n --paths "src,lib"
+JavaScript/TypeScript:
 
-# Find error logging
-code-tools grep_code --pattern "logger\.|log\.error|logError" --output-mode content -n --paths "src,lib"
-```
+- Grep pattern: `catch\s*\(` for catch blocks
+- Grep pattern: `throw\s+` for throw statements
+- Grep pattern: `console\.error` for console logging
+- Grep pattern: `toast\.|showNotification\(|alert\(` for notifications
+- Grep pattern: `logger\.|log\.error|logError` for structured logging
 
-**Categories**:
+Python:
 
-- toast-notification: User-facing error notifications (toast, modal, alert)
-- console-error: Browser console logging
-- throw-to-caller: Throw exception to calling function
+- Grep pattern: `except\s+` for exception handling
+- Grep pattern: `raise\s+` for raising exceptions
+- Grep pattern: `logging\.(error|exception)` for logging
+- Grep pattern: `print.*error` for console output
+
+Go:
+
+- Grep pattern: `if err != nil` for error checking
+- Grep pattern: `return.*err` for error propagation
+- Grep pattern: `log\.(Error|Fatal|Panic)` for logging
+
+Rust:
+
+- Grep pattern: `Result<` for Result types
+- Grep pattern: `\?` for error propagation operator
+- Grep pattern: `unwrap\(\)|expect\(` for panic patterns
+- Grep pattern: `match.*Err` for error matching
+
+**Categories** (adapt labels to detected language):
+
+- user-notification: User-facing error notifications
+- logging: Error logging to console/file/service
+- exception-propagation: Throw/raise/return error to caller
 - structured-logging: Structured logging to external service
-- return-error-object: Return error object instead of throwing
-- silent-catch: Empty catch block (anti-pattern)
+- error-value: Return error value/object (varies by language)
+- silent-error: Empty error handling (anti-pattern)
 
 #### State Management (state-management)
 
-**Detection Patterns**:
+**Detection Patterns** (adapt based on detected framework):
 
-```bash
-# Find useState hooks
-code-tools grep_code --pattern "useState\(" --output-mode content -n --paths "src"
+**Framework Detection Strategy**:
 
-# Find useContext
-code-tools grep_code --pattern "useContext\(" --output-mode content -n --paths "src"
+1. Use Glob to find framework indicators (package.json dependencies, imports)
+2. Detect if React, Vue, Svelte, Angular, or other framework
+3. Adapt patterns to framework-specific state management
 
-# Find Redux patterns
-code-tools grep_code --pattern "useSelector\(|useDispatch\(|createSlice" --output-mode content -n --paths "src"
+**Example Patterns by Framework**:
 
-# Find Zustand patterns
-code-tools grep_code --pattern "create\(.*set.*get|useStore" --output-mode content -n --paths "src"
+React:
 
-# Find Recoil patterns
-code-tools grep_code --pattern "useRecoilState\(|atom\(" --output-mode content -n --paths "src"
-```
+- Grep pattern: `useState\(` for local state
+- Grep pattern: `useContext\(` for context API
+- Grep pattern: `useSelector\(|useDispatch\(|createSlice` for Redux
+- Grep pattern: `create\(.*set.*get|useStore` for Zustand
+- Grep pattern: `useRecoilState\(|atom\(` for Recoil
 
-**Categories**:
+Vue:
 
-- local-useState: Component-local state via useState (scope: local)
-- context-api: Global state via React Context (scope: global)
-- redux: Redux/Redux Toolkit (scope: global)
-- zustand: Zustand state management (scope: global)
-- recoil: Recoil atoms (scope: global)
+- Grep pattern: `ref\(|reactive\(` for Vue 3 composition API
+- Grep pattern: `data\(\)` for Vue options API
+- Grep pattern: `pinia|defineStore` for Pinia
+- Grep pattern: `Vuex|createStore` for Vuex
+
+Svelte:
+
+- Grep pattern: `writable\(|readable\(` for stores
+- Grep pattern: `\$:` for reactive statements
+- Grep pattern: `let\s+\w+\s*=` for component state
+
+Angular:
+
+- Grep pattern: `@Input\(|@Output\(` for component props
+- Grep pattern: `BehaviorSubject|Subject` for RxJS state
+- Grep pattern: `@ngrx` for NgRx state management
+
+**Categories** (adapt to detected framework):
+
+- local-state: Component-local state (scope: local)
+- context-state: Shared state via context/provide-inject (scope: scoped)
+- global-store: Global state management library (scope: global)
+- reactive-primitives: Framework reactive primitives (scope: local)
+- observable-state: Observable-based state (RxJS, etc.) (scope: varies)
 
 #### API Design (api-design)
 
-**Detection Patterns**:
+**Detection Patterns** (adapt based on detected language/framework):
 
-```bash
-# Find API endpoints/routes
-code-tools grep_code --pattern "app\.(get|post|put|patch|delete|use)\(|router\.(get|post|put|patch|delete)" --output-mode content -n --paths "src,api"
+**Language/Framework Detection**:
 
-# Find API response patterns
-code-tools grep_code --pattern "res\.(json|send|status)" --output-mode content -n --paths "src,api"
+1. Use Glob to identify API framework (Express, FastAPI, Axum, Gin, etc.)
+2. Adapt patterns to framework-specific routing and response patterns
 
-# Find request validation
-code-tools grep_code --pattern "validate\(|schema\.|z\." --output-mode content -n --paths "src,api"
-```
+**Example Patterns by Framework**:
 
-**Categories**:
+Node.js (Express/Fastify/Koa):
+
+- Grep pattern: `app\.(get|post|put|patch|delete|use)\(|router\.(get|post|put|patch|delete)` for routes
+- Grep pattern: `res\.(json|send|status)` for responses
+- Grep pattern: `validate\(|schema\.|z\.` for validation
+
+Python (FastAPI/Flask/Django):
+
+- Grep pattern: `@app\.(get|post|put|patch|delete)|@router\.(get|post|put|patch|delete)` for routes
+- Grep pattern: `return.*JSONResponse|jsonify` for responses
+- Grep pattern: `pydantic|BaseModel|Schema` for validation
+
+Go (Gin/Echo/Chi):
+
+- Grep pattern: `router\.(GET|POST|PUT|PATCH|DELETE)|Handle\(` for routes
+- Grep pattern: `c\.JSON\(|ctx\.JSON\(` for responses
+- Grep pattern: `Bind\(|ShouldBind\(|validator` for validation
+
+Rust (Axum/Actix):
+
+- Grep pattern: `get\(|post\(|put\(|patch\(|delete\(` for routes
+- Grep pattern: `Json\(|HttpResponse` for responses
+- Grep pattern: `validate\(|Validate` for validation
+
+**Categories** (language-agnostic):
 
 - rest-versioned: Versioned REST endpoints (/api/v1/resource)
 - rest-unversioned: Unversioned REST endpoints (/api/resource)
 - graphql: GraphQL API
+- grpc: gRPC API
 - json-response: JSON response format
-- status-first: Status-first response pattern (res.status().json())
+- status-first: Status-first response pattern
 
 #### Testing Patterns (testing-patterns)
 
-**Detection Patterns**:
+**Detection Patterns** (adapt based on detected language/framework):
 
-```bash
-# Find test files
-code-tools search_file --glob "**/*.test.{ts,tsx,js,jsx}" --limit 100
-code-tools search_file --glob "**/*.spec.{ts,tsx,js,jsx}" --limit 100
+**Test Framework Detection**:
 
-# Find test framework usage
-code-tools grep_code --pattern "describe\(|it\(|test\(|expect\(" --output-mode content -n --type ts --type js
+1. Use Glob to find test files by extension/naming pattern
+2. Read test files to identify test framework (Jest, pytest, Go testing, etc.)
+3. Adapt patterns to framework-specific syntax
 
-# Find mocking patterns
-code-tools grep_code --pattern "jest\.mock\(|vi\.mock\(|mock\(|spy\(" --output-mode content -n --type ts --type js
-```
+**Example Patterns by Language**:
 
-**Categories**:
+JavaScript/TypeScript:
 
-- jest: Jest testing framework
-- vitest: Vitest testing framework
-- describe-it: Describe/it test structure
-- test-only: Test() only (no describe)
+- Glob pattern: `**/*.test.{ts,tsx,js,jsx}` or `**/*.spec.{ts,tsx,js,jsx}` for test files
+- Grep pattern: `describe\(|it\(|test\(|expect\(` for test structure
+- Grep pattern: `jest\.mock\(|vi\.mock\(|mock\(|spy\(` for mocking
+
+Python:
+
+- Glob pattern: `**/test_*.py` or `**/*_test.py` for test files
+- Grep pattern: `def test_|class Test` for test structure
+- Grep pattern: `@pytest\.|@mock\.|patch\(` for pytest/mocking
+
+Go:
+
+- Glob pattern: `**/*_test.go` for test files
+- Grep pattern: `func Test|t\.Run\(` for test structure
+- Grep pattern: `gomock|testify|assert` for test helpers
+
+Rust:
+
+- Grep pattern: `#\[test\]|#\[cfg\(test\)\]` for test modules
+- Grep pattern: `assert!|assert_eq!` for assertions
+- Grep pattern: `mock|MockTrait` for mocking
+
+**Categories** (adapt to detected language):
+
+- framework-primary: Dominant test framework detected
+- framework-secondary: Secondary test framework (if mixed)
+- describe-nested: Nested describe/context blocks
+- flat-tests: Flat test structure (no nesting)
 - file-colocated: Tests colocated with source files
-- file-separate: Tests in separate **tests** directory
+- file-separate: Tests in separate test directory
 
 **Output**: Detection strategy configured, ready for execution
 
@@ -235,26 +366,22 @@ code-tools grep_code --pattern "jest\.mock\(|vi\.mock\(|mock\(|spy\(" --output-m
 
 **Implementation Pattern**:
 
-```bash
-# Execute grep and store results
-code-tools grep_code --pattern "{pattern}" --output-mode content -n --paths "src,lib" > /tmp/pattern-results-$CATEGORY.txt
+Use Grep tool with appropriate parameters:
 
-# Count instances
-INSTANCE_COUNT=$(wc -l < /tmp/pattern-results-$CATEGORY.txt)
+- pattern: Detection regex for category
+- output_mode: "content" to capture matching lines
+- -n: Include line numbers
+- path: Detected source directories (varies by language)
 
-# Verify results
-if [ $INSTANCE_COUNT -eq 0 ]; then
-  echo "Warning: No instances found for category: $CATEGORY"
-fi
-```
+Store results for analysis, count instances, verify non-zero results.
 
 **Verification Questions**:
 
-- Did all grep commands execute successfully?
-- Are temporary files created and readable?
+- Did all Grep tool calls execute successfully?
 - Is the instance count non-zero for at least one category?
+- Are results properly categorized?
 
-**Output**: Raw pattern data collected in temporary files, instance counts recorded
+**Output**: Raw pattern data collected, instance counts recorded
 
 ---
 
@@ -293,39 +420,13 @@ fi
 
 **Frequency Calculation**:
 
-```bash
-declare -A pattern_counts
+Process collected data to:
 
-# Count instances for each category
-for category in "${!categories[@]}"; do
-  count=$(grep -c "${category_regex[$category]}" /tmp/pattern-results.txt)
-  pattern_counts[$category]=$count
-done
-
-# Calculate total
-total=0
-for count in "${pattern_counts[@]}"; do
-  total=$((total + count))
-done
-
-# Find dominant pattern
-dominant_pattern=""
-dominant_count=0
-for pattern in "${!pattern_counts[@]}"; do
-  count=${pattern_counts[$pattern]}
-  if [ $count -gt $dominant_count ]; then
-    dominant_count=$count
-    dominant_pattern=$pattern
-  fi
-done
-
-# Calculate dominance percentage
-if [ $total -gt 0 ]; then
-  dominant_percentage=$((dominant_count * 100 / total))
-else
-  dominant_percentage=0
-fi
-```
+1. Count instances per category from Grep results
+2. Calculate total instances across all categories
+3. Find dominant pattern (highest count)
+4. Calculate dominance percentage: (dominant_count / total) \* 100
+5. Rank patterns by frequency
 
 **Verification Questions**:
 
@@ -369,19 +470,12 @@ fi
 
 **Implementation**:
 
-```bash
-# Calculate deviations
-deviations=$((total - dominant_count))
-deviation_percentage=$((deviations * 100 / total))
+Calculate deviation metrics:
 
-# Extract deviation file references
-for pattern in "${!pattern_counts[@]}"; do
-  if [ "$pattern" != "$dominant_pattern" ]; then
-    echo "Deviation pattern: $pattern (${pattern_counts[$pattern]} instances)"
-    grep -n "${category_regex[$pattern]}" /tmp/pattern-results.txt
-  fi
-done
-```
+1. deviations = total - dominant_count
+2. deviation_percentage = (deviations / total) \* 100
+3. Extract file:line references for non-dominant patterns from Grep results
+4. Group deviations by pattern variant for bulk refactoring
 
 **Verification Questions**:
 
@@ -557,7 +651,7 @@ done
   - 2-3 representative code examples with file:line
   - Usage by module/directory
 
-  8.4. Generate dominance analysis
+    8.4. Generate dominance analysis
 
 - Assessment of dominance strength
 - Recommendation (ENFORCE, STANDARDIZE, DOCUMENT_MULTIPLE, NO_ACTION)
@@ -591,12 +685,13 @@ done
 
 **Analysis Date**: {date}
 **Pattern Type**: {error-handling | state-management | etc.}
+**Detected Language/Framework**: {language/framework detected via Glob/Read}
 
 ## Codebase Scope
 
-**Directories Scanned**: {src, lib, api}
-**File Types**: {.ts, .tsx, .js, .jsx}
-**Excluded**: {node_modules, dist, build, coverage}
+**Directories Scanned**: {detected source directories}
+**File Types**: {detected file extensions}
+**Excluded**: {language-specific exclusions: node_modules, venv, target, dist, build, coverage}
 
 ## Analysis Summary
 
@@ -618,20 +713,20 @@ done
 
 **Examples**:
 
-```{language}
-// File: src/services/auth.ts:45
+```{detected_language}
+// File: {file_path}:{line_number}
 {3-5 lines of code showing pattern usage}
 
-// File: src/components/form.tsx:128
+// File: {file_path}:{line_number}
 {3-5 lines of code showing pattern usage}
 ```
 ````
 
 **Usage by Module**:
 
-- src/services: {X} instances ({Y}%)
-- src/components: {X} instances ({Y}%)
-- src/utils: {X} instances ({Y}%)
+- {detected_module_1}: {X} instances ({Y}%)
+- {detected_module_2}: {X} instances ({Y}%)
+- {detected_module_3}: {X} instances ({Y}%)
 
 ---
 
@@ -672,11 +767,11 @@ done
 **Instances**:
 
 ```
-src/utils/parser.ts:78
+{file_path}:{line_number}
   {code snippet}
   Refactor to: {Dominant pattern suggestion}
 
-src/components/modal.tsx:203
+{file_path}:{line_number}
   {code snippet}
   Refactor to: {Dominant pattern suggestion}
 ```
@@ -692,13 +787,13 @@ src/components/modal.tsx:203
 
 ## Geographic Insights
 
-### src/services
+### {detected_module_1}
 
 - Dominant Pattern: {pattern_id}
 - Conformance: {X}%
 - Note: {If different from global, explain why}
 
-### src/components
+### {detected_module_2}
 
 - Dominant Pattern: {pattern_id}
 - Conformance: {X}%
@@ -759,13 +854,15 @@ src/components/modal.tsx:203
 
 **Last Updated**: {date} (auto-generated from pattern mining)
 
+**Detected Language/Framework**: {detected_language_framework}
+
 **Dominant Pattern**: {pattern_name} ({X}% conformance)
 
 **Convention**: {Description of required pattern}
 
 **Examples**:
 
-```{language}
+```{detected_language}
 // CORRECT (dominant pattern)
 {code example}
 
@@ -788,9 +885,9 @@ src/components/modal.tsx:203
 ## Anti-Hallucination Safeguards
 
 **Evidence-Based Only**:
-- Every pattern claim backed by grep results with file:line references
+- Every pattern claim backed by Grep tool results with file:line references
 - No invented patterns without code evidence
-- All code examples from actual codebase files
+- All code examples from actual codebase files (via Read tool)
 
 **Quantitative Precision**:
 - Use exact counts and percentages
@@ -800,25 +897,31 @@ src/components/modal.tsx:203
 **Source Citation**:
 - Every code example includes file:line reference
 - Do NOT create synthetic examples
-- Context from actual file content only
+- Context from actual file content only (verified via Read)
 
 **No Assumption of Uniformity**:
 - Explicitly note module-specific conventions
 - Do NOT assume global patterns apply everywhere
 - Report local variations as findings
 
+**No Language/Framework Hardcoding**:
+- Always detect language/framework first via Glob/Read
+- Adapt patterns dynamically to detected ecosystem
+- Never assume JavaScript/React or any specific stack
+
 **Verification of Coverage**:
-- Verify grep covered all relevant files before finalizing
-- Note excluded directories explicitly
+- Verify Grep/Glob covered all relevant files before finalizing
+- Note excluded directories explicitly (language-specific)
 - Document any scope limitations
 
 ## Error Handling
 
 ### No Instances Found
 
-If grep returns 0 results:
-- Report: "No instances of {pattern_type} found in codebase"
-- Recommendation: Either pattern not used OR detection regex needs refinement
+If Grep returns 0 results:
+- Report: "No instances of {pattern_type} found in codebase for detected language {language}"
+- Recommendation: Either pattern not used OR detection regex needs refinement for this language
+- Suggest checking if language detection was correct
 - Do NOT fabricate patterns
 - Exit gracefully with informative message
 

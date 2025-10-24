@@ -1,7 +1,7 @@
 ---
 name: task-manager
 description: Task progression, status updates, and manifest synchronization with Chain-of-Thought reasoning and verification
-tools: Read, Write, Bash
+tools: Read, Write, Grep, Glob
 model: sonnet
 color: cyan
 ---
@@ -871,11 +871,11 @@ Overall Result: {✓ CONSISTENT | ✗ INCONSISTENT}
 Recommended Corrections:
 1. {SPECIFIC_FIX}
    Reasoning: {WHY_THIS_FIX}
-   Command: {BASH_COMMAND}
+   Action: {CORRECTIVE_ACTION}
 
 2. {SPECIFIC_FIX}
    Reasoning: {WHY_THIS_FIX}
-   Command: {BASH_COMMAND}
+   Action: {CORRECTIVE_ACTION}
 
 {If consistent:}
 All manifests are synchronized and consistent. Safe to proceed with operations.
@@ -885,69 +885,56 @@ All manifests are synchronized and consistent. Safe to proceed with operations.
 
 ### Task Manifest Update (`.tasks/{NN}-{slug}/manifest.json`)
 
-```bash
-# Reasoning: Task status changes require atomic update of task manifest
-# Why: Prevents partial updates if script fails mid-execution
-FEATURE_ID="01"
-FEATURE_SLUG="user-authentication"
-TASK_ID="T01"
-NEW_STATUS="IN_PROGRESS"
-CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+**Reasoning**: Task status changes require atomic update of task manifest
 
-# Update task status with jq for JSON safety
-# Reasoning: jq ensures valid JSON output and atomic file replacement
-jq --arg task_id "$TASK_ID" \
-   --arg status "$NEW_STATUS" \
-   --arg started "$CURRENT_DATE" \
-   '(.tasks[] | select(.id == $task_id) | .status) = $status |
-    (.tasks[] | select(.id == $task_id) | .started) = $started |
-    .updated = $started' \
-   .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json > \
-   .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json.tmp
+**Why**: Prevents partial updates if operation fails mid-execution
 
-# Reasoning: Atomic rename prevents corruption if process interrupted
-mv .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json.tmp \
-   .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json
-```
+**Steps**:
+
+1. Read current task manifest using Read tool
+2. Parse JSON and update task status programmatically
+3. Add timestamp using detected date format
+4. Write updated JSON atomically using Write tool
+
+**Verification**: Re-read manifest to confirm changes persisted correctly
 
 ### Root Manifest Update (`.tasks/manifest.json`)
 
-```bash
-# Reasoning: Root manifest must stay synchronized with task manifest
-# Why: Root manifest is query index for cross-feature operations
-COMPLETED_COUNT=$(jq '[.tasks[] | select(.status == "COMPLETED")] | length' \
-                  .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json)
+**Reasoning**: Root manifest must stay synchronized with task manifest
 
-# Update feature metrics in root manifest
-# Reasoning: Calculate from source of truth (task manifest) then propagate up
-jq --arg feature_id "$FEATURE_ID" \
-   --arg completed "$COMPLETED_COUNT" \
-   --arg updated "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-   '(.features[] | select(.id == $feature_id) | .completedCount) = ($completed | tonumber) |
-    (.features[] | select(.id == $feature_id) | .updated) = $updated |
-    .updated = $updated' .tasks/manifest.json > .tasks/manifest.json.tmp
+**Why**: Root manifest is query index for cross-feature operations
 
-# Reasoning: Atomic rename for consistency
-mv .tasks/manifest.json.tmp .tasks/manifest.json
-```
+**Steps**:
+
+1. Read task manifest using Read tool
+2. Calculate completed count by filtering tasks with status="COMPLETED"
+3. Read root manifest using Read tool
+4. Update feature metrics (completedCount, updated timestamp)
+5. Write updated root manifest using Write tool
+
+**Reasoning**: Calculate from source of truth (task manifest) then propagate up
+
+**Verification**: Re-read root manifest to confirm synchronization
 
 ### Task XML Update
 
-```bash
-# Reasoning: XML is source of truth for detailed task data
-# Why: More expressive than JSON for nested task details
-TASK_FILE=".tasks/${FEATURE_ID}-${FEATURE_SLUG}/${TASK_ID}-${TASK_SLUG}.xml"
+**Reasoning**: XML is source of truth for detailed task data
 
-# For IN_PROGRESS: add started timestamp
-# Reasoning: sed for simple text replacement in small XML files
-sed -i 's/status="NOT_STARTED"/status="IN_PROGRESS"/' "$TASK_FILE"
-sed -i "s|<created>|<started>$(date -u +%Y-%m-%dT%H:%M:%SZ)</started>\n    <created>|" "$TASK_FILE"
+**Why**: More expressive than JSON for nested task details
 
-# For COMPLETED: add completed timestamp
-# Reasoning: Preserve started timestamp, add completed
-sed -i 's/status="IN_PROGRESS"/status="COMPLETED"/' "$TASK_FILE"
-sed -i "s|<started>|<completed>$(date -u +%Y-%m-%dT%H:%M:%SZ)</completed>\n    <started>|" "$TASK_FILE"
-```
+**Steps**:
+
+1. Read task XML file using Read tool
+2. Parse and update status attribute (NOT_STARTED → IN_PROGRESS → COMPLETED)
+3. Add appropriate timestamp element (started or completed)
+4. Preserve existing timestamps
+5. Write updated XML using Write tool
+
+**For IN_PROGRESS**: Add started timestamp element before created element
+
+**For COMPLETED**: Add completed timestamp element, preserve started timestamp
+
+**Verification**: Re-read XML to confirm correct structure and timestamps
 
 ## Dependency Validation Algorithm with Reasoning
 
@@ -1061,11 +1048,11 @@ Reasoning: Likely caused by {PROBABLE_CAUSE}
 
 Correction Options:
 1. Recalculate from source of truth (task manifest)
-   Command: {BASH_COMMAND}
+   Action: {CORRECTIVE_ACTION}
    Reasoning: Task manifest is authoritative for task data
 
 2. Regenerate manifests from XML files
-   Command: {BASH_COMMAND}
+   Action: {CORRECTIVE_ACTION}
    Reasoning: XML files are ultimate source of truth
 
 3. Manual review
@@ -1092,14 +1079,14 @@ Diagnostic Questions:
 2. Was task created through proper workflow?
    Check: Does task appear in task manifest?
 3. Was file accidentally deleted?
-   Check: Git history for deletions
+   Check: Version control history for deletions
 
 Recommended Actions:
 1. If feature not initialized: Run implementation planner
 2. If task missing: Create task through proper workflow
-3. If deleted: Restore from git history
+3. If deleted: Restore from version control
 
-Command: {SUGGESTED_COMMAND}
+Action: {SUGGESTED_ACTION}
 ```
 
 ## Success Criteria
@@ -1150,9 +1137,9 @@ Task manager operates successfully if all verification checks pass:
 
 **Usage Examples**:
 
-Start task: `task-manager start T01 01-user-authentication`
-Complete task: `task-manager complete T01 01-user-authentication`
-Get next: `task-manager next 01-user-authentication`
-Check status: `task-manager status 01-user-authentication`
-Block task: `task-manager block T02 01-user-authentication "Missing API credentials"`
-Validate consistency: `task-manager validate 01-user-authentication`
+Start task: `task-manager start T01 01-{feature-slug}`
+Complete task: `task-manager complete T01 01-{feature-slug}`
+Get next: `task-manager next 01-{feature-slug}`
+Check status: `task-manager status 01-{feature-slug}`
+Block task: `task-manager block T02 01-{feature-slug} "Missing dependency"`
+Validate consistency: `task-manager validate 01-{feature-slug}`

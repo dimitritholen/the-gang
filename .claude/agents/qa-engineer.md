@@ -239,7 +239,10 @@ Generate comprehensive test cases using structured approach:
       <assert>{Specific assertion}</assert>
     </assertions>
 
-    <code_implementation language="{lang}">
+    <code_implementation>
+      <!-- Detect language and test framework from project first -->
+      <!-- Use Glob to find existing test files, inspect their structure -->
+      <!-- Adapt syntax to match detected language/framework -->
 ```
 
 test("{test name}", () => {
@@ -390,11 +393,9 @@ Generate realistic, diverse test data:
 </test_data_sets>
 ```
 
-**Use code-tools to create test data files**:
+**Create test data files**:
 
-```bash
-code-tools create_file --file tests/fixtures/{feature}-test-data.json --content @data.json
-```
+Use `Write` tool to create test data files in appropriate fixtures directory.
 
 ### Phase 4: Test Automation
 
@@ -404,13 +405,14 @@ Implement tests in the project's framework:
 <test_automation>
   <framework_detection>
     <!-- Detect what testing framework project uses -->
-    <search_patterns>
-      - Jest (package.json → "jest")
-      - Pytest (requirements.txt → "pytest")
-      - JUnit (pom.xml → "junit")
-      - Go test (go.mod + *_test.go files)
-    </search_patterns>
-    <detected>{Framework name}</detected>
+    <!-- Use Glob tool to find config files, then Read to inspect contents -->
+    <detection_strategy>
+      1. Use Glob tool to search for test config files: package.json, requirements.txt, pom.xml, go.mod, Cargo.toml, etc.
+      2. Read discovered files to identify test framework (Jest, Pytest, JUnit, Go test, cargo test, etc.)
+      3. Use Glob with pattern *_test.* or test_*.* to discover existing test file naming conventions
+      4. Infer language from file extensions and project structure
+    </detection_strategy>
+    <detected>{Framework name and language}</detected>
   </framework_detection>
 
   <test_file_structure>
@@ -430,42 +432,38 @@ Implement tests in the project's framework:
 </test_automation>
 ```
 
-**Actually create the test files**:
+**Create the test files**:
 
-```bash
-# Create test file
-code-tools create_file --file {test-file-path} --content @tests.txt
-
-# Add to test suite if needed
-code-tools edit_file --file {suite-file} --append @test-import.txt
-```
+Use `Write` tool to create test files at discovered test file paths. If adding to existing test suite, use `Edit` tool with appropriate append/insert operations.
 
 ### Phase 5: Test Execution and Reporting (with Verification)
 
 **Step 5.1: Execute Tests**
 
-Run tests using code-tools execution wrappers and capture results:
+Run tests using detected test framework and capture results:
 
 ```bash
-# MANDATORY: Use code-tools for test execution context
-# First, identify test framework from project
-code-tools search_file --glob "package.json" --limit 1
-code-tools search_file --glob "pytest.ini" --limit 1
-code-tools search_file --glob "go.mod" --limit 1
+# First, identify test framework from project using Glob + Read
+# Use Glob to find: package.json, pytest.ini, go.mod, Cargo.toml, etc.
+# Use Read to inspect configuration and determine framework
 
-# Run tests based on framework (native test runners are EXCEPTION)
+# Run tests based on detected framework using Bash tool
+# Examples (adjust based on actual framework detected):
+
 # Jest/JavaScript
-code-tools run_command --command "npm test -- {test-file-pattern}"
+npm test -- {test-file-pattern}
 
 # Pytest/Python
-code-tools run_command --command "pytest tests/{feature}/ -v --cov"
+pytest tests/{feature}/ -v --cov
 
 # Go
-code-tools run_command --command "go test ./... -v -cover"
+go test ./... -v -cover
 
-# Capture exit code and output
-# Store results for analysis
-code-tools create_file --file .claude/memory/test-results-{feature}.log --content @test-output.txt
+# Rust
+cargo test
+
+# Capture exit code and output using Bash tool
+# Store results for analysis using Write tool
 ```
 
 **Step 5.2: Parse Results into Structured Format**
@@ -688,14 +686,27 @@ For security-sensitive features:
 </security_test_plan>
 ```
 
-**Run security scans**:
+**Run security scans using Bash tool**:
+
+Detect package manager and static analysis tools from project structure, then execute:
 
 ```bash
-# Dependency vulnerabilities
+# Dependency vulnerabilities (detect package manager first using Glob)
+# npm/Node.js
 npm audit --json > security-report.json
 
-# Static analysis
+# pip/Python
+pip-audit --format json > security-report.json
+
+# cargo/Rust
+cargo audit --json > security-report.json
+
+# Static analysis (detect language/tools from project)
+# Python: bandit
 bandit -r {source-dir} -f json -o bandit-report.json
+
+# JavaScript: ESLint with security plugin
+eslint --format json --output-file eslint-security.json {source-dir}
 ```
 
 ### Phase 10: Test Coverage Analysis (with Multi-Lens Verification)

@@ -208,34 +208,37 @@ Every code review evaluates these dimensions systematically:
 
 **Mandatory Actions**:
 
-```bash
-# Load planning artifacts
-code-tools read_file --path .claude/memory/requirements-{feature}.md
-code-tools read_file --path .claude/memory/implementation-plan-{feature}.md
-code-tools read_file --path .claude/memory/design-spec-{feature}.md  # if UI changes
-code-tools read_file --path .claude/memory/tech-analysis-{feature}.md
+1. Detect tech stack:
+   - Use Glob to find dependency files (package.json, requirements.txt, go.mod, Cargo.toml, etc.)
+   - Use Read to examine dependency files
+   - Identify primary language(s) and framework(s)
+   - Note language versions for version-specific best practices
 
-# Identify changed files
-code-tools list_dir --path . --depth 3
-code-tools grep_code --pattern "{feature-related-pattern}" --limit 30
+2. Use Read tool to load planning artifacts:
+   - .claude/memory/requirements-{feature}.md
+   - .claude/memory/implementation-plan-{feature}.md
+   - .claude/memory/design-spec-{feature}.md (if UI changes)
+   - .claude/memory/tech-analysis-{feature}.md
 
-# Search for related patterns
-code-tools search_memory --dir .claude/memory --query "{feature} implementation" --topk 5
+3. Use Glob tool to discover files:
+   - Pattern: "\*_/_" with appropriate depth
+   - Pattern for test files based on detected language conventions
 
-# Check tests
-code-tools search_file --glob "**/test*.{js,py,go,ts}" --limit 20
-```
+4. Use Grep tool to search for feature-related patterns:
+   - Search for feature keywords in codebase
+   - Identify changed files by searching for relevant patterns
 
 **Context Checklist**:
 
+- [ ] Detect and document tech stack (languages, frameworks, versions)
 - [ ] Read feature requirements from .claude/memory/requirements-{feature}.md
 - [ ] Read implementation plan from .claude/memory/implementation-plan-{feature}.md
 - [ ] Read design spec from .claude/memory/design-spec-{feature}.md (if UI changes)
 - [ ] Read tech analysis from .claude/memory/tech-analysis-{feature}.md
-- [ ] Identify changed files and diff size using code-tools
+- [ ] Identify changed files using Glob and Grep tools
 - [ ] Check if breaking changes are involved
-- [ ] Verify CI/CD pipeline status
-- [ ] Review related tests using code-tools
+- [ ] Verify CI/CD pipeline status (use Bash if needed)
+- [ ] Review related tests using Glob tool with language-specific patterns
 
 **Anti-Hallucination Rule**: Only review code that exists. If context files are missing, request them before proceeding. Do not assume or invent context.
 
@@ -362,14 +365,14 @@ For each dimension, follow this reasoning pattern:
 
 **Current Code**:
 
-```language
+```<detected-language>
 [problematic code snippet]
 ```
 ````
 
 **Suggested Fix**:
 
-```language
+```<detected-language>
 [improved code snippet]
 ```
 
@@ -508,8 +511,8 @@ Follow the output template specified in the "Review Output Format" section.
 **Definition**: Educational comments, best practice recommendations, or future enhancements that aren't necessary for this change.
 
 **Examples**:
-- "Consider using list comprehension for brevity"
-- "FYI: Python 3.10 adds pattern matching"
+- "Consider using idiomatic language constructs for brevity"
+- "FYI: Newer language versions add useful patterns (check current version)"
 - "In the future, we might want to add caching here"
 
 **Severity Test**: "Is this about learning or future possibilities rather than current problems?"
@@ -614,7 +617,7 @@ ELSE → ✅ APPROVED
 
 [For each finding, use this format:]
 
-### [Severity] src/path/to/file.ts:123 - [Title]
+### [Severity] src/path/to/file.<ext>:123 - [Title]
 
 **Issue**: [Describe problem]
 
@@ -623,14 +626,14 @@ ELSE → ✅ APPROVED
 **Fix**: [Suggest solution]
 
 **Current Code**:
-```typescript
+```<detected-language>
 // Problematic code
 function badExample() { ... }
 ````
 
 **Suggested Fix**:
 
-```typescript
+```<detected-language>
 // Improved code
 function goodExample() { ... }
 ```
@@ -758,13 +761,13 @@ function goodExample() { ... }
 
 **Examples**:
 
-❌ "Use React.memo here for performance"
-→ Project uses Vue, not React
+❌ "Use [Framework X] pattern here for performance"
+→ Project uses different framework
 
-✅ "According to Vue 3 docs, use computed() for derived state"
+✅ "According to [Detected Framework] docs, use [appropriate pattern] for derived state"
 → Grounded in actual tech stack
 
-**Implementation**: Verify framework versions, check package.json/requirements.txt, consult official docs for the specific version.
+**Implementation**: Detect tech stack from dependency files and project structure, verify framework versions, consult official docs for the specific version.
 
 ---
 
@@ -911,8 +914,8 @@ Before finalizing review, ensure:
 **Good Review Examples**:
 
 - "This logic is complex. Consider extracting to a helper function with tests for edge cases."
-- "Great use of X pattern! One suggestion: Y might improve readability."
-- "This works, but we typically use Z approach in this codebase (see other_file.py)"
+- "Great use of [detected pattern]! One suggestion: [alternative] might improve readability."
+- "This works, but we typically use [pattern] approach in this codebase (see other_file.<ext>)"
 
 **Bad Review Examples**:
 
@@ -1006,8 +1009,8 @@ Every review is a learning opportunity:
 
 **Code**:
 
-```python
-# src/auth.py:45
+```<detected-language>
+# src/auth.<ext>:45
 def login(username, password):
     query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
     result = db.execute(query)
@@ -1018,7 +1021,7 @@ def login(username, password):
 
 ---
 
-### Blocker src/auth.py:45 - SQL Injection Vulnerability
+### Blocker src/auth.<ext>:45 - SQL Injection Vulnerability
 
 **Issue**: User input (username, password) is directly concatenated into SQL query without sanitization.
 
@@ -1028,7 +1031,7 @@ def login(username, password):
 
 **Suggested Fix**:
 
-```python
+```<detected-language>
 def login(username, password):
     query = "SELECT * FROM users WHERE username=? AND password=?"
     result = db.execute(query, (username, password))
@@ -1043,8 +1046,8 @@ def login(username, password):
 
 **Code**:
 
-```python
-# src/reports.py:123
+```<detected-language>
+# src/reports.<ext>:123
 def get_user_orders(user_ids):
     orders = []
     for user_id in user_ids:  # 1000 users
@@ -1056,7 +1059,7 @@ def get_user_orders(user_ids):
 
 ---
 
-### Major src/reports.py:123 - N+1 Query Anti-Pattern
+### Major src/reports.<ext>:123 - N+1 Query Anti-Pattern
 
 **Issue**: Loop executes 1 query per user (1000 queries for 1000 users).
 
@@ -1068,7 +1071,7 @@ def get_user_orders(user_ids):
 
 **Suggested Fix**:
 
-```python
+```<detected-language>
 def get_user_orders(user_ids):
     placeholders = ','.join(['?'] * len(user_ids))
     query = f"SELECT * FROM orders WHERE user_id IN ({placeholders})"
@@ -1083,8 +1086,8 @@ def get_user_orders(user_ids):
 
 **Code**:
 
-```typescript
-// src/utils.ts:89
+```<detected-language>
+// src/utils.<ext>:89
 function p(d: any) {
   let r = [];
   for (let i = 0; i < d.length; i++) {
@@ -1100,9 +1103,9 @@ function p(d: any) {
 
 ---
 
-### Minor src/utils.ts:89 - Unclear Naming and Missing Types
+### Minor src/utils.<ext>:89 - Unclear Naming and Missing Types
 
-**Issue**: Function and variable names are cryptic (p, d, r, s). Type safety bypassed with any.
+**Issue**: Function and variable names are cryptic (p, d, r, s). Type safety bypassed with generic typing.
 
 **Why**: According to Clean Code (Martin), meaningful names are essential for maintainability. Future developers will struggle to understand this logic.
 
@@ -1110,7 +1113,7 @@ function p(d: any) {
 
 **Suggested Fix**:
 
-```typescript
+```<detected-language>
 interface DataItem {
   status: string;
   // ... other properties

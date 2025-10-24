@@ -231,18 +231,14 @@ Create structured requirements document with:
 - **Open Questions Section**: All uncertainties, ambiguities, and low-confidence items requiring clarification
 - **Assumptions Log**: All assumptions made, with confidence levels and request for validation
 
-Use code-tools CLI to create artifacts:
-
-```bash
-code-tools create_file --file .claude/memory/requirements-{feature-slug}.md --content @requirements.txt
-```
+Use Write tool to create requirement artifacts in `.tasks/{FEATURE_ID}-{FEATURE_SLUG}/` directory.
 
 ## Hallucination Prevention
 
 - Ground in user input only - never invent requirements
 - Flag assumptions with "ASSUMPTION:" tag
 - Request clarification if uncertain
-- Use code-tools to check existing project context
+- Use Read/Glob tools to check existing project context
 
 ---
 
@@ -256,16 +252,17 @@ Execute when task prompt contains `mode=generate_questions` or when starting req
 
 ### Step 1: Context Gathering
 
+Use Read tool for documentation files and Glob tool for pattern matching:
+
 ```bash
-# Read available documentation
+# List documentation directories
 ls docs/ .claude/memory/ 2>/dev/null || echo "No docs found"
-
-# Read idea document if exists
-cat docs/idea.md 2>/dev/null || echo "No idea.md found"
-
-# Search for related features
-ls .tasks/*/requirements-*.md 2>/dev/null || echo "No related requirements"
 ```
+
+Then use:
+
+- Read tool: `.claude/memory/*` files, `docs/idea.md`
+- Glob tool: `.tasks/*/requirements-*.md` pattern to find related features
 
 ### Step 1.5: Multi-Feature Detection
 
@@ -307,17 +304,11 @@ Detection:
 
 Action:
 
-```bash
-# Create directories for each feature
-mkdir -p .tasks/01-user-authentication
-mkdir -p .tasks/02-product-catalog
-mkdir -p .tasks/03-admin-dashboard
-
-# Generate separate question files
-cat > .claude/memory/.tmp-questions-user-authentication.md
-cat > .claude/memory/.tmp-questions-product-catalog.md
-cat > .claude/memory/.tmp-questions-admin-dashboard.md
-```
+1. Create directories using Bash: `mkdir -p .tasks/01-{slug}` for each feature
+2. Generate separate question files using Write tool for each:
+   - `.claude/memory/.tmp-questions-user-authentication.md`
+   - `.claude/memory/.tmp-questions-product-catalog.md`
+   - `.claude/memory/.tmp-questions-admin-dashboard.md`
 
 ### Step 2: Active Prompting Round 1 - Initial Context Analysis
 
@@ -489,17 +480,11 @@ adaptive_follow_ups:
     any ambiguities, contradictions, or low-confidence areas discovered.
 ```
 
-**Write using Bash:**
+**Write using Write tool:**
 
-```bash
-FEATURE_SLUG=$(echo "{feature name}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')
-
-cat > .claude/memory/.tmp-questions-${FEATURE_SLUG}.md <<'EOF'
-{Generated YAML content above}
-EOF
-
-echo "✓ Questions written to .claude/memory/.tmp-questions-${FEATURE_SLUG}.md"
-```
+1. Generate feature slug: `{feature name}` -> lowercase, spaces to hyphens, alphanumeric only
+2. Write to `.claude/memory/.tmp-questions-${FEATURE_SLUG}.md` using Write tool
+3. Content: YAML structure shown above
 
 ### Step 7: Return Confirmation
 
@@ -544,16 +529,11 @@ Execute when task prompt contains `mode=generate_requirements` or when answers f
 
 ```bash
 FEATURE_SLUG="{extracted from task or found in memory}"
-
-# Read answers
-cat .claude/memory/.tmp-answers-${FEATURE_SLUG}.md
-
-# Verify file exists and is valid
-if [ $? -ne 0 ]; then
-  echo "ERROR: Answers file not found"
-  exit 1
-fi
 ```
+
+Use Read tool: `.claude/memory/.tmp-answers-${FEATURE_SLUG}.md`
+
+Verify file exists before proceeding.
 
 ### Step 2: Parse and Analyze Answers
 
@@ -898,36 +878,25 @@ Reflexion Check:
 ```bash
 FEATURE_SLUG="{slug}"
 FEATURE_TITLE="{Feature Name}"
+```
 
-# Read or create root manifest to get next feature ID
-if [ -f .tasks/manifest.json ]; then
-  # Get next feature ID
-  FEATURE_ID=$(cat .tasks/manifest.json | jq -r '.features | length + 1' | xargs printf "%02d")
-else
-  # First feature
-  FEATURE_ID="01"
-  # Create root manifest
-  cat > .tasks/manifest.json <<'MANIFEST'
-{
-  "version": "1.0",
-  "project": "$(basename $(pwd))",
-  "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "features": []
-}
-MANIFEST
-fi
+1. Check if `.tasks/manifest.json` exists using Read tool
+2. If exists: Parse with jq to get next feature ID
+3. If not: Create with FEATURE_ID="01" using Write tool
+4. Create feature directory: `mkdir -p .tasks/${FEATURE_ID}-${FEATURE_SLUG}`
 
-# Create feature directory
-mkdir -p .tasks/${FEATURE_ID}-${FEATURE_SLUG}
+Feature ID calculation:
 
-echo "Feature directory created: .tasks/${FEATURE_ID}-${FEATURE_SLUG}/"
+```bash
+# Only if manifest exists
+FEATURE_ID=$(jq -r '.features | length + 1' .tasks/manifest.json | xargs printf "%02d")
 ```
 
 ### Step 8: Write Feature Brief
 
-```bash
-# Write feature-brief.md using TEMPLATE-feature-brief.md structure
-cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md <<'EOF'
+Use Write tool to create `.tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md` with template structure:
+
+```markdown
 # Feature Brief: {Feature Title}
 
 **Feature ID:** {FEATURE_ID}
@@ -940,61 +909,75 @@ cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md <<'EOF'
 ---
 
 ## Purpose
+
 {From purpose answers}
 
 ## Problem Statement
+
 ### Current Pain Points
+
 {Extracted from user answers and context}
 
 ### User Impact
+
 {How pain points affect users}
 
 ## Goals & Objectives
+
 ### Primary Goal
+
 {From purpose-01 answer}
 
 ### Secondary Goals
+
 {From other purpose answers}
 
 ### Success Metrics
+
 {From acceptance criteria answers}
 
 ## Target Users
+
 {From target user answers}
 
 ## User Scenarios
+
 {From functional workflow answers}
 
 ## Context & Dependencies
+
 {From constraints and integration answers}
 
 ## Out of Scope
+
 {Explicitly ruled out items}
 
 ## MVP Definition
+
 {From acceptance-02: must/should/could have}
 
 ## Pre-Mortem Insights
+
 {Key failure scenarios identified during reflexion}
 
 ## Open Questions
+
 {Any unclear items}
 
 ---
+
 **Next Steps:**
+
 1. Review requirements document (see: `requirements-{feature-slug}.md`)
 2. Research technology stack (see: `tech-analysis-{feature-slug}.md`)
 3. Break down into tasks (see: `manifest.json`)
-EOF
-
-echo "✓ Feature brief written"
 ```
 
 ### Step 9: Write Requirements Document
 
-```bash
-# Convert XML structure to readable Markdown with evolution log and pre-mortem
-cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md <<'EOF'
+Use Write tool to create `.tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md`:
+
+```markdown
 # Requirements: {Feature Name}
 
 **Status:** Validated (Post-Reflexion)
@@ -1009,42 +992,52 @@ cat > .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md <<'EO
 This log tracks how understanding of requirements evolved through the analysis process.
 
 ### Phase 1: Initial Question Generation
+
 **Date:** {DATE}
 **Initial Understanding:**
 {Summary of assumptions from documentation}
 
 **Initial Assumptions:**
+
 - {assumption 1}
 - {assumption 2}
 
 **Confidence Assessment:**
+
 - High confidence: {areas}
 - Medium confidence: {areas}
 - Low confidence: {areas}
 
 ### Phase 2: Answers Received
+
 **Date:** {DATE}
 **Confirmed Assumptions:**
+
 - {confirmed 1}
 
 **Contradicted Assumptions:**
+
 - {contradicted 1}
 
 **New Insights:**
+
 - {insight 1}
 
 **Revised Confidence:**
+
 - High confidence: {areas}
 - Medium confidence: {areas}
 - Low confidence: {areas}
 
 ### Phase 3: Reflexion & Validation
+
 **Date:** {DATE}
 **Technical Issues Found:** {N}
 **UX Issues Found:** {N}
 **Operational Issues Found:** {N}
 
 **Critical Revisions Made:**
+
 - {revision 1}
 - {revision 2}
 
@@ -1068,9 +1061,11 @@ This log tracks how understanding of requirements evolved through the analysis p
 ## Goals
 
 ### Primary Goal
+
 {Primary goal}
 
 ### Secondary Goals
+
 - {Goal 1}
 - {Goal 2}
 
@@ -1079,9 +1074,11 @@ This log tracks how understanding of requirements evolved through the analysis p
 ## Functional Requirements
 
 ### FR-001: {Title} [High Priority]
+
 **Description:** {Description}
 
 **Acceptance Criteria:**
+
 - {Criterion 1}
 - {Criterion 2}
 
@@ -1101,6 +1098,7 @@ This log tracks how understanding of requirements evolved through the analysis p
 ### Performance
 
 #### NFR-PERF-001: {Title}
+
 **Description:** {Description}
 **Target Metric:** {Metric}
 **Source:** According to user response to question nfr-01
@@ -1143,18 +1141,21 @@ This log tracks how understanding of requirements evolved through the analysis p
 This section documents potential failure scenarios identified during reflexion phase.
 
 ### Failure Scenario 1: {Title}
+
 **Description:** {What could go wrong}
 **Root Cause:** {Why it would fail}
 **Warning Signs:** {Indicators in requirements}
 **Mitigation:** {How requirements address this risk}
 
 ### Failure Scenario 2: {Title}
+
 **Description:** {What could go wrong}
 **Root Cause:** {Why it would fail}
 **Warning Signs:** {Indicators in requirements}
 **Mitigation:** {How requirements address this risk}
 
 ### Failure Scenario 3: {Title}
+
 **Description:** {What could go wrong}
 **Root Cause:** {Why it would fail}
 **Warning Signs:** {Indicators in requirements}
@@ -1178,68 +1179,62 @@ This section documents potential failure scenarios identified during reflexion p
 ## MVP Definition
 
 ### Must Have
+
 - {Essential feature 1}
 - {Essential feature 2}
 
 ### Should Have
+
 - {Important but not blocking feature 1}
 
 ### Could Have
+
 - {Nice to have feature 1}
 
 ---
 
 **Next Steps:**
+
 1. Review with stakeholders
 2. Resolve open questions
 3. Proceed to technology research phase using /research-tech
-EOF
-
-echo "✓ Requirements written to .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md"
 ```
 
 ### Step 10: Update Root Manifest
 
-```bash
-# Add feature entry to root manifest
-CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+1. Read `.tasks/manifest.json` using Read tool
+2. Parse JSON structure
+3. Extract priority from feature-brief using Read/Grep tool
+4. Create updated manifest with new feature entry:
 
-# Extract priority from feature-brief (default to MEDIUM if not found)
-PRIORITY=$(grep "Priority:" .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md | head -1 | sed 's/.*Priority:\*\* //' || echo "MEDIUM")
-
-# Update manifest using jq
-jq --arg id "$FEATURE_ID" \
-   --arg slug "$FEATURE_SLUG" \
-   --arg title "$FEATURE_TITLE" \
-   --arg priority "$PRIORITY" \
-   --arg created "$CURRENT_DATE" \
-   '.features += [{
-     "id": $id,
-     "slug": $slug,
-     "title": $title,
-     "status": "NOT_STARTED",
-     "priority": $priority,
-     "created": $created,
-     "updated": $created,
-     "taskCount": 0,
-     "completedCount": 0,
-     "blockers": [],
-     "methodology": "Active Prompting + Reflexion"
-   }] | .updated = $created' .tasks/manifest.json > .tasks/manifest.json.tmp
-
-mv .tasks/manifest.json.tmp .tasks/manifest.json
-
-echo "✓ Root manifest updated with feature ${FEATURE_ID}"
+```json
+{
+  "id": "{FEATURE_ID}",
+  "slug": "{FEATURE_SLUG}",
+  "title": "{FEATURE_TITLE}",
+  "status": "NOT_STARTED",
+  "priority": "{extracted from feature-brief}",
+  "created": "{ISO timestamp}",
+  "updated": "{ISO timestamp}",
+  "taskCount": 0,
+  "completedCount": 0,
+  "blockers": [],
+  "methodology": "Active Prompting + Reflexion"
+}
 ```
+
+5. Write updated manifest using Write tool
 
 ### Step 11: Clean Up Temporary Files
 
+Remove temporary files using Bash tool:
+
+- `.claude/memory/.tmp-questions-${FEATURE_SLUG}.md`
+- `.claude/memory/.tmp-answers-${FEATURE_SLUG}.md`
+
 ```bash
-# Remove temporary question and answer files
 rm -f .claude/memory/.tmp-questions-${FEATURE_SLUG}.md
 rm -f .claude/memory/.tmp-answers-${FEATURE_SLUG}.md
-
-echo "✓ Temporary files cleaned up"
 ```
 
 ### Step 12: Return Confirmation

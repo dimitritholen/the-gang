@@ -126,7 +126,7 @@ Action 1: Use Glob to list root directory structure and key config files
 Observation 1: [Record directory layout, presence of package.json, docker files, etc.]
 
 Thought 2: Based on directory structure, what does this suggest about project type?
-Action 2: Read primary config files (package.json, requirements.txt, etc.)
+Action 2: Read primary config files (auto-detect: package.json, requirements.txt, Cargo.toml, pom.xml, etc.)
 Observation 2: [Record dependencies, scripts, project metadata]
 
 Thought 3: Are there build/deployment configurations that reveal architecture?
@@ -164,7 +164,7 @@ Verification Questions:
 
 ```
 Thought 1: What technologies are in the dependency list?
-Action 1: Read package.json/requirements.txt/Gemfile/pom.xml
+Action 1: Read detected config file (language-specific: package.json, requirements.txt, Gemfile, pom.xml, Cargo.toml, go.mod, etc.)
 Observation 1: [List all major dependencies with versions]
 
 Thought 2: For each major technology, how is it actually used in the code?
@@ -197,26 +197,26 @@ Verification Questions:
 **Output Format**:
 
 ```markdown
-## Technology: React 18.2.0
+## Technology: [Detected Framework] [Version]
 
-**Evidence**: package.json line 23, 147 component files found
+**Evidence**: [config file] line [N], [N] component/module files found
 
 **Why Chosen** (inferred from):
 
-- Observation: 90% of components use hooks (grep analysis)
-- Observation: No class components found
-- Observation: TypeScript strict mode enabled
-- Inference: Modern React approach prioritizing functional patterns
+- Observation: [N]% of components/modules use [pattern] (Grep analysis)
+- Observation: [No alternative pattern found]
+- Observation: [Strict/type enforcement enabled if applicable]
+- Inference: [Modern/specific approach prioritizing detected patterns]
 
 **How Used**:
 
-- Pattern: Functional components with hooks
-- State: useState (local) + Redux (global)
-- Routing: React Router v6 (src/App.tsx:15)
+- Pattern: [Detected pattern from code]
+- State: [State management approach]
+- Routing: [Router if applicable] ([file:line])
 
-**Deviations**: None detected
+**Deviations**: [None detected | List deviations]
 
-**Confidence**: High (95%+ evidence from actual code patterns)
+**Confidence**: High ([N]%+ evidence from actual code patterns)
 ```
 
 ### Review Checkpoint 1 (Verification + User Interaction)
@@ -268,8 +268,8 @@ Action 2: Analyze file list for pattern consistency
 Observation 2: [Pattern: PascalCase (38/40 files), Deviations: 2 kebab-case files]
 
 Thought 3: Are there code-level naming conventions?
-Action 3: Use Grep to extract variable/function declarations across codebase
-Observation 3: [Sample 500 declarations, categorize patterns]
+Action 3: Use Grep to extract variable/function/class declarations across codebase
+Observation 3: [Sample significant declarations, categorize patterns]
 
 Thought 4: How is code organized? Feature-based or type-based?
 Action 4: Analyze directory structure depth and grouping logic
@@ -299,18 +299,17 @@ Verification Questions:
 ```markdown
 ## Pattern: Component File Naming
 
-**Dominant Pattern**: PascalCase.tsx
+**Dominant Pattern**: PascalCase.[detected_ext]
 **Conformance**: 95% (38/40 files)
 **Deviations**:
 
-- user-list.tsx (legacy code?)
-- date-picker.tsx (third-party?)
+- user-list.[detected_ext] (legacy code?)
+- date-picker.[detected_ext] (third-party?)
 
 **Evidence**:
 
-- src/components/UserProfile.tsx
-- src/components/AppointmentCard.tsx
-  [list all files examined]
+- [Detected path]/[Component/Module files]
+  [list all files examined with detected language extension]
 
 **Recommendation**: Standardize on PascalCase
 **Confidence**: High (clear dominant pattern)
@@ -359,7 +358,7 @@ User provides corrections → Agent proceeds to Phase 4-5
 
 ```
 Thought 1: What backend features exist? Start with routes.
-Action 1: Find and read route definition files (Express, Django, Rails, etc.)
+Action 1: Find and read route definition files (auto-detect framework: Express, FastAPI, Django, Rails, Spring, etc.)
 Observation 1: [List all endpoints with HTTP methods and paths]
 
 Thought 2: What frontend features exist? Check routing.
@@ -367,7 +366,7 @@ Action 2: Find and read frontend route configurations
 Observation 2: [List all frontend routes with component mappings]
 
 Thought 3: What database tables support these features?
-Action 3: Read migration files or schema definitions
+Action 3: Read migration files or schema definitions (auto-detect: SQL migrations, ORM models, schema files)
 Observation 3: [List tables with relationships]
 
 Thought 4: For each feature, what's the completeness? Frontend+Backend+DB?
@@ -399,24 +398,24 @@ Verification Questions:
 
 **Backend Endpoints** (Evidence):
 
-- POST /api/v1/auth/login (src/routes/auth.ts:15)
-- POST /api/v1/auth/logout (src/routes/auth.ts:28)
-- POST /api/v1/auth/refresh-token (src/routes/auth.ts:42)
+- POST [detected_path]/auth/login ([route_file:line])
+- POST [detected_path]/auth/logout ([route_file:line])
+- POST [detected_path]/auth/refresh-token ([route_file:line])
 
 **Frontend Routes** (Evidence):
 
-- /login (src/App.tsx:45)
-- /register (src/App.tsx:46)
+- /login ([app_file:line])
+- /register ([app_file:line])
 
-**Components** (Evidence):
+**Components/Modules** (Evidence):
 
-- LoginForm (src/features/auth/components/LoginForm.tsx)
-- RegisterForm (src/features/auth/components/RegisterForm.tsx)
+- LoginForm ([component_file])
+- RegisterForm ([component_file])
 
 **Database Tables** (Evidence):
 
-- users (migrations/001_create_users.js)
-- sessions (migrations/005_create_sessions.js)
+- users ([migration_file])
+- sessions ([migration_file])
 
 **Tests**: ✅ 23 test cases found
 
@@ -434,15 +433,15 @@ Verification Questions:
 ```
 Thought 1: What are the major technology choices? List them.
 Action 1: Review Phase 2 findings for all key technologies
-Observation 1: [List: React, TypeScript, PostgreSQL, Redis, Docker, etc.]
+Observation 1: [List: detected frontend framework, detected language, detected database, detected cache, detected containerization, etc.]
 
 Thought 2: For each major choice, what evidence suggests WHY it was chosen?
 Action 2: Analyze config files, git history, code patterns for clues
 Observation 2: [Document evidence: strict mode enabled, indexes present, etc.]
 
 Thought 3: What were the likely alternatives NOT chosen?
-Action 3: Consider standard alternatives for each technology category
-Observation 3: [Document: Vue not present, MongoDB not present, etc.]
+Action 3: Consider standard alternatives for each detected technology category
+Observation 3: [Document: alternative frameworks not present, alternative databases not present, etc.]
 
 Thought 4: What architectural patterns were decided?
 Action 4: Review code organization for pattern decisions
@@ -450,7 +449,7 @@ Observation 4: [Document: Layered architecture, feature modules, etc.]
 
 Thought 5: What trade-offs are evident from the implementation?
 Action 5: Analyze what was gained and what constraints were accepted
-Observation 5: [Document: Type safety vs dev speed, SQL flexibility vs ORM convenience]
+Observation 5: [Document: type safety vs dev speed, compiled vs interpreted, relational vs NoSQL, etc.]
 
 Thought 6: What's the confidence level for each inference?
 Action 6: Assess evidence strength for each ADR
@@ -467,34 +466,30 @@ Verification Questions:
 **ADR Template**:
 
 ````markdown
-# ADR-001: Use TypeScript in Strict Mode
+# ADR-001: Use [Detected Language] in [Detected Mode]
 
 **Status**: Active
 **Confidence**: High
-**Date**: Inferred from initial commit (2023-02-15) via git log
+**Date**: Inferred from initial commit (YYYY-MM-DD) via git log
 
 **Context**:
-JavaScript's lack of type safety can lead to runtime errors. Growing codebase needed stronger type guarantees.
+[Detected problem domain: type safety, performance, ecosystem, etc.] required language selection.
 
 **Decision**:
-Adopt TypeScript with strict mode enabled:
+Adopt [detected language] with [detected configuration]:
 
-```json
-{
-  "strict": true,
-  "noImplicitAny": true,
-  "strictNullChecks": true
-}
+```[detected_format]
+{detected_config_example}
 ```
 ````
 
 **Evidence-Based Rationale**:
 
-- Evidence: 100% of source files use .ts/.tsx (grep \*.js found 0 files)
-- Evidence: No @ts-ignore comments found (codebase discipline)
-- Evidence: Comprehensive type definitions (src/types/ directory with 47 files)
-- Evidence: tsconfig.json line 5-10 shows strict mode configuration
-- Inference: Team prioritizes compile-time safety over development speed
+- Evidence: 100% of source files use [detected_extension] (Grep for [alternative_extension] found 0 files)
+- Evidence: No escape hatches found (codebase discipline)
+- Evidence: Comprehensive [type/interface/schema] definitions ([detected_path] directory with [N] files)
+- Evidence: [config_file] line [N-M] shows [detected_mode] configuration
+- Inference: Team prioritizes [detected_priority] over [alternative_priority]
 
 **Consequences**:
 ✅ Positive:
@@ -510,16 +505,16 @@ Adopt TypeScript with strict mode enabled:
 
 **Alternatives Not Chosen**:
 
-- JavaScript: Not present (TypeScript chosen for type safety)
-- TypeScript non-strict: Not used (strict mode shows commitment to safety)
+- [Alternative language]: Not present ([detected language] chosen for [reason])
+- [Alternative mode/framework]: Not used ([detected mode] shows commitment to [priority])
 
 **Evidence Files**:
 
-- tsconfig.json (strict config)
-- src/types/\*.ts (47 type definition files)
-- package.json (typescript: 5.3.3)
+- [config_file] ([mode] config)
+- [types/schemas path] ([N] definition files)
+- [dependency file] ([language/framework]: [version])
 
-**Confidence Rationale**: High because 100% of code uses TypeScript, strict mode explicitly configured, comprehensive type coverage, zero escape hatches (@ts-ignore).
+**Confidence Rationale**: High because 100% of code uses [detected language], [mode] explicitly configured, comprehensive [type/schema] coverage, zero escape hatches.
 
 ````
 
@@ -630,7 +625,7 @@ When evidence conflicts, document it openly:
 
 - Dominant: PascalCase (38/40 files, 95%)
 - Deviation: kebab-case (2/40 files, 5%)
-- Files: user-list.tsx, date-picker.tsx
+- Files: component-1.[ext], component-2.[ext]
 - Recommendation: Clarify with team (legacy vs intentional?)
 - Confidence: Medium (clear dominant pattern but deviations unexplained)
 ```
@@ -639,8 +634,8 @@ When evidence conflicts, document it openly:
 
 Never approximate versions when exact values are available:
 
-**Good**: "React 18.2.0 (package.json line 15)"
-**Bad**: "React 18.x" ❌
+**Good**: "[Framework] [exact version] ([config file] line [N])"
+**Bad**: "[Framework] [approximate version]" ❌
 
 ### 6. Chain of Verification Loop (Before Finalizing)
 
@@ -675,13 +670,13 @@ In every ReAct cycle, Observations must contain:
 **Good Observation**:
 
 ```
-Observation 3: Found 38 component files using PascalCase:
-- src/components/UserProfile.tsx
-- src/components/AppointmentCard.tsx
+Observation 3: Found 38 component/module files using PascalCase:
+- [detected_path]/[Component1].[ext]
+- [detected_path]/[Component2].[ext]
 [list continues]
 Found 2 exceptions using kebab-case:
-- src/components/user-list.tsx
-- src/components/date-picker.tsx
+- [detected_path]/component-1.[ext]
+- [detected_path]/component-2.[ext]
 Pattern confidence: 95% (38/40)
 ```
 
@@ -703,12 +698,11 @@ Observation 3: Most components use PascalCase ❌
 
 **Step 1: Read All User Corrections**
 
-```bash
-# Read all user feedback from three checkpoints
-cat .claude/memory/.tmp-corrections-initial.md
-cat .claude/memory/.tmp-corrections-conventions.md
-cat .claude/memory/.tmp-corrections-final.md
-```
+Read all user feedback files from three checkpoints:
+
+- `.claude/memory/.tmp-corrections-initial.md`
+- `.claude/memory/.tmp-corrections-conventions.md`
+- `.claude/memory/.tmp-corrections-final.md`
 
 **Step 2: Generate 5 Memory Artifacts**
 
@@ -743,20 +737,20 @@ Incorporating all user corrections, generate artifacts using Write tool:
 
 **Major Components**:
 
-1. **Frontend**: [Framework, language, build tool]
-   - Location: [Directory]
-   - Entry: [File]
+1. **Frontend**: [Detected framework, detected language, detected build tool]
+   - Location: [Detected directory]
+   - Entry: [Detected file]
 
-2. **Backend**: [Framework, language, server]
-   - Location: [Directory]
-   - Entry: [File]
+2. **Backend**: [Detected framework, detected language, detected server]
+   - Location: [Detected directory]
+   - Entry: [Detected file]
 
-3. **Database**: [Type, version]
-   - Migrations: [Location]
-   - ORM: [Tool]
+3. **Database**: [Detected type, detected version]
+   - Migrations: [Detected location]
+   - ORM/Query builder: [Detected tool or "Raw SQL"]
 
-4. **Infrastructure**: [Cloud, deployment]
-   - Config: [Location]
+4. **Infrastructure**: [Detected cloud/platform, detected deployment]
+   - Config: [Detected location]
 
 ## Technology Stack Summary
 
@@ -1132,17 +1126,15 @@ Incorporating all user corrections, generate artifacts using Write tool:
 
 **Step 3: Verify Artifacts**
 
-```bash
-# Verify all artifacts created
-ls -lh .claude/memory/project-context.md
-ls -lh .claude/memory/tech-stack-baseline.md
-ls -lh .claude/memory/coding-conventions.md
-ls -lh .claude/memory/architecture-decisions.md
-ls -lh .claude/memory/feature-inventory.md
+Verify all artifacts created using Glob:
 
-# Verify all corrections incorporated
-echo "Artifacts verified and corrections incorporated"
-```
+- `.claude/memory/project-context.md`
+- `.claude/memory/tech-stack-baseline.md`
+- `.claude/memory/coding-conventions.md`
+- `.claude/memory/architecture-decisions.md`
+- `.claude/memory/feature-inventory.md`
+
+Verify all corrections incorporated
 
 **Step 4: Return Completion Status**
 

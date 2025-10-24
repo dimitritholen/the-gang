@@ -66,9 +66,9 @@ if [ ! -f "$TASK_FILE" ]; then
 fi
 
 # Read task XML and extract metadata
-TASK_XML=$(cat "$TASK_FILE")
-TASK_TITLE=$(echo "$TASK_XML" | grep -oP '<title>.*?</title>' | sed 's/<[^>]*>//g')
-CURRENT_STATUS=$(echo "$TASK_XML" | grep -oP '<status>.*?</status>' | sed 's/<[^>]*>//g')
+TASK_METADATA=$(code-tools read_task_metadata --task-file "$TASK_FILE")
+TASK_TITLE=$(echo "$TASK_METADATA" | code-tools parse_json --field "title")
+CURRENT_STATUS=$(echo "$TASK_METADATA" | code-tools parse_json --field "status")
 
 # Verify task is in valid state for completion
 if [ "$CURRENT_STATUS" != "IN_PROGRESS" ]; then
@@ -95,7 +95,7 @@ fi
 
 ```bash
 # Extract acceptance criteria for user confirmation
-CRITERIA=$(echo "$TASK_XML" | grep -oP '<criteria>.*?</criteria>' | sed 's/<[^>]*>//g')
+CRITERIA=$(echo "$TASK_METADATA" | code-tools parse_json --field "acceptance_criteria" --format "array")
 
 # Present criteria as interactive checklist
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -103,7 +103,7 @@ echo "Complete Task: $TASK_ID - $TASK_TITLE"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "Acceptance Criteria:"
-echo "$CRITERIA" | sed 's/^/  [ ] /'
+echo "$CRITERIA" | while IFS= read -r line; do echo "  [ ] $line"; done
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
@@ -133,10 +133,10 @@ UPDATE_RESULT=$(code-tools update_task_status \
     --feature-dir "$FEATURE_DIR")
 
 # Verify update succeeded
-SUCCESS=$(echo "$UPDATE_RESULT" | jq -r '.ok')
+SUCCESS=$(echo "$UPDATE_RESULT" | code-tools parse_json --field "ok")
 
 if [ "$SUCCESS" = "false" ]; then
-    ERROR=$(echo "$UPDATE_RESULT" | jq -r '.error')
+    ERROR=$(echo "$UPDATE_RESULT" | code-tools parse_json --field "error")
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Task Completion Failed"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -152,20 +152,20 @@ fi
 ```bash
 # Read updated manifest to verify state
 MANIFEST_DATA=$(code-tools read_task_manifest --path "${FEATURE_DIR}/manifest.json")
-COMPLETED_COUNT=$(echo "$MANIFEST_DATA" | jq -r '.data.completed_count')
-TASK_COUNT=$(echo "$MANIFEST_DATA" | jq -r '.data.task_count')
+COMPLETED_COUNT=$(echo "$MANIFEST_DATA" | code-tools parse_json --field "data.completed_count")
+TASK_COUNT=$(echo "$MANIFEST_DATA" | code-tools parse_json --field "data.task_count")
 PERCENT=$((COMPLETED_COUNT * 100 / TASK_COUNT))
 
 # Verify task was actually marked complete
 VERIFIED_STATUS=$(code-tools get_task_status --task-id "$TASK_ID" --feature-dir "$FEATURE_DIR")
-if [ "$(echo "$VERIFIED_STATUS" | jq -r '.data.status')" != "COMPLETED" ]; then
+if [ "$(echo "$VERIFIED_STATUS" | code-tools parse_json --field "data.status")" != "COMPLETED" ]; then
     echo "WARNING: Task status verification failed"
     exit 1
 fi
 
 # Find next available task
 NEXT_TASK=$(code-tools find_next_task --manifest "${FEATURE_DIR}/manifest.json")
-HAS_NEXT=$(echo "$NEXT_TASK" | jq -r '.data.has_next')
+HAS_NEXT=$(echo "$NEXT_TASK" | code-tools parse_json --field "data.has_next")
 
 # Check for task output documentation
 OUTPUT_FILE="${FEATURE_DIR}/${TASK_ID}-output.md"

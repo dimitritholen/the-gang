@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch, mcp__sequential-thinking__sequentialthinking
+allowed-tools: Read, Grep, Glob, Write, Edit, WebFetch, mcp__sequential-thinking__sequentialthinking
 argument-hint: [command or agent to enhance]
 description: Transform Claude Code commands and agents into advanced prompt-engineered versions
 ---
@@ -14,36 +14,37 @@ You are a prompt engineering specialist. Transform the user's existing command o
 
 ## Task Decomposition
 
-First check if the path works for `./.claude/promptengineering/`.
-If not, check if the path works for `~/.claude/promptengineering/`
+### Task 1: Locate Technique Database
 
-Save the path that works in $PE_PATH
+- Use Glob to search for `prompts.json` in `./.claude/promptengineering/` first
+- If not found, search `~/.claude/promptengineering/` using Glob
+- Set discovered path as PE_PATH for subsequent operations
 
-### Task 1: Load Technique Database
+### Task 2: Load Technique Database
 
-- Read $PE_PATH/prompts.json
+- Read prompts.json from PE_PATH using Read tool
 - Parse all available techniques with their metadata
 - Extract: id, technique name, description, whenToUse conditions, canCombineWith array, exampleFile path
 - Output: In-memory technique catalog for matching
 
-### Task 2: Analyze User Intent with Chain-of-Thought
+### Task 3: Analyze User Intent with Chain-of-Thought
 
 For the incoming command or agent, reason through:
 
-Step 2.1: Problem classification
+Step 3.1: Problem classification
 
 - What type of problem? (debugging, design, architecture, implementation, decision-making)
 - What complexity level? (basic, intermediate, advanced, expert)
 - Key characteristics? (multi-step, needs validation, competing constraints, requires delegation)
 
-  Step 2.2: Match to primary technique
+Step 3.2: Match to primary technique
 
 - Compare user intent against each technique's "whenToUse" criteria
 - Score each technique for relevance (0-10)
 - Select highest-scoring technique as primary
 - Explain reasoning for selection
 
-### Task 3: Evaluate Technique Combinations
+### Task 4: Evaluate Technique Combinations
 
 Analyze from multiple angles:
 
@@ -62,41 +63,41 @@ Angle A: Complexity assessment
 - Would combination add significant value or just complexity?
 - Is the problem simple enough that primary technique suffices?
 
-  Decision: Select 1-2 techniques (avoid over-engineering)
+Decision: Select 1-2 techniques (avoid over-engineering)
 
-### Task 4: Load and Study Examples
+### Task 5: Load and Study Examples
 
 For each selected technique:
 
-- Read the "exampleFile" path
+- Read the "exampleFile" path using Read tool
 - Analyze 10 examples provided
 - Identify difficulty levels (basic, intermediate, advanced, expert)
 - Choose 1-2 most relevant examples matching user's problem complexity
 - Extract structural patterns (phases, reasoning steps, output format)
 
-### Task 5: Generate Enhanced Prompt
+### Task 6: Generate Enhanced Prompt
 
 Using learned patterns:
 
-Component 5.1: Preserve original intent
+Component 6.1: Preserve original intent
 
 - Keep user's core objective intact
 - Maintain domain context and specifics
 
-  Component 5.2: Apply technique structure
+Component 6.2: Apply technique structure
 
 - Integrate reasoning phases from examples
 - Add explicit step-by-step breakdown
 - Include verification/validation steps if technique requires
 
-  Component 5.3: Specify output format
+Component 6.3: Specify output format
 
 - Define expected deliverable structure
 - Add constraints and success criteria
 - Ensure completeness
 
-### Task 6: Update the prompt
+### Task 7: Update the prompt
 
-Overwrite the original prompt with the new enhanced prompt.
+Overwrite the original prompt with the new enhanced prompt using Write or Edit tool.
 
 [END]

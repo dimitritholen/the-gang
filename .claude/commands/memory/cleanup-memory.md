@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash, Read, Glob
+allowed-tools: Read, Glob, Edit, Write, Bash
 argument-hint: [optional: feature-slug]
 description: Clean up temporary handoff files from .claude/memory/
 ---
@@ -28,21 +28,13 @@ Locate all temporary files in the memory directory.
 
 **Execution:**
 
-```bash
-echo "Task 1: Scanning .claude/memory/ for temporary files..."
+Use Glob tool to find temporary files:
 
-# List all .tmp-* files
-TEMP_FILES=$(ls .claude/memory/.tmp-* 2>/dev/null || echo "")
+- Pattern: `.tmp-*`
+- Path: `.claude/memory/`
 
-if [ -z "$TEMP_FILES" ]; then
-  echo "RESULT: No temporary files found - memory is clean"
-  exit 0
-fi
-
-echo "RESULT: Found temporary files"
-ls -lh .claude/memory/.tmp-*
-echo ""
-```
+If no files found, report "No temporary files found - memory is clean" and exit.
+If files found, proceed to Task 2.
 
 **Verification checkpoint:**
 
@@ -56,35 +48,23 @@ Apply feature-slug filter if specified by user.
 
 **Execution:**
 
-```bash
-echo "Task 2: Filtering by scope..."
+If feature-slug argument provided:
 
-FEATURE_SLUG="$ARGUMENTS"
+- Use Glob with pattern: `.tmp-*{feature-slug}*`
+- Path: `.claude/memory/`
+- If no matches, report and exit
+- If matches found, proceed
 
-if [ -n "$FEATURE_SLUG" ]; then
-  echo "Scope: Filtering for feature '$FEATURE_SLUG'"
+If no feature-slug:
 
-  # Find files matching this feature slug
-  MATCHING_FILES=$(ls .claude/memory/.tmp-*${FEATURE_SLUG}* 2>/dev/null || echo "")
-
-  if [ -z "$MATCHING_FILES" ]; then
-    echo "RESULT: No temporary files found for feature: $FEATURE_SLUG"
-    exit 0
-  fi
-
-  echo "RESULT: Found files for $FEATURE_SLUG"
-  ls -lh .claude/memory/.tmp-*${FEATURE_SLUG}*
-  echo ""
-else
-  echo "Scope: All temporary files (no filter)"
-fi
-```
+- Use all files from Task 1
+- Report: "Scope: All temporary files (no filter)"
 
 **Verification checkpoint:**
 
 - Confirm: Does the filter pattern correctly match feature naming?
 - Confirm: Are we providing clear user feedback about scope?
-- Edge case check: What if FEATURE_SLUG contains special characters?
+- Edge case check: What if feature-slug contains special characters?
 
 ### Task 3: Inspect and Classify
 
@@ -92,45 +72,20 @@ Show detailed file information to confirm deletion targets.
 
 **Execution:**
 
-```bash
-echo "Task 3: Inspecting file details..."
-echo "================================="
+For each file from Task 2:
 
-if [ -n "$FEATURE_SLUG" ]; then
-  # Inspect specific feature files
-  for file in .claude/memory/.tmp-*${FEATURE_SLUG}*; do
-    if [ -f "$file" ]; then
-      echo "File: $(basename $file)"
-      echo "  Size: $(du -h "$file" | cut -f1)"
-      echo "  Modified: $(stat -c %y "$file" 2>/dev/null || stat -f %Sm "$file")"
-
-      # Show first 3 lines to identify content
-      echo "  Content preview:"
-      head -n 3 "$file" | sed 's/^/    | /'
-      echo ""
-    fi
-  done
-else
-  # Inspect all temporary files
-  for file in .claude/memory/.tmp-*; do
-    if [ -f "$file" ]; then
-      echo "File: $(basename $file)"
-      echo "  Size: $(du -h "$file" | cut -f1)"
-      echo "  Modified: $(stat -c %y "$file" 2>/dev/null || stat -f %Sm "$file")"
-
-      # Show first 3 lines to identify content
-      echo "  Content preview:"
-      head -n 3 "$file" | sed 's/^/    | /'
-      echo ""
-    fi
-  done
-fi
-```
+1. Use Read tool with limit=3 to preview first 3 lines
+2. Use Bash to get file metadata (size, modification time)
+3. Display formatted output:
+   - File: {basename}
+   - Size: {size}
+   - Modified: {timestamp}
+   - Content preview: {first 3 lines}
 
 **Verification checkpoint:**
 
 - Confirm: Does preview show enough info to verify these are temp files?
-- Confirm: Are we handling both Linux/Mac stat command differences?
+- Confirm: Are we handling cross-platform file metadata retrieval?
 - Safety check: Are we definitely NOT matching permanent artifacts?
 
 ### Task 4: Pre-deletion Verification
@@ -188,46 +143,12 @@ Perform verified deletion with progress tracking.
 
 **If user confirms:**
 
-```bash
-echo "Task 5: Executing deletion..."
+Use Bash to delete files from Task 2 list:
 
-DELETED_COUNT=0
-FAILED_COUNT=0
-
-if [ -n "$FEATURE_SLUG" ]; then
-  # Delete specific feature files
-  for file in .claude/memory/.tmp-*${FEATURE_SLUG}*; do
-    if [ -f "$file" ]; then
-      if rm "$file" 2>/dev/null; then
-        echo "SUCCESS: Deleted $(basename $file)"
-        DELETED_COUNT=$((DELETED_COUNT + 1))
-      else
-        echo "FAILED: Could not delete $(basename $file)"
-        FAILED_COUNT=$((FAILED_COUNT + 1))
-      fi
-    fi
-  done
-else
-  # Delete all temporary files
-  for file in .claude/memory/.tmp-*; do
-    if [ -f "$file" ]; then
-      if rm "$file" 2>/dev/null; then
-        echo "SUCCESS: Deleted $(basename $file)"
-        DELETED_COUNT=$((DELETED_COUNT + 1))
-      else
-        echo "FAILED: Could not delete $(basename $file)"
-        FAILED_COUNT=$((FAILED_COUNT + 1))
-      fi
-    fi
-  done
-fi
-
-echo ""
-echo "RESULT: Deleted $DELETED_COUNT file(s)"
-if [ $FAILED_COUNT -gt 0 ]; then
-  echo "WARNING: Failed to delete $FAILED_COUNT file(s)"
-fi
-```
+- Execute `rm` command for each file
+- Track deletion count (success/failure)
+- Report status for each file
+- Display summary: "Deleted X file(s), Failed Y file(s)"
 
 **Verification checkpoint:**
 
@@ -241,34 +162,18 @@ Verify cleanup completed successfully.
 
 **Execution:**
 
-```bash
-echo "Task 6: Validating cleanup..."
-echo "=============================="
+1. Re-scan with Glob using same pattern from Task 2
+2. If feature-slug provided and no files found:
+   - Report: "SUCCESS: All temporary files removed for feature: {feature-slug}"
+3. If no feature-slug and no files found:
+   - Report: "SUCCESS: All temporary files removed"
+4. If files remain:
+   - Report: "WARNING: Some files remain" + list files
 
-# Verify no temporary files remain (or only unmatched ones)
-if [ -n "$FEATURE_SLUG" ]; then
-  REMAINING=$(ls .claude/memory/.tmp-*${FEATURE_SLUG}* 2>/dev/null || echo "")
-  if [ -z "$REMAINING" ]; then
-    echo "SUCCESS: All temporary files removed for feature: $FEATURE_SLUG"
-  else
-    echo "WARNING: Some files remain for $FEATURE_SLUG:"
-    ls -lh .claude/memory/.tmp-*${FEATURE_SLUG}*
-  fi
-else
-  REMAINING=$(ls .claude/memory/.tmp-* 2>/dev/null || echo "")
-  if [ -z "$REMAINING" ]; then
-    echo "SUCCESS: All temporary files removed"
-  else
-    echo "WARNING: Some temporary files remain:"
-    ls -lh .claude/memory/.tmp-*
-  fi
-fi
-
-# Show permanent artifacts that remain (verification they weren't touched)
-echo ""
-echo "Permanent artifacts (protected, still present):"
-ls -lh .claude/memory/*.md 2>/dev/null | grep -v ".tmp-" || echo "None found"
-```
+5. Verify permanent artifacts untouched:
+   - Use Glob with pattern: `*.md` in `.claude/memory/`
+   - Exclude `.tmp-*` files
+   - Display: "Permanent artifacts (protected, still present):"
 
 **Final verification questions:**
 
@@ -332,10 +237,7 @@ ls -lh .claude/memory/*.md 2>/dev/null | grep -v ".tmp-" || echo "None found"
 
 **Dry run (preview only):**
 
-```bash
-# Just list files without running full command
-ls -lh .claude/memory/.tmp-*
-```
+Use Glob to list files: pattern `.tmp-*`, path `.claude/memory/`
 
 ## Exit Codes
 

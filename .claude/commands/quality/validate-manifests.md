@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(code-tools:*)
+allowed-tools: Read, Glob, Edit
 description: Validate task and root manifest consistency
 ---
 
@@ -165,95 +165,71 @@ Before applying, check:
 
 ## Implementation
 
-Use CLI tool for validation with verification built in:
+Use code tools for validation with verification built in:
 
-```bash
-# Parse arguments
-FEATURE_FILTER=""
-AUTO_FIX=false
+**Step 1: Parse arguments**
 
-for arg in $ARGUMENTS; do
-    if [ "$arg" = "--fix" ]; then
-        AUTO_FIX=true
-    else
-        FEATURE_FILTER="$arg"
-    fi
-done
+- Extract feature filter if provided
+- Identify auto-fix flag
+- Store in variables for later use
 
-# Get list of features to validate
-if [ -n "$FEATURE_FILTER" ]; then
-    FEATURES="$FEATURE_FILTER"
-else
-    # Get all features from root manifest
-    FEATURES=$(jq -r '.features[] | .id + "-" + .slug' .tasks/manifest.json)
-fi
+**Step 2: Read root manifest**
 
-# Validate each feature
-TOTAL_ISSUES=0
-FEATURES_CHECKED=0
+- Use Read tool to load `.tasks/manifest.json`
+- Parse JSON to extract features array
+- If feature filter provided, select matching feature
+- If no filter, use all features
 
-for FEATURE in $FEATURES; do
-    FEATURE_DIR=".tasks/${FEATURE}"
+**Step 3: Enumerate feature directories**
 
-    if [ ! -d "$FEATURE_DIR" ]; then
-        echo "⚠  Feature directory not found: $FEATURE_DIR"
-        continue
-    fi
+- Use Glob tool with pattern `.tasks/*/manifest.json`
+- Cross-reference with root manifest features
+- Build list of feature directories to validate
 
-    # Use CLI tool for validation (handles all checks)
-    VALIDATION=$(code-tools validate_manifest --feature-dir "$FEATURE_DIR")
+**Step 4: Validate each feature**
 
-    IS_VALID=$(echo "$VALIDATION" | jq -r '.data.valid')
-    ISSUES=$(echo "$VALIDATION" | jq -r '.data.issues')
+- For each feature directory:
+  - Use Glob tool with pattern `.tasks/{feature}/T*.json` to count task files
+  - Use Read tool to load each task file
+  - Parse task statuses, count completed tasks
+  - Use Read tool to load feature manifest
+  - Compare actual vs manifest values for:
+    - taskCount
+    - completedCount
+    - status (derive from task distribution)
+    - nextTask validity
+    - blocker synchronization
 
-    if [ "$IS_VALID" = "false" ]; then
-        # Display issues for this feature
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        echo "Feature: $FEATURE"
-        echo ""
+**Step 5: Report issues**
 
-        # Parse and display each issue
-        echo "$ISSUES" | jq -r '.[] | "✗ \(.type): expected=\(.expected), found=\(.found)"'
+- Categorize by severity
+- Format with clear expected vs found values
+- If --fix flag set, proceed to fix phase
 
-        ((TOTAL_ISSUES += $(echo "$ISSUES" | jq 'length')))
+**Step 6: Auto-fix (if requested)**
 
-        # Auto-fix if requested
-        if [ "$AUTO_FIX" = "true" ]; then
-            echo ""
-            echo "Applying fixes..."
-            # NOTE: Auto-fix logic would need to be implemented in CLI or here
-            # For now, just report that fixes would be applied
-        fi
-    else
-        echo "✓ Feature $FEATURE: All checks passed"
-    fi
+- For each issue:
+  - Calculate correct value
+  - Use Edit tool to update manifest JSON
+  - Verify JSON validity after edit
+- Re-validate after all fixes applied
 
-    ((FEATURES_CHECKED++))
-done
+**Example validation flow:**
 
-# Summary
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "Validation complete:"
-echo "  Features: $FEATURES_CHECKED total"
-echo "  Issues: $TOTAL_ISSUES found"
-
-if [ $TOTAL_ISSUES -eq 0 ]; then
-    echo ""
-    echo "✓ All manifests are synchronized and consistent."
-else
-    if [ "$AUTO_FIX" = "false" ]; then
-        echo ""
-        echo "Run with --fix flag to automatically correct issues."
-    fi
-fi
+```
+1. Glob: ".tasks/*/manifest.json" → [".tasks/01-auth/manifest.json", ...]
+2. Read: ".tasks/manifest.json" → parse features array
+3. Read: ".tasks/01-auth/manifest.json" → extract taskCount, status, etc.
+4. Glob: ".tasks/01-auth/T*.json" → count actual task files
+5. Read: each task file → parse status field
+6. Compare: actual_count vs manifest.taskCount
+7. If mismatch: record issue
+8. If --fix: Edit ".tasks/manifest.json" with corrected values
 ```
 
-## Validation Checks (Internal CLI Logic)
+## Validation Checks
 
-The CLI tool (`validate_manifest`) performs these checks automatically:
+These checks are performed for each feature:
 
 ### 1. Task Count Consistency
 

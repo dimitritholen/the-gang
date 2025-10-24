@@ -58,25 +58,30 @@ This implementation planner combines:
 
 ### Phase 1: Context Retrieval
 
-Gather all necessary context using code-tools:
+Gather all necessary context:
 
-```bash
+```
 # Get feature directory from task parameters
 FEATURE_ID="{NN}"
 FEATURE_SLUG="{feature-slug}"
 
-# Retrieve feature context
-code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md
-code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md
-code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/tech-analysis-${FEATURE_SLUG}.md
+# Retrieve feature context using Read tool
+Read .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md
+Read .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md
+Read .tasks/${FEATURE_ID}-${FEATURE_SLUG}/tech-analysis-${FEATURE_SLUG}.md
 
 # Understand codebase structure
-code-tools list_dir --path . --depth 3
-code-tools search_file --glob "src/**/*" --limit 30
-code-tools grep_code --pattern "class |interface |function |def |func " --limit 50
+Glob pattern: src/**/* (or adjust pattern to match detected project structure)
+Grep pattern: "class |interface |function |def |func |export |public " (detect language-appropriate patterns)
 
-# Check for similar features
-code-tools search_memory --dir .claude/memory --query "implementation {related-keywords}" --topk 5
+# Identify language/framework by inspecting:
+- Package files (package.json, requirements.txt, go.mod, Cargo.toml, etc.)
+- Source file extensions (.py, .js, .ts, .go, .rs, etc.)
+- Project configuration files
+
+# Search for similar implementations using Grep tool
+Grep pattern: "{related-keywords}" in codebase
+Grep pattern: "{feature-related-patterns}" for existing patterns
 ```
 
 ### Phase 2: Chain-of-Thought Decomposition
@@ -707,15 +712,15 @@ Define testing strategy:
 
 ### Step 1: Read Feature Context
 
-```bash
+```
 # Get feature ID and slug from task parameters or root manifest
 FEATURE_ID="{NN}"
 FEATURE_SLUG="{feature-slug}"
 
-# Read requirements and tech analysis
-code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md
-code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/tech-analysis-${FEATURE_SLUG}.md
-code-tools read_file --path .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md
+# Read requirements and tech analysis using Read tool
+Read .tasks/${FEATURE_ID}-${FEATURE_SLUG}/requirements-${FEATURE_SLUG}.md
+Read .tasks/${FEATURE_ID}-${FEATURE_SLUG}/tech-analysis-${FEATURE_SLUG}.md
+Read .tasks/${FEATURE_ID}-${FEATURE_SLUG}/feature-brief.md
 ```
 
 ### Step 2: Generate Task List with Dependencies
@@ -743,14 +748,14 @@ Task List (with dependencies):
 
 ### Step 3: Create Task Manifest
 
-**MANDATORY CODE-TOOLS USAGE**:
+**Create manifest using Write tool**:
 
-```bash
-# Create task-level manifest using code-tools
+```
+# Get current timestamp using Bash tool
 CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-# Use code-tools to create manifest file
-code-tools create_file --file .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json --content @manifest.json
+# Write manifest file using Write tool
+# File: .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json
 
 # Content for manifest.json:
 {
@@ -785,21 +790,20 @@ code-tools create_file --file .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json
   "nextTask": "T01",
   "completedTasks": []
 }
-EOF
 ```
 
 ### Step 4: Generate Individual Task XML Files
 
 For each task, create XML file using schema:
 
-**MANDATORY CODE-TOOLS USAGE**:
+**Create task files using Write tool**:
 
-```bash
+```
 # Example: T01-database-schema-design.xml
-# Use code-tools to create task XML files
-code-tools create_file --file .tasks/${FEATURE_ID}-${FEATURE_SLUG}/T01-database-schema-design.xml --content @T01-task.xml
+# Write task XML file using Write tool
+# File: .tasks/${FEATURE_ID}-${FEATURE_SLUG}/T01-database-schema-design.xml
 
-# Content for T01-task.xml:
+# Content for task XML:
 <?xml version="1.0" encoding="UTF-8"?>
 <task id="T01" status="NOT_STARTED">
   <metadata>
@@ -850,15 +854,20 @@ code-tools create_file --file .tasks/${FEATURE_ID}-${FEATURE_SLUG}/T01-database-
     </risk>
   </risks>
 </task>
-EOF
 
-# Repeat for T02, T03, T04, etc.
+# Repeat for T02, T03, T04, etc. using Write tool for each task file
 ```
 
 ### Step 5: Update Root Manifest
 
-```bash
+```
 # Update root manifest: set feature status to IN_PROGRESS and taskCount
+# 1. Read current root manifest using Read tool
+# 2. Parse JSON (use Bash with jq or process in Claude)
+# 3. Update feature entry with new status, taskCount, timestamp
+# 4. Write updated manifest using Write tool
+
+Example using Bash tool:
 TASK_COUNT=$(jq '.tasks | length' .tasks/${FEATURE_ID}-${FEATURE_SLUG}/manifest.json)
 
 jq --arg id "$FEATURE_ID" \

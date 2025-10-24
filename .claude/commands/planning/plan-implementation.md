@@ -18,7 +18,7 @@ You are the implementation planning orchestrator responsible for coordinating th
 
 **Techniques Applied**: Chain of Command (orchestration) + Task Decomposition (planning methodology)
 
-**System date assertion**: Retrieve current system date via `date +%Y-%m-%d` before proceeding
+**System date assertion**: Retrieve current system date before proceeding
 **Feature slug**: $ARGUMENTS
 
 **Pipeline Status Tracking**:
@@ -107,43 +107,43 @@ Validate required artifacts exist before delegating to agent. Each prerequisite 
 
 **Gate 1.1: Requirements Document**
 
-```bash
-# Load feature requirements
-code-tools read_file --path .claude/memory/requirements-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Requirements not found. Run /gather-requirements first."
-```
+Use Read tool to load requirements:
+
+- Path: `.claude/memory/requirements-{feature-slug}.md`
 
 **Gate Decision**:
 
 - PASS: Requirements document loaded successfully → Continue
-- FAIL: Document not found → Status: BLOCKED, recommend `/gather-requirements $ARGUMENTS`
+- FAIL: Document not found → Status: BLOCKED, recommend `/gather-requirements {feature-slug}`
 
 **Gate 1.2: Technology Analysis**
 
-```bash
-# Load technology analysis
-code-tools read_file --path .claude/memory/tech-analysis-$ARGUMENTS.md 2>/dev/null || echo "ERROR: Tech analysis not found. Run /research-tech first."
-```
+Use Read tool to load tech analysis:
+
+- Path: `.claude/memory/tech-analysis-{feature-slug}.md`
 
 **Gate Decision**:
 
 - PASS: Tech analysis document loaded → Continue
-- FAIL: Document not found → Status: BLOCKED, recommend `/research-tech $ARGUMENTS`
+- FAIL: Document not found → Status: BLOCKED, recommend `/research-tech {feature-slug}`
 
 **Gate 1.3: Codebase Context (Optional)**
 
-```bash
-# Load codebase conventions
-code-tools read_file --path .claude/memory/coding-conventions.md 2>/dev/null || echo "No coding conventions found"
+Use Read tool for context artifacts:
 
-# Load architecture decisions
-code-tools read_file --path .claude/memory/architecture-decisions.md 2>/dev/null || echo "No ADRs found"
+- Coding conventions: `.claude/memory/coding-conventions.md` (optional)
+- Architecture decisions: `.claude/memory/architecture-decisions.md` (optional)
 
-# Understand codebase structure
-code-tools list_dir --path . --depth 2
+Use Glob tool to understand project structure:
 
-# Search for similar features
-code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar features implementation patterns" --topk 5
-```
+- Pattern: `**/*` with appropriate depth
+- Analyze file organization and naming patterns
+
+Use Grep tool to find similar features:
+
+- Pattern: Related feature names or patterns
+- Path: `.claude/memory/`
+- Look for implementation patterns to reference
 
 **Gate Decision**:
 
@@ -167,9 +167,10 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar featur
 </technology_stack>
 
 <codebase_structure>
-{Directory organization from list_dir}
+{Directory organization from Glob tool}
 {Key patterns observed (if conventions available)}
 {File naming and module organization}
+{Detected language/framework from codebase analysis}
 </codebase_structure>
 
 <architectural_constraints>
@@ -179,7 +180,7 @@ code-tools search_memory --dir .claude/memory --query "$ARGUMENTS similar featur
 </architectural_constraints>
 
 <similar_implementations>
-{Related features from memory search}
+{Related features from Grep search in .claude/memory}
 {Patterns to reuse}
 {Complexity comparisons for estimation}
 </similar_implementations>
@@ -339,26 +340,26 @@ Identify all components that need to be built/modified:
 ```xml
 <components>
   <infrastructure>
-    <component>Database schema/migrations</component>
-    <component>API endpoints/routes</component>
-    <component>Background jobs/workers</component>
+    <component>Data persistence layer (database/storage schema)</component>
+    <component>API endpoints/routes (or equivalent interface layer)</component>
+    <component>Background processing/async tasks</component>
     <component>External service integrations</component>
     <component>Caching layer</component>
   </infrastructure>
 
   <frontend>
-    <component>UI components</component>
+    <component>UI components (framework-specific)</component>
     <component>State management</component>
-    <component>Routing</component>
+    <component>Routing/navigation</component>
     <component>Forms/validation</component>
-    <component>Styling</component>
+    <component>Styling/theming</component>
   </frontend>
 
   <backend>
     <component>Business logic/services</component>
     <component>Data access layer</component>
     <component>Authentication/authorization</component>
-    <component>Validation</component>
+    <component>Input validation</component>
     <component>Error handling</component>
   </backend>
 
@@ -439,13 +440,13 @@ For each component, create specific tasks using hierarchical structure:
 
 **Task Granularity Guidelines**:
 
-- Right-sized: "Create User model with validation" (4-6 hours)
+- Right-sized: "Create User entity/model with validation logic" (4-6 hours)
 - Too large: "Build entire authentication system" (40+ hours → break into 6-10 tasks)
-- Too small: "Import bcrypt library" (15 minutes → bundle with larger task)
+- Too small: "Import dependency library" (15 minutes → bundle with larger task)
 
 **SMART Task Characteristics**:
 
-- Specific: "Implement POST /api/users/login endpoint with JWT auth" not "Work on auth"
+- Specific: "Implement POST /api/users/login endpoint with token-based auth" not "Work on auth"
 - Measurable: Clear acceptance criteria that can be tested
 - Achievable: 2-8 hours of work (break larger tasks into subtasks)
 - Relevant: Tied to specific requirement IDs (FR-XXX, NFR-XXX)
@@ -713,7 +714,7 @@ Generate implementation plan document in the following structure (render as mark
 
     <team_needs>
       {Required team composition and skills}
-      {e.g., "1 backend (Python), 1 frontend (React), QA support 20%"}
+      {e.g., "1 backend developer ({detected language}), 1 frontend developer ({detected framework}), QA support 20%"}
     </team_needs>
 
     <approach>
@@ -771,7 +772,7 @@ Generate implementation plan document in the following structure (render as mark
     <team_composition>
       <role>
         <title>{e.g., "Backend Developer"}</title>
-        <skills_required>{Python, FastAPI, PostgreSQL}</skills_required>
+        <skills_required>{Detected language/framework, database technology, relevant libraries}</skills_required>
         <allocation>{Full-time|Part-time %}</allocation>
         <duration>{How long needed}</duration>
       </role>
@@ -973,15 +974,10 @@ After agent completes implementation planning, validate outputs:
 
 **Write to Memory** (only if all validations PASS):
 
-```bash
-# Write implementation plan to memory
-code-tools create_file \
-  --file .claude/memory/implementation-plan-$ARGUMENTS.md \
-  --content @- \
-  --add-last-line-newline <<EOF
-{Agent's implementation plan document content}
-EOF
-```
+Use Write tool to create the implementation plan:
+
+- Path: `.claude/memory/implementation-plan-{feature-slug}.md`
+- Content: Agent's implementation plan document content
 
 **Phase 3 Exit Gate**:
 
