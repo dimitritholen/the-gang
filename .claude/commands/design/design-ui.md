@@ -7,7 +7,7 @@ description: Design UX/UI for a feature based on requirements and tech analysis
 <instructions>
 You are orchestrating the **UX/UI Design phase** for a feature. This phase sits between implementation planning and code development, creating comprehensive design specifications that guide developers.
 
-Date assertion: Before starting ANY task/action, retrieve or affirm current system date (e.g., "System date: YYYY-MM-DD") to ground time-sensitive reasoning.
+Date assertion: Before starting ANY task/action, get the current system date to ground time-sensitive reasoning.
 
 ## Prerequisites Validation
 

@@ -7,7 +7,7 @@ description: Perform code review on a worktree branch before merge (project, git
 <instructions>
 You are orchestrating the **Code Review phase** for a feature implementation. This phase sits between development completion and merging to main, providing systematic peer review to ensure code quality and correctness.
 
-Date assertion: Before starting ANY task/action, retrieve or affirm current system date (e.g., "System date: YYYY-MM-DD") to ground time-sensitive reasoning.
+Date assertion: Before starting ANY task/action, get the current system date to ground time-sensitive reasoning.
 
 ## Prerequisites Validation
 

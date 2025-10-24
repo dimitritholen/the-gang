@@ -7,11 +7,12 @@ description: Generate memory artifacts from existing codebase
 <instructions>
 You are orchestrating **codebase memory generation** to reverse-engineer an existing codebase and create comprehensive memory artifacts for future development.
 
-Date assertion: Before starting ANY task/action, retrieve or affirm current system date (e.g., "System date: YYYY-MM-DD") to ground time-sensitive reasoning.
+Date assertion: Before starting ANY task/action, get the current system date to ground time-sensitive reasoning.
 
 ## Purpose
 
 Generate 5 memory artifacts that document:
+
 1. Project context (high-level overview)
 2. Technology stack (with rationale)
 3. Coding conventions (patterns to follow)
@@ -23,10 +24,12 @@ These artifacts will be used by all agents when adding new features to ensure co
 ## Prerequisites
 
 **Required**:
+
 - Existing codebase with code to analyze
 - Read/write access to `.claude/memory/` directory
 
 **Optional**:
+
 - Git repository (for commit history analysis)
 - Package manifests (package.json, requirements.txt, etc.)
 - Configuration files (tsconfig, eslint, etc.)
@@ -62,12 +65,14 @@ fi
 ```
 
 **Scope Detection**:
+
 - Check if monorepo (pnpm-workspace.yaml, lerna.json, nx.json)
 - Check if microservices (multiple service directories)
 - Detect primary language (count file extensions)
 - Estimate size (LOC, file count)
 
 Use Glob and Grep tools to:
+
 ```bash
 # Detect project type
 glob pattern="package.json" path="."
@@ -83,6 +88,7 @@ find . -name "*.ts" -o -name "*.tsx" | xargs wc -l
 ```
 
 Present scope summary:
+
 ```markdown
 ## Codebase Scope Detected
 
@@ -147,6 +153,7 @@ Follow MODE 1 workflow in your agent instructions.
 ```
 
 **Expected Output:**
+
 - Agent creates `.claude/memory/.tmp-findings-initial.md`
 - Agent returns: "Initial analysis complete - ready for validation"
 
@@ -172,6 +179,7 @@ cat "$FINDINGS_FILE"
 Use structured questions to validate key aspects:
 
 **Validation Questions:**
+
 1. "Tech Stack Detection: Does the identified technology stack match your project?"
 2. "Architecture Assessment: Is the detected architecture (e.g., monolith/microservices, client-server) accurate?"
 3. "Deployment Model: Does the identified deployment model (e.g., serverless, containerized) match reality?"
@@ -255,6 +263,7 @@ Follow MODE 2 workflow in your agent instructions.
 ```
 
 **Expected Output:**
+
 - Agent creates `.claude/memory/.tmp-findings-conventions.md`
 - Agent returns: "Convention analysis complete - ready for validation"
 
@@ -278,6 +287,7 @@ cat "$FINDINGS_FILE"
 **Present findings to user for validation:**
 
 **Validation Questions:**
+
 1. "Naming Conventions: Do the identified file/variable naming patterns match your standards?"
 2. "Code Organization: Is the detected code organization pattern accurate?"
 3. "Error Handling: Does the identified error handling approach match your practices?"
@@ -370,6 +380,7 @@ Follow MODE 3 workflow in your agent instructions.
 ```
 
 **Expected Output:**
+
 - Agent creates `.claude/memory/.tmp-findings-final.md`
 - Agent returns: "Final analysis complete - ready for validation"
 
@@ -393,6 +404,7 @@ cat "$FINDINGS_FILE"
 **Present findings to user for validation:**
 
 **Validation Questions:**
+
 1. "Feature Inventory: Are all identified features accurate and complete?"
 2. "Feature Completeness: Do the completeness percentages (frontend+backend+tests) match reality?"
 3. "Architecture Decisions: Do the inferred ADRs accurately reflect actual decisions made?"
@@ -486,6 +498,7 @@ Follow MODE 4 workflow in your agent instructions.
 ```
 
 **Expected Output:**
+
 - Agent creates 5 final artifacts in `.claude/memory/`
 - Agent returns: "Memory artifacts generated"
 
@@ -535,6 +548,7 @@ fi
 The multi-phase workflow executes as follows:
 
 **Phase 2a-2b: Initial Analysis + Checkpoint 1** (~10-15 minutes)
+
 - Agent analyzes directory structure, config files, tech stack
 - Agent writes findings to `.tmp-findings-initial.md`
 - Orchestrator validates with user
@@ -542,6 +556,7 @@ The multi-phase workflow executes as follows:
 - Cleanup: Delete `.tmp-findings-initial.md`
 
 **Phase 2c-2d: Convention Analysis + Checkpoint 2** (~15-20 minutes)
+
 - Agent reads corrections from Checkpoint 1
 - Agent mines naming conventions, patterns, error handling, API design, testing
 - Agent writes findings to `.tmp-findings-conventions.md`
@@ -550,6 +565,7 @@ The multi-phase workflow executes as follows:
 - Cleanup: Delete `.tmp-findings-conventions.md`
 
 **Phase 2e-2f: Final Analysis + Checkpoint 3** (~15-20 minutes)
+
 - Agent reads corrections from Checkpoints 1-2
 - Agent maps features (endpoints, routes, database)
 - Agent generates ADRs with confidence levels
@@ -559,6 +575,7 @@ The multi-phase workflow executes as follows:
 - Cleanup: Delete `.tmp-findings-final.md`
 
 **Phase 2g: Artifact Generation** (~10-15 minutes)
+
 - Agent reads ALL corrections from 3 checkpoints
 - Agent generates 5 final memory artifacts
 - Agent incorporates all user corrections
@@ -568,6 +585,7 @@ The multi-phase workflow executes as follows:
 **Total Time**: 50-70 minutes for deep analysis with 3 validation checkpoints
 
 **Temporary Files Lifecycle:**
+
 - `.tmp-findings-initial.md` - Created Phase 2a, Deleted Phase 2b
 - `.tmp-corrections-initial.md` - Created Phase 2b, Deleted Phase 2g
 - `.tmp-findings-conventions.md` - Created Phase 2c, Deleted Phase 2d
@@ -603,6 +621,7 @@ After Phase 2g completes, verify all artifacts exist and temporary files are cle
 </validation_checklist>
 
 Use Read tool to spot-check artifacts:
+
 ```bash
 # Check for evidence citations
 grep -c "According to" .claude/memory/*.md
