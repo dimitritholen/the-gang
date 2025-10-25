@@ -1,0 +1,141 @@
+{
+  "goals": {
+    "CREATE": {
+      "keywords": ["build", "implement", "create", "add", "new", "develop", "make", "generate"],
+      "defaultPatterns": [12, 13],
+      "description": "Build new functionality, features, or components"
+    },
+    "DEBUG": {
+      "keywords": ["debug", "fix", "bug", "error", "issue", "problem", "broken", "failing"],
+      "defaultPatterns": [1, 2],
+      "description": "Fix bugs, troubleshoot issues, resolve errors"
+    },
+    "OPTIMIZE": {
+      "keywords": ["optimize", "improve", "faster", "performance", "efficient", "bottleneck", "slow"],
+      "defaultPatterns": [1, 4],
+      "description": "Improve performance, efficiency, or quality"
+    },
+    "DESIGN": {
+      "keywords": ["design", "architecture", "structure", "plan", "organize", "layout", "model"],
+      "defaultPatterns": [5, 7],
+      "description": "Architecture, planning, structural design"
+    },
+    "ANALYZE": {
+      "keywords": ["analyze", "understand", "explain", "investigate", "study", "review", "examine"],
+      "defaultPatterns": [1],
+      "description": "Understand, investigate, or explain existing code/systems"
+    },
+    "MIGRATE": {
+      "keywords": ["migrate", "refactor", "modernize", "port", "upgrade", "rewrite", "convert"],
+      "defaultPatterns": [12, 1],
+      "description": "Refactor, modernize, port to new technology"
+    },
+    "VALIDATE": {
+      "keywords": ["test", "verify", "validate", "audit", "check", "ensure", "confirm"],
+      "defaultPatterns": [2],
+      "description": "Test, verify, audit, or review for correctness"
+    },
+    "DOCUMENT": {
+      "keywords": ["document", "explain", "write", "describe", "guide", "tutorial", "readme"],
+      "defaultPatterns": [6, 7],
+      "description": "Write documentation, guides, explanations"
+    }
+  },
+  "qualityRequirements": {
+    "CORRECTNESS": {
+      "keywords": ["critical", "production", "reliable", "robust", "correct", "accurate", "right"],
+      "enhancementPatterns": [2],
+      "priority": 10,
+      "description": "Must be correct, reliable, production-ready"
+    },
+    "PERFORMANCE": {
+      "keywords": ["fast", "optimize", "bottleneck", "latency", "speed", "efficient", "scalable"],
+      "enhancementPatterns": [4],
+      "priority": 8,
+      "description": "Must be performant, efficient, scalable"
+    },
+    "SECURITY": {
+      "keywords": ["secure", "audit", "vulnerable", "exploit", "attack", "threat", "safe"],
+      "enhancementPatterns": [2, 7],
+      "priority": 10,
+      "description": "Must be secure, audited, free from vulnerabilities"
+    },
+    "MAINTAINABILITY": {
+      "keywords": ["clean", "readable", "modular", "maintainable", "extensible", "simple"],
+      "enhancementPatterns": [6],
+      "priority": 6,
+      "description": "Must be clean, readable, maintainable"
+    },
+    "COMPLETENESS": {
+      "keywords": ["comprehensive", "thorough", "all cases", "edge cases", "complete", "exhaustive"],
+      "enhancementPatterns": [11],
+      "priority": 7,
+      "description": "Must handle all cases, edge cases, comprehensive"
+    },
+    "COLLABORATIVE": {
+      "keywords": ["team", "review", "stakeholder", "multiple perspectives", "consensus"],
+      "enhancementPatterns": [3, 4],
+      "priority": 5,
+      "description": "Requires team collaboration, multiple perspectives"
+    }
+  },
+  "outputTypes": {
+    "CODE": {
+      "keywords": ["code", "implementation", "function", "class", "module", "component"],
+      "requiredSections": ["Implementation", "Tests", "Edge Cases"],
+      "description": "Code implementation files"
+    },
+    "ARCHITECTURE": {
+      "keywords": ["architecture", "design", "diagram", "structure", "system", "components"],
+      "requiredSections": ["System Overview", "Components", "Data Flow", "Trade-offs"],
+      "description": "Architecture design documents, diagrams"
+    },
+    "TESTS": {
+      "keywords": ["test", "spec", "validation", "coverage", "suite"],
+      "requiredSections": ["Test Cases", "Edge Cases", "Assertions", "Setup/Teardown"],
+      "description": "Test suites, validation scripts"
+    },
+    "DOCUMENTATION": {
+      "keywords": ["documentation", "guide", "readme", "tutorial", "explanation"],
+      "requiredSections": ["Overview", "Usage Examples", "API Reference", "Troubleshooting"],
+      "description": "User guides, API docs, explanations"
+    },
+    "CONFIGURATION": {
+      "keywords": ["config", "setup", "deployment", "environment", "infrastructure"],
+      "requiredSections": ["Prerequisites", "Configuration Steps", "Validation", "Rollback"],
+      "description": "Setup scripts, deployment configs"
+    },
+    "ANALYSIS": {
+      "keywords": ["report", "findings", "analysis", "investigation", "assessment"],
+      "requiredSections": ["Executive Summary", "Detailed Findings", "Recommendations", "Next Steps"],
+      "description": "Analysis reports, findings documents"
+    }
+  },
+  "complexityIndicators": {
+    "basic": {
+      "keywords": ["simple", "basic", "quick", "small", "single file"],
+      "maxPatterns": 1,
+      "description": "Simple, single-file tasks"
+    },
+    "intermediate": {
+      "keywords": ["implement", "create", "build", "multi-file", "feature"],
+      "maxPatterns": 2,
+      "description": "Multi-file features, moderate complexity"
+    },
+    "advanced": {
+      "keywords": ["architecture", "design", "system", "complex", "multiple components"],
+      "maxPatterns": 3,
+      "description": "Architecture, complex systems, multiple components"
+    },
+    "expert": {
+      "keywords": ["migrate", "refactor legacy", "full-stack", "real-time", "distributed"],
+      "maxPatterns": 3,
+      "description": "Migrations, legacy refactors, distributed systems"
+    }
+  },
+  "uncertaintySignals": {
+    "keywords": ["not sure", "unclear", "don't know", "maybe", "possibly", "might", "unsure"],
+    "triggersPattern": 9,
+    "description": "Triggers Active Prompting for clarification"
+  }
+}

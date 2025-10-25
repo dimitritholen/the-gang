@@ -1,0 +1,230 @@
+{
+  "roles": {
+    "FOUNDATION": {
+      "description": "Primary technique that structures the entire prompt",
+      "patterns": [1, 3, 4, 5, 7, 12, 13],
+      "maxPerPrompt": 1,
+      "priority": 1
+    },
+    "ENHANCEMENT": {
+      "description": "Secondary techniques that add quality layers",
+      "patterns": [2, 6, 8, 9, 10, 11],
+      "maxPerPrompt": 2,
+      "priority": 2
+    },
+    "FORMATTER": {
+      "description": "Output formatting and workflow structure",
+      "patterns": [3, 10, 14],
+      "maxPerPrompt": 1,
+      "priority": 3
+    }
+  },
+  "layeringRules": {
+    "1": {
+      "name": "Chain of Thought",
+      "role": "FOUNDATION",
+      "layersWith": {
+        "2": "CoT reasoning → CoVe validation",
+        "6": "CoT reasoning → Draft refinement",
+        "8": "CoT reasoning → Reflexion improvement",
+        "10": "CoT reasoning → Iterative refinement"
+      },
+      "integrationPoints": ["After reasoning steps", "Before solution"],
+      "templateMerge": "Insert enhancement between '## Step-by-Step Reasoning' and '## Solution'"
+    },
+    "2": {
+      "name": "Chain of Verification",
+      "role": "ENHANCEMENT",
+      "layersWith": {
+        "1": "Generate via CoT → Verify",
+        "3": "Each agent output → Verify before handoff",
+        "4": "Generate multiple approaches → Verify each",
+        "7": "Role-based output → Expert verification"
+      },
+      "integrationPoints": ["After initial generation", "Before final output"],
+      "templateMerge": "Add verification section after main output, before final deliverable"
+    },
+    "3": {
+      "name": "Chain of Command",
+      "role": "FOUNDATION | FORMATTER",
+      "layersWith": {
+        "1": "Each agent uses CoT internally",
+        "2": "Verify outputs at handoff points",
+        "7": "Each agent has specific role"
+      },
+      "integrationPoints": ["Agent boundaries", "Handoff points"],
+      "templateMerge": "Structure entire prompt as agent workflow, embed other patterns within agent tasks"
+    },
+    "4": {
+      "name": "Self-Consistency",
+      "role": "FOUNDATION",
+      "layersWith": {
+        "1": "Each approach uses CoT",
+        "2": "Verify consensus quality",
+        "6": "Generate approaches → Draft best synthesis"
+      },
+      "integrationPoints": ["After independent solutions", "During consensus analysis"],
+      "templateMerge": "Generate N approaches, embed other patterns within each approach"
+    },
+    "5": {
+      "name": "Multi-Objective Directional",
+      "role": "FOUNDATION",
+      "layersWith": {
+        "1": "CoT for trade-off analysis",
+        "4": "Multiple approaches for each objective",
+        "6": "Draft optimal trade-off balance"
+      },
+      "integrationPoints": ["Trade-off analysis phase", "Optimization phase"],
+      "templateMerge": "Structure around objectives, embed reasoning in trade-off analysis"
+    },
+    "6": {
+      "name": "Chain of Draft",
+      "role": "ENHANCEMENT",
+      "layersWith": {
+        "1": "CoT for each draft critique",
+        "2": "Verify final draft quality",
+        "8": "Reflexion drives draft improvements"
+      },
+      "integrationPoints": ["After draft generation", "During critique phase"],
+      "templateMerge": "Add draft cycles after main generation, before final output"
+    },
+    "7": {
+      "name": "Role-Based",
+      "role": "FOUNDATION",
+      "layersWith": {
+        "1": "Expert applies CoT reasoning",
+        "2": "Expert verifies own output",
+        "3": "Multiple expert roles in workflow",
+        "9": "Expert asks clarifying questions"
+      },
+      "integrationPoints": ["At prompt start", "Throughout all sections"],
+      "templateMerge": "Wrap entire prompt in role context, apply expertise to all sections"
+    },
+    "8": {
+      "name": "Reflexion",
+      "role": "ENHANCEMENT",
+      "layersWith": {
+        "1": "CoT generates → Reflect → Improve",
+        "6": "Reflexion drives draft iterations",
+        "10": "Reflexion as feedback mechanism"
+      },
+      "integrationPoints": ["After initial output", "During improvement cycles"],
+      "templateMerge": "Add reflection cycles after generation, before final output"
+    },
+    "9": {
+      "name": "Active Prompting",
+      "role": "ENHANCEMENT",
+      "layersWith": {
+        "1": "CoT identifies gaps → Ask questions",
+        "7": "Expert identifies what's unclear",
+        "13": "ReAct with dynamic questioning"
+      },
+      "integrationPoints": ["At analysis start", "When uncertainties detected"],
+      "templateMerge": "Add uncertainty detection and clarification questions at beginning"
+    },
+    "10": {
+      "name": "Iterative Refinement",
+      "role": "ENHANCEMENT | FORMATTER",
+      "layersWith": {
+        "1": "CoT in each iteration",
+        "2": "Verify convergence criteria",
+        "8": "Reflexion as refinement mechanism"
+      },
+      "integrationPoints": ["After each iteration", "At convergence check"],
+      "templateMerge": "Structure as iteration loop with stopping criteria"
+    },
+    "11": {
+      "name": "Recursive Self-Improvement",
+      "role": "ENHANCEMENT",
+      "layersWith": {
+        "1": "CoT at each recursion level",
+        "2": "Multi-perspective verification",
+        "8": "Reflexion at each level"
+      },
+      "integrationPoints": ["After each recursion level", "At quality threshold check"],
+      "templateMerge": "Add recursive improvement loop with multi-criteria evaluation"
+    },
+    "12": {
+      "name": "Task Decomposition",
+      "role": "FOUNDATION",
+      "layersWith": {
+        "1": "CoT for decomposition logic",
+        "3": "Agents handle decomposed tasks",
+        "13": "ReAct to discover sub-tasks iteratively"
+      },
+      "integrationPoints": ["During decomposition phase", "At integration phase"],
+      "templateMerge": "Structure entire prompt as hierarchical task breakdown"
+    },
+    "13": {
+      "name": "ReAct",
+      "role": "FOUNDATION",
+      "layersWith": {
+        "1": "CoT in thought phases",
+        "2": "Verify observations",
+        "9": "Active questions in thought phases"
+      },
+      "integrationPoints": ["In thought phases", "Between cycles"],
+      "templateMerge": "Structure entire prompt as Thought→Action→Observation cycles"
+    },
+    "14": {
+      "name": "Agile/Scrum",
+      "role": "FORMATTER",
+      "layersWith": {
+        "7": "Scrum Master/PO roles",
+        "12": "Story decomposition into tasks"
+      },
+      "integrationPoints": ["Ceremony structure", "Artifact generation"],
+      "templateMerge": "Wrap entire prompt in Agile ceremony format"
+    }
+  },
+  "combinationPatterns": {
+    "CoT_CoVe": {
+      "patterns": [1, 2],
+      "name": "Verified Reasoning",
+      "useCase": "Critical decisions needing step-by-step reasoning with validation",
+      "template": "## Reasoning\n{CoT steps}\n\n## Verification\n{CoVe checks}\n\n## Validated Solution\n{final output}"
+    },
+    "Role_CoT_CoVe": {
+      "patterns": [7, 1, 2],
+      "name": "Expert Verified Reasoning",
+      "useCase": "Domain expertise with rigorous validation",
+      "template": "## Role\n{expert role}\n\n## Expert Analysis\n{CoT steps}\n\n## Self-Verification\n{CoVe checks}\n\n## Expert Recommendation\n{validated output}"
+    },
+    "Decomposition_CoC": {
+      "patterns": [12, 3],
+      "name": "Specialized Task Workflow",
+      "useCase": "Complex projects needing breakdown and specialist assignment",
+      "template": "## Task Breakdown\n{decomposition}\n\n## Agent 1: {role}\nTask: {subtask}\n\n## Agent 2: {role}\nTask: {subtask}\n\n## Integration\n{combined result}"
+    },
+    "ReAct_CoVe": {
+      "patterns": [13, 2],
+      "name": "Verified Investigation",
+      "useCase": "Iterative exploration with validation at each step",
+      "template": "## Thought 1\n{reasoning}\n\n## Action 1\n{action}\n\n## Observation 1\n{result}\n\n## Verification\n{validation checks}\n\n## Thought 2\n{next reasoning}..."
+    },
+    "MultiObjective_SelfConsistency": {
+      "patterns": [5, 4],
+      "name": "Multi-Perspective Trade-off Analysis",
+      "useCase": "Complex decisions with competing objectives",
+      "template": "## Objectives\n{competing goals}\n\n## Approach 1\n{solution with trade-offs}\n\n## Approach 2\n{solution with trade-offs}\n\n## Approach 3\n{solution with trade-offs}\n\n## Consensus Analysis\n{best trade-off balance}"
+    }
+  },
+  "antiPatterns": {
+    "tooManyPatterns": {
+      "description": "More than 3 patterns makes prompt too complex",
+      "maxPatterns": 3
+    },
+    "incompatibleRoles": {
+      "description": "Can't have multiple FOUNDATION patterns",
+      "rule": "Only 1 FOUNDATION per prompt"
+    },
+    "noVerificationForCritical": {
+      "description": "Critical tasks must include verification",
+      "rule": "If quality requirement is CORRECTNESS or SECURITY, must include pattern 2 (CoVe)"
+    },
+    "roleWithoutExpertise": {
+      "description": "Role-based prompting needs specific domain context",
+      "rule": "Pattern 7 requires explicit domain and expertise level"
+    }
+  }
+}
