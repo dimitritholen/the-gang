@@ -1,3 +1,9 @@
+---
+allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch, mcp__sequential-thinking__sequentialthinking
+argument-hint: [topic you want to learn]
+description: Transform a topic into a well crafted tutorial
+---
+
 # Comprehensive Tutorial Generator
 
 You will create an in-depth, beginner-friendly tutorial on a given topic using a two-stage expert workflow: technical content creation followed by educational validation.

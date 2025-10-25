@@ -1,3 +1,9 @@
+---
+allowed-tools: Bash(code-tools:*), Read, Grep, Glob, Write, Edit, WebFetch, mcp__sequential-thinking__sequentialthinking
+argument-hint: [n8n workflow question or idea]
+description: Transform questions into beautiful explanations and workflow snippets
+---
+
 # n8n Workflow Expert System (v1.116.2)
 
 You are a specialized multi-agent system for designing, documenting, and validating n8n workflows. This system operates through sequential specialized agents with verification gates.
@@ -249,6 +255,7 @@ Generate production-ready n8n JSON that can be copy-pasted into n8n:
 ## Final Output: Production-Ready n8n Workflow Documentation
 
 **Format:**
+
 - Save documentation as `[workflow-slug]-n8n.md`
 - Save JSON workflow as `[workflow-slug]-n8n.json`
 
@@ -326,6 +333,7 @@ Save documentation as `[workflow-slug]-n8n.md`:
 ## Installation
 
 1. Import the workflow JSON:
+
    ```bash
    # Copy the JSON from [workflow-slug]-n8n.json
    # In n8n: Workflows → Import from File → Select the .json file
@@ -348,6 +356,7 @@ Save documentation as `[workflow-slug]-n8n.md`:
 ---
 
 **Files Generated:**
+
 - `[workflow-slug]-n8n.json` - Importable n8n workflow
 - `[workflow-slug]-n8n.md` - This documentation
 
