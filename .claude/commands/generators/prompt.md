@@ -6,110 +6,87 @@ description: Transform vague prompts into advanced prompt-engineered versions
 
 # Role
 
-You are a prompt engineering specialist. Transform the user's vague prompt into a well-crafted, advanced prompt using the best matching technique from available prompt engineering methods.
+You are a prompt engineering specialist. Transform the user's vague prompt into a well-crafted, advanced prompt using fast pattern matching.
 
 ## User's Prompt
 
 $ARGUMENTS
 
-## Task Decomposition
+## Fast Matching Flow
 
-First check if the path works for `./.claude/promptengineering/`.
+### Step 1: Initialize Pattern Library
+
+Check if the path works for `./.claude/promptengineering/`.
 If not, check if the path works for `~/.claude/promptengineering/`
 
 Save the path that works in $PE_PATH
 
-### Task 1: Load Technique Database
+Read $PE_PATH/patterns.json (contains all 14 techniques with pre-extracted patterns, templates, and trigger keywords)
 
-- Read $PE_PATH/prompts.json
-- Parse all available techniques with their metadata
-- Extract: id, technique name, description, whenToUse conditions, canCombineWith array, exampleFile path
-- Output: In-memory technique catalog for matching
+### Step 2: Keyword Matching
 
-### Task 2: Analyze User Intent with Chain-of-Thought
+Extract keywords from user's prompt (normalize to lowercase).
 
-For the incoming vague prompt, reason through:
+For each technique in patterns.json:
 
-Step 2.1: Problem classification
+- Count matching triggerKeywords
+- Calculate match score = (matching keywords / total user keywords) * 100
 
-- What type of problem? (debugging, design, architecture, implementation, decision-making)
-- What complexity level? (basic, intermediate, advanced, expert)
-- Key characteristics? (multi-step, needs validation, competing constraints, requires delegation)
+Select primary technique = highest match score
 
-  Step 2.2: Match to primary technique
+### Step 3: Complexity Detection
 
-- Compare user intent against each technique's "whenToUse" criteria
-- Score each technique for relevance (0-10)
-- Select highest-scoring technique as primary
-- Explain reasoning for selection
+Analyze user's prompt for complexity indicators:
 
-### Task 3: Evaluate Technique Combinations
+- "debug", "simple", "basic" → basic
+- "implement", "create", "build" → intermediate
+- "architecture", "design", "optimize" → advanced
+- "migrate", "refactor legacy", "full-stack", "real-time" → expert
 
-Analyze from multiple angles:
+Select complexity level for template application.
 
-Angle A: Complexity assessment
+### Step 4: Combination Check
 
-- Does the problem have multiple dimensions requiring different approaches?
-- Would combining techniques provide more comprehensive coverage?
+If match score <60% OR user prompt contains multiple distinct objectives:
 
-  Angle B: Compatibility check
+- Check primary technique's canCombineWith array
+- For compatible techniques, check if their triggerKeywords match user prompt
+- If secondary match >30%, use combination
+- Otherwise, use primary technique only
 
-- For primary technique, examine its "canCombineWith" array
-- For each compatible technique, evaluate if it addresses a missing aspect
+### Step 5: Apply Template
 
-  Angle C: Cost-benefit reasoning
+Using selected technique(s):
 
-- Would combination add significant value or just complexity?
-- Is the problem simple enough that primary technique suffices?
+- Retrieve template from patterns.json
+- Retrieve pattern description for detected complexity level
+- Substitute {placeholders} with user's specific context
+- Integrate pattern structure (phases, steps, validation as needed)
+- Preserve user's original intent and domain specifics
 
-  Decision: Select 1-2 techniques (avoid over-engineering)
-
-### Task 4: Load and Study Examples
-
-For each selected technique:
-
-- Read the "exampleFile" path
-- Analyze 10 examples provided
-- Identify difficulty levels (basic, intermediate, advanced, expert)
-- Choose 1-2 most relevant examples matching user's problem complexity
-- Extract structural patterns (phases, reasoning steps, output format)
-
-### Task 5: Generate Enhanced Prompt
-
-Using learned patterns:
-
-Component 5.1: Preserve original intent
-
-- Keep user's core objective intact
-- Maintain domain context and specifics
-
-  Component 5.2: Apply technique structure
-
-- Integrate reasoning phases from examples
-- Add explicit step-by-step breakdown
-- Include verification/validation steps if technique requires
-
-  Component 5.3: Specify output format
-
-- Define expected deliverable structure
-- Add constraints and success criteria
-- Ensure completeness
-
-### Task 6: Present and Request Confirmation
+### Step 6: Present Enhanced Prompt
 
 Output format:
-ANALYSIS SUMMARY:
 
-- Problem type: [X]
-- Complexity: [Y]
-- Selected techniques: [Technique 1] + [Technique 2 if applicable]
-- Reasoning: [1-2 sentences why these techniques]
+**ANALYSIS SUMMARY**
 
-  ENHANCED PROMPT:
-  [Full transformed prompt with technique structure]
+- Primary technique: [Technique name]
+- Complexity: [basic/intermediate/advanced/expert]
+- Match score: [X]%
+- Secondary technique: [If applicable]
+- Pattern: [Pattern description]
 
-  END RESULT:
-  [What this enhanced prompt will accomplish better than original]
+**ENHANCED PROMPT**
+
+[Full transformed prompt with applied template and pattern structure]
+
+**IMPROVEMENT**
+
+This enhanced prompt provides:
+
+- [Benefit 1: e.g., explicit reasoning steps]
+- [Benefit 2: e.g., validation checkpoints]
+- [Benefit 3: e.g., structured output format]
 
 ## FINALLY
 

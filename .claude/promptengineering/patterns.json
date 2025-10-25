@@ -1,0 +1,360 @@
+{
+  "1": {
+    "id": 1,
+    "technique": "Chain of Thought",
+    "description": "Step-by-step reasoning through complex problems by breaking them into explicit sequential steps before providing solutions.",
+    "whenToUse": [
+      "Complex problems needing step-by-step reasoning",
+      "Debugging and troubleshooting issues",
+      "Optimization requiring analytical reasoning",
+      "Design decisions with multiple considerations"
+    ],
+    "canCombineWith": [2, 3, 5, 6],
+    "triggerKeywords": [
+      "debug", "analyze", "troubleshoot", "step-by-step", "reason", "logic",
+      "trace", "investigate", "diagnose", "optimize", "performance", "bottleneck",
+      "design decision", "architecture", "solve", "complex problem", "break down",
+      "sequential", "methodology", "systematic", "structured thinking", "analytical",
+      "root cause", "why", "how does"
+    ],
+    "patterns": {
+      "basic": "Simple sequential steps with clear progression (Step 1 → Step 2 → Step 3)",
+      "intermediate": "Multi-phase reasoning with conditional branches and sub-steps",
+      "advanced": "Nested reasoning with backtracking, validation loops, and cross-references",
+      "expert": "Multi-dimensional analysis with parallel reasoning paths and meta-analysis"
+    },
+    "template": "## Problem Analysis\n\n{problem_breakdown}\n\n## Step-by-Step Reasoning\n\n{reasoning_steps}\n\n## Solution\n\n{final_solution}\n\n## Validation\n\n{verification_steps}"
+  },
+  "2": {
+    "id": 2,
+    "technique": "Chain of Verification",
+    "description": "Generate solution, verify through targeted questions, revise based on verification, then produce validated output.",
+    "whenToUse": [
+      "Solutions need validation and self-correction",
+      "Security reviews and audits",
+      "Critical implementations with high risk",
+      "When accuracy is paramount"
+    ],
+    "canCombineWith": [1, 3, 4, 7],
+    "triggerKeywords": [
+      "verify", "validate", "audit", "security", "critical", "accuracy",
+      "review", "check", "correctness", "quality assurance", "test",
+      "self-correction", "ensure", "guarantee", "compliance", "standard",
+      "vulnerable", "exploit", "risk", "high-stakes", "production-critical",
+      "safety", "reliability", "robustness", "edge cases"
+    ],
+    "patterns": {
+      "basic": "Generate → Verify (3-5 questions) → Revise → Output",
+      "intermediate": "Generate → Multi-perspective verification → Revise → Re-verify → Output",
+      "advanced": "Generate → Verification matrix → Iterative revision → Validation suite → Output",
+      "expert": "Generate → Multi-layer verification (security/performance/correctness) → Recursive revision → Final validation → Production output"
+    },
+    "template": "## Initial Solution\n\n{initial_approach}\n\n## Verification Questions\n\n{verification_checklist}\n\n## Identified Issues\n\n{found_problems}\n\n## Revised Solution\n\n{corrected_output}\n\n## Final Validation\n\n{validation_confirmation}"
+  },
+  "3": {
+    "id": 3,
+    "technique": "Chain of Command",
+    "description": "Multi-stage workflows with specialized agents, each handling specific tasks and passing results to the next agent.",
+    "whenToUse": [
+      "Complex pipelines requiring specialized expertise",
+      "Code review processes with multiple perspectives",
+      "Sequential delegation of tasks",
+      "When different skills needed at different stages"
+    ],
+    "canCombineWith": [1, 2, 4, 10],
+    "triggerKeywords": [
+      "pipeline", "workflow", "multi-stage", "delegation", "specialized",
+      "code review", "expertise", "handoff", "sequential", "agent",
+      "orchestration", "coordinator", "specialist", "phases", "stages",
+      "different perspectives", "diverse skills", "team", "collaboration",
+      "pass results", "chain", "assembly line", "process"
+    ],
+    "patterns": {
+      "basic": "Agent A (task) → Agent B (task) → Agent C (task) → Final output",
+      "intermediate": "Coordinator → Specialist 1 → Specialist 2 → Reviewer → Final deliverable",
+      "advanced": "Orchestrator → Parallel specialists → Integrator → Validator → Quality gate → Output",
+      "expert": "Meta-coordinator → Phase 1 (multiple agents) → Phase 2 (different agents) → Cross-validation → Final synthesis"
+    },
+    "template": "## Workflow Design\n\n{agent_sequence}\n\n## Agent 1: {agent1_role}\nTask: {agent1_task}\nOutput: {agent1_output}\n\n## Agent 2: {agent2_role}\nTask: {agent2_task}\nInput: {agent2_input}\nOutput: {agent2_output}\n\n## Integration\n\n{combined_result}\n\n## Final Deliverable\n\n{final_output}"
+  },
+  "4": {
+    "id": 4,
+    "technique": "Self-Consistency",
+    "description": "Generate multiple independent solutions using different approaches, then identify consensus across solutions.",
+    "whenToUse": [
+      "Critical decisions needing multiple perspectives",
+      "When robustness is important",
+      "Architectural decisions with trade-offs",
+      "High-stakes choices requiring validation"
+    ],
+    "canCombineWith": [1, 2, 3, 6],
+    "triggerKeywords": [
+      "multiple approaches", "different perspectives", "alternatives", "consensus",
+      "robustness", "critical decision", "high-stakes", "architectural",
+      "trade-offs", "compare", "options", "evaluate", "choose",
+      "independent solutions", "diverse strategies", "convergence", "agreement",
+      "validate through", "multiple methods", "cross-check", "redundancy"
+    ],
+    "patterns": {
+      "basic": "Approach 1 → Approach 2 → Approach 3 → Identify common elements",
+      "intermediate": "Method A (rationale) → Method B (rationale) → Method C (rationale) → Consensus analysis → Best choice",
+      "advanced": "Independent solution 1 → Independent solution 2 → Independent solution 3 → Comparative analysis → Synthesis of best elements",
+      "expert": "Multi-dimensional approaches → Independent evaluation → Consensus scoring → Trade-off analysis → Optimal synthesis"
+    },
+    "template": "## Approach 1: {approach1_name}\n\n{solution1}\n\nRationale: {rationale1}\n\n## Approach 2: {approach2_name}\n\n{solution2}\n\nRationale: {rationale2}\n\n## Approach 3: {approach3_name}\n\n{solution3}\n\nRationale: {rationale3}\n\n## Consensus Analysis\n\n{common_elements}\n{differences}\n\n## Final Recommendation\n\n{synthesized_solution}"
+  },
+  "5": {
+    "id": 5,
+    "technique": "Multi-Objective Directional Prompting",
+    "description": "Optimize for multiple competing objectives with explicit prioritization and trade-off directions.",
+    "whenToUse": [
+      "Multiple constraints requiring balance",
+      "Stakeholder needs with competing priorities",
+      "Complex decisions with trade-offs",
+      "Need to optimize multiple dimensions simultaneously"
+    ],
+    "canCombineWith": [1, 4, 6, 8],
+    "triggerKeywords": [
+      "balance", "trade-offs", "competing", "priorities", "constraints",
+      "stakeholder", "optimize", "multiple objectives", "conflicting",
+      "requirements", "satisfy", "compromise", "pareto", "multi-dimensional",
+      "business vs technical", "cost vs quality", "speed vs accuracy",
+      "scale vs simplicity", "performance vs maintainability", "tension"
+    ],
+    "patterns": {
+      "basic": "Objective 1 (priority) + Objective 2 (priority) → Balanced solution",
+      "intermediate": "Primary objectives (weighted) + Secondary objectives → Trade-off analysis → Optimized balance",
+      "advanced": "Multi-dimensional optimization matrix → Priority scoring → Constraint satisfaction → Optimal trade-off selection",
+      "expert": "Stakeholder mapping → Objective weighting → Multi-criteria optimization → Pareto frontier analysis → Directional tuning → Final balanced solution"
+    },
+    "template": "## Objectives\n\n### Primary\n{primary_objectives}\n\n### Secondary\n{secondary_objectives}\n\n## Constraints\n\n{constraints}\n\n## Trade-off Analysis\n\n{tradeoff_evaluation}\n\n## Optimized Solution\n\n{balanced_approach}\n\n## Prioritization Rationale\n\n{priority_justification}"
+  },
+  "6": {
+    "id": 6,
+    "technique": "Chain of Draft",
+    "description": "Iterative refinement through multiple drafts, each incorporating critiques from previous versions.",
+    "whenToUse": [
+      "Output needs iterative refinement",
+      "Writing tasks requiring polish",
+      "API or component design needing evolution",
+      "Documentation and messaging work"
+    ],
+    "canCombineWith": [1, 2, 4, 5],
+    "triggerKeywords": [
+      "refine", "polish", "iterate", "draft", "improve", "revise",
+      "writing", "documentation", "messaging", "API design", "component design",
+      "evolution", "progressive", "incremental", "enhance", "upgrade",
+      "quality improvement", "readability", "clarity", "user-facing",
+      "communication", "presentation", "professional"
+    ],
+    "patterns": {
+      "basic": "Draft 1 → Critique → Draft 2 → Final",
+      "intermediate": "Draft 1 → Multi-perspective critique → Draft 2 → Refinement critique → Draft 3",
+      "advanced": "Initial draft → Critique (structure, clarity, completeness) → Draft 2 → Critique (style, tone, examples) → Draft 3 → Polish",
+      "expert": "Version 0 → Critique matrix → Version 1 → Stakeholder feedback → Version 2 → Expert review → Version 3 → Production polish"
+    },
+    "template": "## Draft 1\n\n{initial_draft}\n\n## Critique\n\n{identified_weaknesses}\n\n## Draft 2\n\n{improved_version}\n\n## Refinement Critique\n\n{additional_improvements}\n\n## Final Version\n\n{polished_output}"
+  },
+  "7": {
+    "id": 7,
+    "technique": "Role-Based Prompting",
+    "description": "Assign specific expert roles (e.g., senior engineer, security expert) to guide response style and depth.",
+    "whenToUse": [
+      "Need expertise from specific domain",
+      "Different perspectives on same problem",
+      "Mentoring or educational contexts",
+      "When role affects how task is approached"
+    ],
+    "canCombineWith": [1, 2, 3, 8, 9, 10],
+    "triggerKeywords": [
+      "expert", "senior", "specialist", "perspective", "role",
+      "as a", "you are", "act as", "domain knowledge", "professional",
+      "experienced", "mentor", "advisor", "consultant", "architect",
+      "security expert", "performance engineer", "DevOps", "technical lead",
+      "staff engineer", "principal", "subject matter expert"
+    ],
+    "patterns": {
+      "basic": "You are a [role]. Approach this [task] from that perspective.",
+      "intermediate": "You are a [senior role] with [X years experience]. Apply [specific expertise] to [problem].",
+      "advanced": "You are a [role] who specializes in [domain]. Consider [constraints] and apply [methodologies] to [complex task].",
+      "expert": "You are a [distinguished role] with expertise in [domains]. Apply [frameworks], consider [stakeholders], balance [trade-offs], and deliver [specific output format]."
+    },
+    "template": "## Role Definition\n\nYou are a {role_title} with expertise in {domain_areas}.\n\n## Context\n\n{problem_context}\n\n## Approach\n\nApply your expertise to: {task_description}\n\n## Considerations\n\n{expert_considerations}\n\n## Deliverable\n\n{expected_output}"
+  },
+  "8": {
+    "id": 8,
+    "technique": "Reflexion",
+    "description": "Generate output, reflect on quality and issues, iteratively improve through self-critique cycles.",
+    "whenToUse": [
+      "Need self-correction and improvement",
+      "Quality refinement through introspection",
+      "Learning from mistakes in approach",
+      "When multiple rounds of improvement needed"
+    ],
+    "canCombineWith": [1, 2, 5, 6, 10],
+    "triggerKeywords": [
+      "reflect", "self-critique", "improve", "introspection", "quality",
+      "mistakes", "learn from", "refine", "self-correct", "meta-analysis",
+      "what went wrong", "how to improve", "lessons learned", "post-mortem",
+      "iterative improvement", "self-assessment", "retrospective", "evaluate own work"
+    ],
+    "patterns": {
+      "basic": "Generate → Reflect (what's wrong?) → Improve",
+      "intermediate": "Generate → Reflect (quality issues) → Revise → Reflect (remaining issues) → Final",
+      "advanced": "Output → Multi-dimensional reflection → Systematic improvement → Re-reflect → Iterate until quality threshold",
+      "expert": "Generation → Self-critique (correctness, efficiency, maintainability) → Targeted improvements → Meta-reflection → Recursive refinement → Convergence"
+    },
+    "template": "## Initial Output\n\n{first_attempt}\n\n## Self-Reflection\n\n{identified_issues}\n{quality_assessment}\n\n## Improved Output\n\n{revised_version}\n\n## Meta-Reflection\n\n{remaining_issues}\n{lessons_learned}\n\n## Final Output\n\n{refined_result}"
+  },
+  "9": {
+    "id": 9,
+    "technique": "Active Prompting",
+    "description": "Dynamically adapt follow-up questions and prompts based on uncertainty, context, and feedback.",
+    "whenToUse": [
+      "Requirements unclear or evolving",
+      "Need to gather context iteratively",
+      "Uncertainty about approach or constraints",
+      "Interactive problem-solving required"
+    ],
+    "canCombineWith": [1, 2, 7, 10, 14],
+    "triggerKeywords": [
+      "unclear", "uncertain", "need more information", "context", "clarify",
+      "interactive", "evolving", "gather requirements", "discover", "explore",
+      "missing information", "ambiguous", "incomplete", "what if", "depends on",
+      "follow-up", "adaptive", "dynamic", "responsive", "conversational"
+    ],
+    "patterns": {
+      "basic": "Initial understanding → Identify gaps → Ask clarifying questions → Proceed",
+      "intermediate": "Parse request → Identify uncertainties → Confidence-based follow-ups → Gather context → Adapt approach",
+      "advanced": "Initial analysis → Uncertainty quantification → Strategic question generation → Context building → Iterative refinement → Final solution",
+      "expert": "Multi-level parsing → Ambiguity detection → Prioritized clarification → Dynamic context assembly → Adaptive strategy → Validation loops → Optimized output"
+    },
+    "template": "## Initial Understanding\n\n{current_interpretation}\n\n## Identified Uncertainties\n\n{gaps_and_ambiguities}\n\n## Clarifying Questions\n\n{strategic_questions}\n\n## Refined Approach\n\n{adapted_strategy}\n\n## Solution\n\n{context_aware_output}"
+  },
+  "10": {
+    "id": 10,
+    "technique": "Iterative Refinement",
+    "description": "Progressive improvement through multiple rounds of feedback, analysis, and prompt adjustment.",
+    "whenToUse": [
+      "Converging on optimal solution incrementally",
+      "Quality improvement through iteration",
+      "Balancing multiple constraints over rounds",
+      "When stopping criteria define completion"
+    ],
+    "canCombineWith": [1, 2, 6, 8, 11],
+    "triggerKeywords": [
+      "iterative", "incremental", "progressive", "converge", "refine",
+      "rounds", "cycles", "feedback", "improve over time", "evolve",
+      "step-by-step improvement", "gradual", "optimization", "tuning",
+      "until", "stopping criteria", "threshold", "good enough", "diminishing returns"
+    ],
+    "patterns": {
+      "basic": "Version 1 → Feedback → Version 2 → Done",
+      "intermediate": "V1 → Analysis → V2 → Validation → V3 → Stopping criteria check",
+      "advanced": "Iteration 0 → Multi-metric feedback → Iteration 1 → Convergence check → Iterate until thresholds met",
+      "expert": "Baseline → Systematic feedback (multiple dimensions) → Targeted refinement → Multi-criteria evaluation → Adaptive iteration → Convergence validation → Optimal output"
+    },
+    "template": "## Version 1\n\n{initial_version}\n\n## Feedback Analysis\n\n{improvement_areas}\n\n## Version 2\n\n{refined_version}\n\n## Convergence Check\n\n{quality_metrics}\n{stopping_criteria}\n\n## Final Version\n\n{optimized_output}"
+  },
+  "11": {
+    "id": 11,
+    "technique": "Recursive Self-Improvement",
+    "description": "AI critiques its own output from multiple perspectives and recursively revises until quality thresholds met.",
+    "whenToUse": [
+      "Multiple evaluation criteria needed",
+      "Quality must meet specific thresholds",
+      "Need diverse perspectives on output",
+      "Recursive improvement until convergence"
+    ],
+    "canCombineWith": [1, 2, 6, 8, 10],
+    "triggerKeywords": [
+      "recursive", "self-improvement", "multi-perspective", "quality threshold",
+      "convergence", "criteria", "evaluation", "diverse perspectives", "score",
+      "until", "meet standards", "production-ready", "comprehensive review",
+      "multiple dimensions", "holistic", "all aspects", "exhaustive"
+    ],
+    "patterns": {
+      "basic": "Level 0 → Self-critique → Level 1 → Score → If <threshold, recurse",
+      "intermediate": "Generation N → Multi-criteria evaluation → If any <threshold → Generation N+1 → Repeat",
+      "advanced": "Recursion level N → Perspective 1 critique → Perspective 2 critique → Improvements → Level N+1 → Meta-validation → Continue or stop",
+      "expert": "Iteration N → Multi-dimensional scoring (correctness, performance, maintainability, etc.) → Identify <threshold dimensions → Targeted improvements → Iteration N+1 → Cross-dimension validation → Recurse until all >=threshold"
+    },
+    "template": "## Level 0: Initial Generation\n\n{baseline_output}\n\n## Self-Critique (Perspective: {perspective1})\n\n{critique1}\nScore: {score1}/10\n\n## Level 1: Improved Version\n\n{improved_output}\n\n## Self-Critique (Perspective: {perspective2})\n\n{critique2}\nScore: {score2}/10\n\n## Convergence Check\n\n{all_scores}\n{threshold_status}\n\n## Final Output\n\n{production_ready}"
+  },
+  "12": {
+    "id": 12,
+    "technique": "Task Decomposition",
+    "description": "Break complex problems into simpler, manageable sub-tasks that can be solved independently and composed.",
+    "whenToUse": [
+      "Complex multi-step problems",
+      "Large features needing breakdown",
+      "When subtasks can be parallelized",
+      "Hierarchical problem structure"
+    ],
+    "canCombineWith": [1, 3, 13, 14],
+    "triggerKeywords": [
+      "break down", "decompose", "sub-tasks", "components", "modules",
+      "phases", "stages", "hierarchical", "complex", "large feature",
+      "independent", "parallel", "divide and conquer", "modular",
+      "step-by-step", "incremental", "piece by piece", "granular"
+    ],
+    "patterns": {
+      "basic": "Task → Sub-task 1, Sub-task 2, Sub-task 3 → Integrate",
+      "intermediate": "Phase 1: [Tasks] → Phase 2: [Tasks] → Phase 3: [Tasks] → Integration",
+      "advanced": "Layer 1: [Modules] → Layer 2: [Modules] → Cross-layer integration → Testing strategy",
+      "expert": "Multi-level hierarchy: Level 1 (Phases) → Level 2 (Tasks) → Level 3 (Sub-tasks) → Dependency graph → Parallel execution plan → Sequential integration → Validation"
+    },
+    "template": "## Problem Decomposition\n\n{breakdown_structure}\n\n## Phase 1: {phase1_name}\n\nTask 1.1: {task_description}\nTask 1.2: {task_description}\n\n## Phase 2: {phase2_name}\n\nTask 2.1: {task_description}\nTask 2.2: {task_description}\n\n## Integration Strategy\n\n{composition_approach}\n\n## Execution Plan\n\n{implementation_order}"
+  },
+  "13": {
+    "id": 13,
+    "technique": "ReAct (Reasoning + Acting)",
+    "description": "Interleave reasoning traces with task-specific actions in cycles: Thought → Action → Observation → repeat.",
+    "whenToUse": [
+      "Need to gather information iteratively",
+      "Actions depend on observations",
+      "Debugging and investigation workflows",
+      "When reasoning must adapt to findings"
+    ],
+    "canCombineWith": [1, 9, 12],
+    "triggerKeywords": [
+      "investigate", "explore", "search", "find", "discover", "gather",
+      "iterative", "adaptive", "observation", "action", "experiment",
+      "try", "test", "check", "inspect", "probe", "research",
+      "depends on", "based on results", "if-then", "conditional"
+    ],
+    "patterns": {
+      "basic": "Thought 1 → Action 1 → Observation 1 → Thought 2 → Action 2 → Final answer",
+      "intermediate": "Thought → Action → Observation → Analysis → Next thought → Next action → Repeat → Conclusion",
+      "advanced": "Investigation cycle: Hypothesis → Test action → Results → Refine hypothesis → New action → Iterate → Synthesis",
+      "expert": "Multi-cycle reasoning: Thought N → Strategic action → Observation → Meta-analysis → Adapted thought N+1 → Targeted action → Continue until goal achieved → Comprehensive conclusion"
+    },
+    "template": "## Thought 1\n\n{reasoning1}\n\n## Action 1\n\n{action1}\n\n## Observation 1\n\n{result1}\n\n## Thought 2\n\n{reasoning2}\n\n## Action 2\n\n{action2}\n\n## Observation 2\n\n{result2}\n\n## Final Answer\n\n{conclusion}"
+  },
+  "14": {
+    "id": 14,
+    "technique": "Agile/Scrum Prompts",
+    "description": "Specialized prompts for Agile ceremonies including sprint planning, standups, retrospectives, and backlog refinement.",
+    "whenToUse": [
+      "Sprint planning and estimation",
+      "Backlog refinement and story writing",
+      "Daily standup preparation",
+      "Retrospective facilitation"
+    ],
+    "canCombineWith": [7, 9, 12],
+    "triggerKeywords": [
+      "sprint", "scrum", "agile", "standup", "retrospective", "backlog",
+      "user story", "planning", "estimation", "velocity", "capacity",
+      "refinement", "grooming", "ceremony", "epic", "story points",
+      "acceptance criteria", "definition of done", "blocker", "dependency",
+      "team", "iteration", "increment"
+    ],
+    "patterns": {
+      "basic": "Role-based prompt for specific Agile ceremony with structured output",
+      "intermediate": "Ceremony context → Participant roles → Agenda → Structured facilitation → Action items",
+      "advanced": "Pre-ceremony preparation → Facilitation guide → Time-boxed activities → Artifact generation → Follow-up tasks",
+      "expert": "Context gathering → Stakeholder analysis → Customized ceremony flow → Interactive facilitation → Metric tracking → Continuous improvement"
+    },
+    "template": "## Ceremony: {ceremony_name}\n\n## Role\n\nYou are a {role} facilitating {ceremony}.\n\n## Context\n\n{team_context}\n{sprint_context}\n\n## Agenda\n\n{structured_activities}\n\n## Expected Outputs\n\n{deliverables}\n\n## Facilitation Guide\n\n{step_by_step_process}"
+  }
+}
